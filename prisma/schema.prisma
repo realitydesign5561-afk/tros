@@ -19,14 +19,58 @@ model User {
 }
 
 model Project {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  status      String   @default("DRAFT")
-  ownerId     String
-  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(cuid())
+  name            String
+  description     String?
+  niche           String?
+  pages           String?
+  brandColors     String?
+  status          String   @default("DRAFT")
+  source          String   @default("GENERATED")
+  hasLogin        Boolean  @default(false)
+  generateSystem  Boolean  @default(false)
+  prompt          String?
+  blueprint       String?
+  repositoryUrl   String?
+  deploymentUrl   String?
+  domain          String?
+  health          String   @default("UNKNOWN")
+  ownerId         String
+  owner           User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  managementLogs  ManagementLog[]
+  deployments     DeploymentSnapshot[]
+  domains         DomainBinding[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ManagementLog {
+  id        String   @id @default(cuid())
+  type      String
+  title     String
+  details   String?
+  amount    Int?
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model DeploymentSnapshot {
+  id         String   @id @default(cuid())
+  projectId  String
+  status     String
+  url        String?
+  checkedAt  DateTime @default(now())
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model DomainBinding {
+  id         String   @id @default(cuid())
+  projectId  String
+  domain     String
+  status     String   @default("PENDING")
+  createdAt  DateTime @default(now())
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 model AnalyticsEvent {
@@ -42,6 +86,14 @@ model ApiKey {
   provider  String
   label     String
   value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProviderConnection {
+  id        String   @id @default(cuid())
+  provider  String   @unique
+  connector String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

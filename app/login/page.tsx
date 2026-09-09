@@ -9,7 +9,6 @@ export default function LoginPage() {
   const router = useRouter(); const [email, setEmail] = useState('admin@reality.com'); const [password, setPassword] = useState('admin123'); const [error, setError] = useState(''); const [loading, setLoading] = useState(false)
   async function submit(event: React.FormEvent) {
     event.preventDefault()
-    if (event.nativeEvent instanceof SubmitEvent && event.nativeEvent.submitter === null) return
     setLoading(true)
     setError('')
     const result = await signIn('credentials', {
