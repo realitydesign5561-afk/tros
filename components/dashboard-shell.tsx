@@ -8,7 +8,7 @@ import { Activity, Bot, Boxes, ChevronRight, CircleUserRound, Database, Gauge, G
 const navigation = [
   { label: 'Dashboard', href: '/', icon: Gauge },
   { label: 'Website Factory', href: '/website-factory', icon: Globe2 },
-  { label: 'Workflow Builder', href: '/workflow-builder', icon: Workflow },
+  { label: 'Workflow Builder', href: '/workflows', icon: Workflow },
   { label: 'Social OS', href: '/social-os', icon: Megaphone },
   { label: 'Course Studio', href: '/course-studio', icon: Boxes },
   { label: 'YouTube OS', href: '/youtube-os', icon: Video },

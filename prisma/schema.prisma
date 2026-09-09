@@ -16,6 +16,7 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   projects     Project[]
+  workflows    Workflow[]
 }
 
 model Project {
@@ -96,4 +97,41 @@ model ProviderConnection {
   connector String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Workflow {
+  id                    String   @id @default(cuid())
+  name                  String
+  template              String?
+  graph                 String
+  status                String   @default("DRAFT")
+  activepiecesId        String?
+  activepiecesStatus    String?
+  ownerId               String
+  owner                 User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  runs                  WorkflowRun[]
+  alerts                WorkflowAlert[]
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model WorkflowRun {
+  id          String   @id @default(cuid())
+  workflowId  String
+  status      String
+  externalId  String?
+  logs        String?
+  startedAt   DateTime @default(now())
+  finishedAt  DateTime?
+  workflow    Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+}
+
+model WorkflowAlert {
+  id          String   @id @default(cuid())
+  workflowId  String
+  severity    String   @default("ERROR")
+  message     String
+  acknowledged Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  workflow    Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
 }
