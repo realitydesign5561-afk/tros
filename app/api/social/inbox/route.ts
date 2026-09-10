@@ -15,6 +15,6 @@ export async function POST(request: Request) {
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const body = await request.json()
-  const item = await prisma.socialInbox.create({ data: { platform: body.platform, authorId: body.authorId || 'unknown', authorName: body.authorName || 'Unknown', message: body.message } })
+  const item = await prisma.socialInbox.create({ data: { ownerId: session.user.id, platform: body.platform, sender: body.authorName || body.authorId || 'Unknown', message: body.message } })
   return NextResponse.json(item)
 }

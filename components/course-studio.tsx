@@ -1,0 +1,22 @@
+'use client'
+
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { ArrowRight, BookOpen, CheckCircle2, Clock3, Plus, Sparkles } from 'lucide-react'
+
+type Course = { id: string; title: string; topic: string; description?: string; status: string; modules: { id: string; title: string; lessons: { id: string; title: string }[] }[] }
+
+export function CourseStudio({ createMode = false }: { createMode?: boolean }) {
+  const [courses, setCourses] = useState<Course[]>([])
+  const [topic, setTopic] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [notice, setNotice] = useState('')
+  useEffect(() => { fetch('/api/courses').then((res) => res.ok ? res.json() : []).then(setCourses) }, [])
+  async function createCourse(event: React.FormEvent) { event.preventDefault(); if (!topic.trim()) return; setLoading(true); setNotice('Generating your course outline…'); const res = await fetch('/api/courses', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic }) }); const data = await res.json(); setLoading(false); if (!res.ok) return setNotice(data.error ?? 'Unable to create course'); setCourses((current) => [data, ...current]); setTopic(''); setNotice('Course outline ready.'); }
+  return <div className="space-y-8">
+    <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end"><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Course studio</p><h2 className="mt-2 text-3xl font-semibold tracking-tight">Build knowledge that ships.</h2><p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">Generate a structured course, turn lessons into faceless videos, and track learner progress from one calm workspace.</p></div>{!createMode && <Link href="/courses/create" className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"><Plus className="size-4" />New course</Link>}</div>
+    {createMode && <form onSubmit={createCourse} className="rounded-xl border border-border bg-card p-6"><div className="flex items-center gap-2 text-sm font-semibold"><Sparkles className="size-4 text-primary" />AI course generator</div><div className="mt-5 flex flex-col gap-3 sm:flex-row"><input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g. Content systems for independent consultants" className="min-h-11 flex-1 rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring" /><button disabled={loading} className="rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground disabled:opacity-60">{loading ? 'Generating…' : 'Generate outline'}</button></div>{notice && <p className="mt-3 text-xs text-muted-foreground">{notice}</p>}</form>}
+    <div className="grid gap-4 md:grid-cols-2">{courses.map((course) => <Link key={course.id} href={`/courses/${course.id}`} className="group rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/50"><div className="flex items-start justify-between"><div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary"><BookOpen className="size-5" /></div><span className="rounded-full bg-accent px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{course.status}</span></div><h3 className="mt-5 font-semibold">{course.title}</h3><p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">{course.description}</p><div className="mt-5 flex items-center justify-between text-xs text-muted-foreground"><span>{course.modules.length} modules</span><span className="flex items-center gap-1 group-hover:text-foreground">Open studio <ArrowRight className="size-3.5" /></span></div></Link>)}</div>
+    {!courses.length && !createMode && <div className="rounded-xl border border-dashed border-border p-12 text-center"><Clock3 className="mx-auto size-7 text-muted-foreground" /><p className="mt-3 text-sm font-medium">No courses yet</p><p className="mt-1 text-sm text-muted-foreground">Start with a topic and let the studio shape the curriculum.</p></div>}
+  </div>
+}

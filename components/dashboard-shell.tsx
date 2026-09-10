@@ -10,7 +10,7 @@ const navigation = [
   { label: 'Website Factory', href: '/website-factory', icon: Globe2 },
   { label: 'Workflow Builder', href: '/workflows', icon: Workflow },
   { label: 'Social OS', href: '/social/calendar', icon: Megaphone },
-  { label: 'Course Studio', href: '/course-studio', icon: Boxes },
+  { label: 'Course Studio', href: '/courses', icon: Boxes },
   { label: 'YouTube OS', href: '/youtube-os', icon: Video },
   { label: 'AI Designer', href: '/ai-designer', icon: Sparkles },
   { label: 'Lead Gen', href: '/lead-gen', icon: Activity },

@@ -17,6 +17,10 @@ model User {
   updatedAt    DateTime @updatedAt
   projects     Project[]
   workflows    Workflow[]
+  courses      Course[]
+  socialPosts  SocialPost[]
+  socialSessions SocialSession[]
+  socialInbox SocialInbox[]
 }
 
 model Project {
@@ -134,4 +138,141 @@ model WorkflowAlert {
   acknowledged Boolean  @default(false)
   createdAt   DateTime @default(now())
   workflow    Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+}
+
+model Course {
+  id          String         @id @default(cuid())
+  title       String
+  topic       String
+  description String?
+  status      String         @default("DRAFT")
+  ownerId     String
+  owner       User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  modules     CourseModule[]
+  enrollments Enrollment[]
+  payments    PaymentLink[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model CourseModule {
+  id        String   @id @default(cuid())
+  title     String
+  position  Int
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons   Lesson[]
+}
+
+model Lesson {
+  id          String       @id @default(cuid())
+  title       String
+  position    Int
+  youtubeUrl  String?
+  script      String?
+  status      String       @default("DRAFT")
+  moduleId    String
+  module      CourseModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  videos      Video[]
+  progresses  Progress[]
+  quiz        Quiz?
+  assignment  Assignment?
+}
+
+model Quiz {
+  id       String @id @default(cuid())
+  prompt   String
+  answer   String
+  lessonId String @unique
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+}
+
+model Assignment {
+  id       String @id @default(cuid())
+  prompt   String
+  lessonId String @unique
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+}
+
+model Video {
+  id        String   @id @default(cuid())
+  provider  String
+  status    String   @default("PENDING")
+  externalId String?
+  url       String?
+  lessonId  String
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Enrollment {
+  id        String     @id @default(cuid())
+  email     String
+  courseId  String
+  course    Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progresses Progress[]
+  createdAt DateTime   @default(now())
+  @@unique([email, courseId])
+}
+
+model Progress {
+  id           String     @id @default(cuid())
+  completed    Boolean    @default(false)
+  enrollmentId String
+  lessonId     String
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  lesson       Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  @@unique([enrollmentId, lessonId])
+}
+
+model PaymentLink {
+  id         String   @id @default(cuid())
+  provider   String
+  currency   String
+  amount     Int
+  status     String   @default("PENDING")
+  url        String?
+  externalId String?
+  courseId   String
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+}
+
+model SocialSession {
+  id String @id @default(cuid())
+  platform String
+  status String @default("ACTIVE")
+  storageState String
+  accountId String?
+  accountName String?
+  lastCheckedAt DateTime @default(now())
+  ownerId String
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  @@unique([ownerId, platform])
+}
+
+model SocialPost {
+  id String @id @default(cuid())
+  platform String
+  caption String
+  hashtags String?
+  scheduledAt DateTime?
+  publishedAt DateTime?
+  status String @default("DRAFT")
+  ownerId String
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SocialInbox {
+  id String @id @default(cuid())
+  platform String
+  sender String
+  message String
+  reply String?
+  status String @default("OPEN")
+  ownerId String
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 }

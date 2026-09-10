@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { CalendarDays, CheckCircle2, ChevronRight, Inbox, Instagram, Linkedin, MessageCircle, Plus, Send, Sparkles, BarChart3 } from 'lucide-react'
+import { CalendarDays, CheckCircle2, ChevronRight, Inbox, MessageCircle, Plus, Send, Sparkles, BarChart3 } from 'lucide-react'
 
 type Post = { id: string; platform: string; caption: string; hashtags: string | null; scheduledAt: string | null; status: string }
 type Session = { platform: string; status: string; accountName: string | null }
