@@ -21,6 +21,7 @@ model User {
   socialPosts  SocialPost[]
   socialSessions SocialSession[]
   socialInbox SocialInbox[]
+  youtubeVideos YouTubeVideo[]
 }
 
 model Project {
@@ -274,5 +275,38 @@ model SocialInbox {
   status String @default("OPEN")
   ownerId String
   owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model YouTubeVideo {
+  id            String   @id @default(cuid())
+  title         String
+  topic         String
+  stage         String   @default("RESEARCH")
+  status        String   @default("DRAFT")
+  research      String?
+  script        String?
+  scheduledAt   DateTime?
+  youtubeId     String?
+  youtubeUrl    String?
+  views         Int      @default(0)
+  likes         Int      @default(0)
+  comments      Int      @default(0)
+  ownerId       String
+  owner         User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  assets        YouTubeAsset[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model YouTubeAsset {
+  id        String   @id @default(cuid())
+  type      String
+  status    String   @default("QUEUED")
+  provider  String?
+  url       String?
+  externalId String?
+  videoId   String
+  video     YouTubeVideo @relation(fields: [videoId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 }
