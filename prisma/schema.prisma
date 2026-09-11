@@ -23,6 +23,22 @@ model User {
   socialSessions SocialSession[]
   socialInbox SocialInbox[]
   youtubeVideos YouTubeVideo[]
+  designs       Design[]
+}
+
+model Design {
+  id            String   @id @default(cuid())
+  prompt        String
+  background    String?
+  referenceUrl  String?
+  outputUrl     String?
+  outputFormat  String   @default("png")
+  provider      String   @default("gpt-4o")
+  status        String   @default("DRAFT")
+  ownerId       String
+  owner         User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Project {

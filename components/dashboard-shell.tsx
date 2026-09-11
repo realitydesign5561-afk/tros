@@ -12,7 +12,7 @@ const navigation = [
   { label: 'Social OS', href: '/social/calendar', icon: Megaphone },
   { label: 'Course Studio', href: '/courses', icon: Boxes },
   { label: 'YouTube OS', href: '/youtube-os', icon: Video },
-  { label: 'AI Designer', href: '/ai-designer', icon: Sparkles },
+  { label: 'AI Designer', href: '/designer', icon: Sparkles },
   { label: 'Lead Gen', href: '/lead-gen', icon: Activity },
 ]
 
