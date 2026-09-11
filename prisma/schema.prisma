@@ -24,6 +24,8 @@ model User {
   socialInbox SocialInbox[]
   youtubeVideos YouTubeVideo[]
   designs       Design[]
+  leads         Lead[]
+  campaigns     LeadCampaign[]
 }
 
 model Design {
@@ -326,4 +328,57 @@ model YouTubeAsset {
   videoId   String
   video     YouTubeVideo @relation(fields: [videoId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+}
+
+model Lead {
+  id          String        @id @default(cuid())
+  name        String
+  company     String?
+  email       String?
+  website     String?
+  phone       String?
+  location    String?
+  niche       String?
+  source      String        @default("DEMO")
+  status      String        @default("NEW")
+  painPoints  String?
+  notes       String?
+  ownerId     String
+  owner       User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  campaignId  String?
+  campaign    LeadCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  messages    LeadMessage[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model LeadCampaign {
+  id          String        @id @default(cuid())
+  name        String
+  niche       String?
+  location    String?
+  status      String        @default("DRAFT")
+  ownerId     String
+  owner       User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  leads       Lead[]
+  messages    LeadMessage[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model LeadMessage {
+  id           String       @id @default(cuid())
+  channel      String       @default("EMAIL")
+  subject      String?
+  body         String
+  sequence     Int          @default(1)
+  status       String       @default("DRAFT")
+  scheduledAt  DateTime?
+  sentAt       DateTime?
+  providerId   String?
+  leadId       String
+  lead         Lead         @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  campaignId   String?
+  campaign     LeadCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  createdAt    DateTime     @default(now())
 }

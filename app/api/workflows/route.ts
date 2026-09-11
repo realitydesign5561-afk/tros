@@ -26,7 +26,7 @@ function fallbackGraph() {
   return { nodes: [{ id: 'trigger-1', type: 'trigger', position: { x: 120, y: 160 }, data: { label: 'Choose a trigger', kind: 'TRIGGER', description: 'Start your automation here' } }], edges: [] }
 }
 
-export function getTemplateGraph(template?: string | null) {
+function getTemplateGraph(template?: string | null) {
   if (template === 'leadToSheet') return templates.leadToSheet
   if (template === 'instagramReply') return templates.instagramReply
   return { name: 'Blank workflow', ...fallbackGraph() }

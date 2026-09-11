@@ -13,7 +13,7 @@ const navigation = [
   { label: 'Course Studio', href: '/courses', icon: Boxes },
   { label: 'YouTube OS', href: '/youtube-os', icon: Video },
   { label: 'AI Designer', href: '/designer', icon: Sparkles },
-  { label: 'Lead Gen', href: '/lead-gen', icon: Activity },
+  { label: 'Lead Gen', href: '/leads', icon: Activity },
 ]
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {

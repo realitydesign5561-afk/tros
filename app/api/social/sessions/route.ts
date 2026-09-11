@@ -42,4 +42,3 @@ export async function PATCH(request: Request) {
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
-export const securityNote = 'Only user-authorized Playwright storageState is accepted; passwords are never sent to TROS.'
