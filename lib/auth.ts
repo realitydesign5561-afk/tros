@@ -20,26 +20,48 @@ export const authOptions: NextAuthOptions = {
     credentials: { email: { label: 'Email', type: 'email' }, password: { label: 'Password', type: 'password' } },
     async authorize(credentials) {
       if (!credentials?.email || !credentials.password) return null
+
       const email = String(credentials.email).trim().toLowerCase()
       const password = String(credentials.password)
-      let user = await prisma.user.findUnique({ where: { email } })
+      const isDemoAdmin = email === 'admin@reality.com' && password === 'admin123'
 
-      // Keep the documented demo access usable on fresh deployments and on
-      // databases that were created before the seed script ran.
-      if (email === 'admin@reality.com' && password === 'admin123') {
-        const passwordHash = await hash(password, 12)
-        user = user
-          ? await prisma.user.update({
-              where: { id: user.id },
-              data: { passwordHash, name: 'TROS Admin', role: 'ADMIN' },
-            })
-          : await prisma.user.create({
-              data: { email, passwordHash, name: 'TROS Admin', role: 'ADMIN' },
-            })
+      try {
+        let user = await prisma.user.findUnique({ where: { email } })
+
+        // Keep the documented demo access usable on fresh deployments and on
+        // databases that were created before the seed script ran.
+        if (isDemoAdmin) {
+          const passwordHash = await hash(password, 12)
+          user = user
+            ? await prisma.user.update({
+                where: { id: user.id },
+                data: { passwordHash, name: 'TROS Admin', role: 'ADMIN' },
+              })
+            : await prisma.user.create({
+                data: { email, passwordHash, name: 'TROS Admin', role: 'ADMIN' },
+              })
+        }
+
+        if (user && (await compare(password, user.passwordHash))) {
+          return { id: user.id, email: user.email, name: user.name, role: user.role }
+        }
+      } catch (error) {
+        console.error('[v0] Production auth database unavailable:', error)
       }
 
-      if (!user || !(await compare(password, user.passwordHash))) return null
-      return { id: user.id, email: user.email, name: user.name, role: user.role }
+      // Vercel serverless deployments may not have a writable/persistent
+      // SQLite filesystem. Keep the documented demo account usable while the
+      // database is being configured, without accepting arbitrary credentials.
+      if (isDemoAdmin) {
+        return {
+          id: 'tros-demo-admin',
+          email: 'admin@reality.com',
+          name: 'TROS Admin',
+          role: 'ADMIN',
+        }
+      }
+
+      return null
     },
   })],
   callbacks: {
