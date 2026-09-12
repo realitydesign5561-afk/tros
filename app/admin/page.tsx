@@ -1,7 +1,7 @@
-'use client'
-
-import { useEffect, useState } from 'react'
 import { DashboardShell } from '@/components/dashboard-shell'
 import { AuthGuard } from '@/components/auth-guard'
+import { AdminDashboard } from '@/components/admin-dashboard'
 
-export default function AdminPage() { const [tables, setTables] = useState<Record<string, unknown[]>>({}); const [message, setMessage] = useState(''); useEffect(()=>{ fetch('/api/admin/database').then(r=>r.json()).then(setTables) },[]); async function reboot(){ const r=await fetch('/api/admin/reboot',{method:'POST'}); setMessage(r.ok?'System cache cleared and indexes refreshed.':'Reboot failed.') } return <AuthGuard><DashboardShell><div className="space-y-6"><div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><h2 className="text-2xl font-semibold tracking-tight">Admin</h2><p className="mt-2 text-sm text-muted-foreground">System controls and local data management.</p></div><button onClick={reboot} className="rounded-md border border-border px-4 py-2 text-sm font-medium hover:bg-accent">System Reboot</button></div>{message&&<p className="text-sm text-muted-foreground">{message}</p>}<div className="space-y-4">{Object.entries(tables).map(([table, rows])=><div key={table} className="overflow-hidden rounded-xl border border-border bg-card"><div className="border-b border-border px-5 py-4"><h3 className="font-medium capitalize">{table}</h3><p className="mt-1 text-xs text-muted-foreground">{rows.length} records</p></div><pre className="max-h-56 overflow-auto p-5 text-xs text-muted-foreground">{JSON.stringify(rows, null, 2)}</pre></div>)}</div></div></DashboardShell></AuthGuard> }
+export default function AdminPage() {
+  return <AuthGuard><DashboardShell><AdminDashboard /></DashboardShell></AuthGuard>
+}
