@@ -3,7 +3,10 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
-import { Activity, Bot, Boxes, ChevronRight, CircleUserRound, Database, Gauge, Globe2, LayoutGrid, LogOut, Megaphone, Settings, Sparkles, Workflow, Video } from 'lucide-react'
+import { Activity, Bot, Boxes, ChevronRight, CircleUserRound, Database, Gauge, Globe2, LogOut, Megaphone, Menu, Settings, Sparkles, Workflow, Video, X } from 'lucide-react'
+import { useState } from 'react'
+import { InstallApp } from '@/components/install-app'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 const navigation = [
   { label: 'Dashboard', href: '/', icon: Gauge },
@@ -18,9 +21,12 @@ const navigation = [
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const currentLabel = pathname === '/' ? 'Dashboard' : (pathname ?? '').slice(1).split('/')[0].replaceAll('-', ' ')
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 flex-col border-r border-border bg-sidebar md:flex">
+      {menuOpen && <button aria-label="Close navigation" className="fixed inset-0 z-30 bg-black/40 md:hidden" onClick={() => setMenuOpen(false)} />}
+      <aside className={`fixed inset-y-0 left-0 z-40 flex w-[min(84vw,18rem)] flex-col border-r border-border bg-sidebar shadow-2xl transition-transform md:w-64 md:translate-x-0 md:shadow-none ${menuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
         <div className="flex h-20 items-center gap-3 border-b border-border px-6">
           <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground"><Bot className="size-5" /></div>
           <div><p className="font-semibold tracking-tight">TROS</p><p className="text-[11px] text-muted-foreground">Reality Operation System</p></div>
@@ -29,7 +35,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Workspace</p>
           {navigation.map(({ label, href, icon: Icon }) => {
             const active = pathname === href
-            return <Link key={href} href={href} className={`group flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors ${active ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'}`}><Icon className="size-4" /><span>{label}</span>{active && <ChevronRight className="ml-auto size-3.5" />}</Link>
+            return <Link prefetch={true} key={href} href={href} className={`group flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors ${active ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'}`}><Icon className="size-4" /><span>{label}</span>{active && <ChevronRight className="ml-auto size-3.5" />}</Link>
           })}
           <p className="mb-3 mt-8 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">System</p>
           <Link href="/admin" className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm ${pathname === '/admin' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'}`}><Database className="size-4" />Admin</Link>
@@ -40,7 +46,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           <button onClick={() => signOut({ callbackUrl: '/login' })} className="mt-3 flex w-full items-center gap-2 px-2 text-xs text-muted-foreground hover:text-foreground"><LogOut className="size-3.5" />Sign out</button>
         </div>
       </aside>
-      <div className="md:pl-64"><header className="flex h-20 items-center justify-between border-b border-border px-6 md:px-10"><div><p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Operations center</p><h1 className="mt-1 text-lg font-semibold tracking-tight">{pathname === '/' ? 'Dashboard' : (pathname ?? '').slice(1).replaceAll('-', ' ')}</h1></div><div className="flex items-center gap-3"><span className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex"><span className="size-2 rounded-full bg-emerald-500" />System operational</span><div className="flex size-9 items-center justify-center rounded-full border border-border bg-accent"><CircleUserRound className="size-4 text-muted-foreground" /></div></div></header><main className="mx-auto max-w-7xl p-6 md:p-10">{children}</main></div>
+      <div className="md:pl-64"><header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur md:h-20 md:px-10"><div className="flex min-w-0 items-center gap-3"><button type="button" aria-label="Open navigation" onClick={() => setMenuOpen(true)} className="flex size-9 items-center justify-center rounded-xl border border-border bg-card md:hidden"><Menu className="size-4" /></button><div className="min-w-0"><p className="hidden text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground sm:block">Operations center</p><h1 className="truncate text-base font-semibold capitalize tracking-tight md:mt-1 md:text-lg">{currentLabel}</h1></div></div><div className="flex items-center gap-2"><span className="hidden items-center gap-2 text-xs text-muted-foreground lg:flex"><span className="size-2 rounded-full bg-emerald-500" />System operational</span><InstallApp /><ThemeToggle /><div className="hidden size-9 items-center justify-center rounded-full border border-border bg-accent sm:flex"><CircleUserRound className="size-4 text-muted-foreground" /></div></div></header><main className="mx-auto max-w-7xl p-4 pb-24 sm:p-6 md:p-10 md:pb-10">{children}</main><nav className="fixed inset-x-3 bottom-3 z-20 flex items-center justify-around rounded-2xl border border-border bg-card/95 p-2 shadow-2xl backdrop-blur md:hidden">{navigation.slice(0, 5).map(({ label, href, icon: Icon }) => <Link key={href} href={href} aria-label={label} className={`flex size-11 items-center justify-center rounded-xl ${pathname === href ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}><Icon className="size-4" /></Link>)}</nav></div>
     </div>
   )
 }
