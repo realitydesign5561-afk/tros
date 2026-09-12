@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
-import { Activity, Bot, Boxes, ChevronRight, CircleUserRound, Database, Gauge, Globe2, LogOut, Megaphone, Menu, Settings, Sparkles, Workflow, Video, X } from 'lucide-react'
+import { Activity, Bot, Boxes, ChevronRight, CircleUserRound, Database, Gauge, Globe2, LogOut, Megaphone, Menu, Settings, Sparkles, Workflow, Video } from 'lucide-react'
 import { useState } from 'react'
 import { InstallApp } from '@/components/install-app'
 import { ThemeToggle } from '@/components/theme-toggle'
