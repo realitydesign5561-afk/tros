@@ -6,11 +6,12 @@ import { AuthGuard } from '@/components/auth-guard'
 import { DashboardShell } from '@/components/dashboard-shell'
 import { ProjectOperations } from '@/components/project-operations'
 
-export default async function FactoryProjectPage({ params }: { params: { id: string } }) {
+export default async function FactoryProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions)
   if (!session) redirect('/login')
+  const { id } = await params
   const project = await prisma.project.findFirst({
-    where: { id: params.id, ownerId: session.user.id },
+    where: { id, ownerId: session.user.id },
     include: { managementLogs: { orderBy: { createdAt: 'desc' }, take: 5 } },
   })
   if (!project) notFound()

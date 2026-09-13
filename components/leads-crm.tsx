@@ -14,26 +14,34 @@ export function LeadsCrm({ initialLeads }: { initialLeads: any[] }) {
 
   async function findLeads() {
     setBusy(true)
-    const response = await fetch('/api/leads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ niche, location }) })
-    const data = await response.json()
-    setLeads((current) => [...data.leads, ...current])
-    setNotice(`${data.leads.length} research-ready leads saved to SQLite.`)
-    setBusy(false)
+    setNotice('')
+    try {
+      const response = await fetch('/api/leads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ niche, location }) })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Unable to find leads.')
+      setLeads((current) => [...data.leads, ...current])
+      setNotice(`${data.leads.length} research-ready leads saved.`)
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Unable to find leads.')
+    } finally {
+      setBusy(false)
+    }
   }
 
   async function moveLead(id: string, status: string) {
-    await fetch('/api/leads', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status }) })
+    const response = await fetch('/api/leads', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status }) })
+    if (!response.ok) { setNotice('Unable to update lead status.'); return }
     setLeads((current) => current.map((lead) => lead.id === id ? { ...lead, status } : lead))
   }
 
   async function generateOutreach(id: string) {
     const response = await fetch('/api/leads/outreach', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ leadId: id }) })
     const data = await response.json()
-    setNotice(data.delivery === 'DRAFT_ONLY' ? 'Draft created. Connect Resend sandbox to send.' : 'Sandbox outreach sent.')
+    setNotice(response.ok ? (data.delivery === 'DRAFT_ONLY' ? 'Draft created. Connect email to send.' : 'Outreach sent.') : (data.error || 'Unable to create outreach.'))
   }
 
-  return <main className="min-h-screen bg-background text-foreground">
-    <div className="mx-auto flex max-w-[1400px] flex-col gap-6 px-6 py-8">
+  return <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div><p className="font-mono text-xs uppercase tracking-[0.22em] text-muted-foreground">Module 8 / Lead engine</p><h1 className="mt-2 text-3xl font-semibold tracking-tight">Lead Gen + Outreach</h1><p className="mt-2 max-w-2xl text-sm text-muted-foreground">Find, research, and move your best-fit prospects through one calm CRM workspace.</p></div>
         <a href="/leads/campaigns" className="rounded-lg border border-border px-4 py-2 text-sm hover:bg-muted">Campaigns</a>
@@ -49,5 +57,5 @@ export function LeadsCrm({ initialLeads }: { initialLeads: any[] }) {
       </section>
       <div className="flex items-center gap-2 text-xs text-muted-foreground"><Send className="size-3" />Resend sandbox mode: messages are drafted locally unless a verified test recipient is configured.</div>
     </div>
-  </main>
+  </div>
 }
