@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
-import { Activity, Bot, Boxes, ChevronRight, CircleUserRound, Database, Gauge, Globe2, LogOut, Megaphone, Menu, Settings, Sparkles, Workflow, Video } from 'lucide-react'
+import { Activity, Bot, Boxes, ChevronRight, CircleUserRound, Database, Gauge, Globe2, LogOut, Megaphone, Menu, Settings, ShieldCheck, Sparkles, Workflow, Video } from 'lucide-react'
 import { useState } from 'react'
 import { InstallApp } from '@/components/install-app'
 import { ThemeToggle } from '@/components/theme-toggle'
@@ -17,6 +17,7 @@ const navigation = [
   { label: 'YouTube OS', href: '/youtube-os', icon: Video },
   { label: 'AI Designer', href: '/designer', icon: Sparkles },
   { label: 'Lead Gen', href: '/leads', icon: Activity },
+  { label: 'Automation', href: '/automation', icon: Bot },
 ]
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
@@ -40,6 +41,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           <p className="mb-3 mt-8 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">System</p>
           <Link href="/admin" className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm ${pathname === '/admin' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'}`}><Database className="size-4" />Admin</Link>
           <Link href="/settings" className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm ${pathname === '/settings' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'}`}><Settings className="size-4" />Settings</Link>
+          <Link href="/test-lab" className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm ${pathname === '/test-lab' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'}`}><ShieldCheck className="size-4" />Test lab</Link>
         </nav>
         <div className="border-t border-border p-4">
           <div className="flex items-center gap-3 rounded-lg bg-accent/50 p-3"><CircleUserRound className="size-8 text-muted-foreground" /><div className="min-w-0"><p className="truncate text-sm font-medium">Admin</p><p className="truncate text-xs text-muted-foreground">admin@reality.com</p></div></div>
