@@ -4,10 +4,10 @@ import { Moon, Sun } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 export function ThemeToggle() {
-  const [dark, setDark] = useState(true)
+  const [dark, setDark] = useState(false)
   useEffect(() => {
     const saved = window.localStorage.getItem('tros-theme')
-    const nextDark = saved ? saved === 'dark' : true
+    const nextDark = saved ? saved === 'dark' : false
     setDark(nextDark)
     document.documentElement.classList.toggle('dark', nextDark)
     document.documentElement.classList.toggle('light', !nextDark)
