@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
-import { Activity, Bot, Boxes, ChevronRight, CircleUserRound, Database, Gauge, Globe2, LogOut, Megaphone, Menu, Settings, ShieldCheck, Sparkles, Workflow, Video } from 'lucide-react'
+import { Activity, Bot, Boxes, ChevronRight, CircleUserRound, Database, Gauge, Globe2, LogOut, Megaphone, Menu, Settings, ShieldCheck, Sparkles, Workflow, Video, Wand2 } from 'lucide-react'
 import { useState } from 'react'
 import { InstallApp } from '@/components/install-app'
 import { ThemeToggle } from '@/components/theme-toggle'
@@ -18,6 +18,7 @@ const navigation = [
   { label: 'AI Designer', href: '/designer', icon: Sparkles },
   { label: 'Lead Gen', href: '/leads', icon: Activity },
   { label: 'Automation', href: '/automation', icon: Bot },
+  { label: 'AI Features', href: '/ai-features', icon: Wand2 },
 ]
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
