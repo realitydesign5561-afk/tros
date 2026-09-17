@@ -28,5 +28,5 @@ export async function POST(_: Request, { params }: { params: { id: string } }) {
   const run = await prisma.workflowRun.create({ data: { workflowId: workflow.id, status, externalId, logs, finishedAt: status === 'SUCCESS' || status === 'FAILED' ? new Date() : null } })
   if (status === 'FAILED') await prisma.workflowAlert.create({ data: { workflowId: workflow.id, message: logs } })
   await prisma.workflow.update({ where: { id: workflow.id }, data: { status: status === 'FAILED' ? 'ERROR' : 'ACTIVE' } })
-  return NextResponse.json({ run, connected: isActivepiecesConfigured(), warning: new ActivepiecesConfigError().message })
+  return NextResponse.json({ run, connected: isActivepiecesConfigured(), warning: isActivepiecesConfigured() ? undefined : new ActivepiecesConfigError().message })
 }

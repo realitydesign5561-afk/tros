@@ -46,6 +46,7 @@ export function WorkflowBuilder() {
   const [notice, setNotice] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
+  const [isActivating, setIsActivating] = useState(false)
   const [search, setSearch] = useState('')
   const [prompt, setPrompt] = useState('')
 
@@ -86,19 +87,27 @@ export function WorkflowBuilder() {
   }
 
   async function generateFromPrompt() {
-    const words = prompt.trim().split(/\s+/).slice(0, 7).join(' ')
-    if (!words) return setNotice('Describe the workflow you want to build first.')
-    const lower = prompt.toLowerCase()
-    const trigger = nodeOptions.find((item) => item.kind === 'TRIGGER' && (lower.includes(item.label.toLowerCase()) || (item.label === 'Schedule' && lower.includes('every')))) || nodeOptions[0]
-    const action = nodeOptions.find((item) => item.kind === 'ACTION' && lower.includes(item.label.toLowerCase().split(' ')[0])) || nodeOptions[6]
-    const graph = { nodes: [{ id: 'trigger-ai', type: 'trigger', position: { x: 120, y: 160 }, data: { label: trigger.label, kind: trigger.kind, description: trigger.description } }, { id: 'action-ai', type: 'action', position: { x: 480, y: 160 }, data: { label: action.label, kind: action.kind, description: action.description } }], edges: [{ id: 'edge-ai', source: 'trigger-ai', target: 'action-ai', animated: true }] }
-    const response = await fetch('/api/workflows', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: words, template: 'ai-generated', graph }) })
+    if (!prompt.trim()) return setNotice('Describe the workflow you want to build first.')
+    const response = await fetch('/api/workflows/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt }) })
     if (!response.ok) return setNotice('Could not generate workflow.')
-    const workflow = await response.json() as WorkflowRecord
+    const data = await response.json() as { workflow: WorkflowRecord; fallback?: boolean }
+    const workflow = data.workflow
     setWorkflows((current) => [workflow, ...current])
     loadWorkflow(workflow)
     setPrompt('')
-    setNotice('AI workflow draft generated. Review the steps before running it.')
+    setNotice(data.fallback ? 'Workflow draft generated from the built-in planner. Add AI_GATEWAY_API_KEY for richer AI plans.' : 'AI workflow draft generated. Review the steps before activating it.')
+  }
+
+  async function activateInActivepieces() {
+    if (!workflowId) return
+    setIsActivating(true)
+    const response = await fetch(`/api/workflows/${workflowId}/activate`, { method: 'POST' })
+    const data = await response.json() as { workflow?: WorkflowRecord; error?: string }
+    setIsActivating(false)
+    if (!response.ok) return setNotice(data.error || 'Could not activate in Activepieces.')
+    if (data.workflow) { setWorkflows((current) => current.map((item) => item.id === data.workflow?.id ? data.workflow : item)) }
+    setNotice('Workflow activated in Activepieces. You can now run it from this workspace.')
+    await loadWorkflows()
   }
 
   async function deleteWorkflow() {
@@ -159,7 +168,7 @@ export function WorkflowBuilder() {
     <div className="space-y-5">
       <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
         <div><p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Automation studio</p><h2 className="mt-2 text-3xl font-semibold tracking-tight">Workflow Builder</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Compose reliable automations visually, save each graph to SQLite, and dispatch to Activepieces when connected.</p></div>
-        <div className="flex flex-wrap gap-2"><button className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm hover:bg-accent" onClick={() => createWorkflow()}><Plus className="size-4" />New workflow</button><button className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground hover:opacity-90" onClick={saveWorkflow}><Save className="size-4" />{isSaving ? 'Saving...' : 'Save'}</button><button className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm hover:bg-accent" onClick={runWorkflow} disabled={!workflowId || isRunning}><Play className="size-4" />{isRunning ? 'Running...' : 'Run'}</button><button className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm hover:bg-accent" onClick={duplicateWorkflow} disabled={!workflowId}><Copy className="size-4" />Duplicate</button><button className="inline-flex items-center gap-2 rounded-md border border-destructive/30 px-3 py-2 text-sm text-destructive hover:bg-destructive/10" onClick={deleteWorkflow} disabled={!workflowId}><Trash2 className="size-4" />Delete</button></div>
+        <div className="flex flex-wrap gap-2"><button className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm hover:bg-accent" onClick={() => createWorkflow()}><Plus className="size-4" />New workflow</button><button className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground hover:opacity-90" onClick={saveWorkflow}><Save className="size-4" />{isSaving ? 'Saving...' : 'Save'}</button><button className="inline-flex items-center gap-2 rounded-md bg-emerald-600 px-3 py-2 text-sm text-white hover:bg-emerald-700" onClick={activateInActivepieces} disabled={!workflowId || isActivating}><Wand2 className="size-4" />{isActivating ? 'Activating...' : 'Activate in Activepieces'}</button><button className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm hover:bg-accent" onClick={runWorkflow} disabled={!workflowId || isRunning}><Play className="size-4" />{isRunning ? 'Running...' : 'Run'}</button><button className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm hover:bg-accent" onClick={duplicateWorkflow} disabled={!workflowId}><Copy className="size-4" />Duplicate</button><button className="inline-flex items-center gap-2 rounded-md border border-destructive/30 px-3 py-2 text-sm text-destructive hover:bg-destructive/10" onClick={deleteWorkflow} disabled={!workflowId}><Trash2 className="size-4" />Delete</button></div>
       </div>
 
       {notice && <div className="flex items-start gap-3 rounded-lg border border-border bg-accent/40 px-4 py-3 text-sm"><Sparkles className="mt-0.5 size-4 text-primary" /><span className="flex-1">{notice}</span><button aria-label="Dismiss notice" onClick={() => setNotice(null)}><X className="size-4 text-muted-foreground" /></button></div>}
