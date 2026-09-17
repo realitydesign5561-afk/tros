@@ -6,12 +6,27 @@ import { addEdge, Background, Controls, MiniMap, useEdgesState, useNodesState, t
 
 const FlowCanvas = dynamic(() => import('@xyflow/react').then((module) => module.ReactFlow), { ssr: false }) as typeof import('@xyflow/react').ReactFlow<BuilderNode, Edge>
 import '@xyflow/react/dist/style.css'
-import { AlertCircle, Check, ChevronDown, Play, Plus, Save, Sparkles, Wand2, X } from 'lucide-react'
+import { AlertCircle, Check, ChevronDown, Copy, Play, Plus, Save, Search, Sparkles, Trash2, Wand2, X } from 'lucide-react'
 
 const templates = [
   { id: 'blank', label: 'Blank workflow', description: 'Start from an empty canvas' },
   { id: 'leadToSheet', label: 'New Lead to Google Sheet', description: 'Capture and route new leads' },
   { id: 'instagramReply', label: 'New IG Comment to AI Reply', description: 'Draft a response to every comment' },
+]
+
+const nodeOptions = [
+  { kind: 'TRIGGER' as const, label: 'New lead', description: 'When a lead enters TROS' },
+  { kind: 'TRIGGER' as const, label: 'New IG comment', description: 'When someone comments on a post' },
+  { kind: 'TRIGGER' as const, label: 'Form submission', description: 'When a form is filled' },
+  { kind: 'TRIGGER' as const, label: 'New email', description: 'When an inbox message arrives' },
+  { kind: 'TRIGGER' as const, label: 'Schedule', description: 'Run on a recurring interval' },
+  { kind: 'ACTION' as const, label: 'Add to Google Sheet', description: 'Append a row to a spreadsheet' },
+  { kind: 'ACTION' as const, label: 'AI reply', description: 'Generate a contextual response' },
+  { kind: 'ACTION' as const, label: 'Send email', description: 'Deliver an email message' },
+  { kind: 'ACTION' as const, label: 'Notify Slack', description: 'Post a message to a channel' },
+  { kind: 'ACTION' as const, label: 'Create CRM lead', description: 'Insert a lead into the pipeline' },
+  { kind: 'ACTION' as const, label: 'Webhook', description: 'POST data to an external URL' },
+  { kind: 'ACTION' as const, label: 'Filter', description: 'Continue only when conditions match' },
 ]
 
 type WorkflowRecord = { id: string; name: string; template?: string | null; graph: string; status: string; alerts: { id: string; message: string }[]; runs: { id: string; status: string; logs?: string | null; startedAt: string }[] }
@@ -31,9 +46,12 @@ export function WorkflowBuilder() {
   const [notice, setNotice] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
+  const [search, setSearch] = useState('')
+  const [prompt, setPrompt] = useState('')
 
   const selectedNode = useMemo(() => nodes.find((node) => node.id === selectedId), [nodes, selectedId])
   const activeWorkflow = workflows.find((workflow) => workflow.id === workflowId)
+  const filteredWorkflows = workflows.filter((workflow) => workflow.name.toLowerCase().includes(search.toLowerCase()))
 
   const loadWorkflows = useCallback(async () => {
     const response = await fetch('/api/workflows')
@@ -67,6 +85,44 @@ export function WorkflowBuilder() {
     setNotice('Workflow created.')
   }
 
+  async function generateFromPrompt() {
+    const words = prompt.trim().split(/\s+/).slice(0, 7).join(' ')
+    if (!words) return setNotice('Describe the workflow you want to build first.')
+    const lower = prompt.toLowerCase()
+    const trigger = nodeOptions.find((item) => item.kind === 'TRIGGER' && (lower.includes(item.label.toLowerCase()) || (item.label === 'Schedule' && lower.includes('every')))) || nodeOptions[0]
+    const action = nodeOptions.find((item) => item.kind === 'ACTION' && lower.includes(item.label.toLowerCase().split(' ')[0])) || nodeOptions[6]
+    const graph = { nodes: [{ id: 'trigger-ai', type: 'trigger', position: { x: 120, y: 160 }, data: { label: trigger.label, kind: trigger.kind, description: trigger.description } }, { id: 'action-ai', type: 'action', position: { x: 480, y: 160 }, data: { label: action.label, kind: action.kind, description: action.description } }], edges: [{ id: 'edge-ai', source: 'trigger-ai', target: 'action-ai', animated: true }] }
+    const response = await fetch('/api/workflows', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: words, template: 'ai-generated', graph }) })
+    if (!response.ok) return setNotice('Could not generate workflow.')
+    const workflow = await response.json() as WorkflowRecord
+    setWorkflows((current) => [workflow, ...current])
+    loadWorkflow(workflow)
+    setPrompt('')
+    setNotice('AI workflow draft generated. Review the steps before running it.')
+  }
+
+  async function deleteWorkflow() {
+    if (!workflowId) return
+    const response = await fetch(`/api/workflows/${workflowId}`, { method: 'DELETE' })
+    if (!response.ok) return setNotice('Could not delete workflow.')
+    setWorkflowId(null)
+    setNodes([])
+    setEdges([])
+    setName('Untitled workflow')
+    setNotice('Workflow deleted.')
+    await loadWorkflows()
+  }
+
+  async function duplicateWorkflow() {
+    if (!activeWorkflow) return
+    const response = await fetch('/api/workflows', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: `${activeWorkflow.name} copy`, template: activeWorkflow.template, graph: { nodes: nodes.map(({ style, ...node }) => node), edges } }) })
+    if (!response.ok) return setNotice('Could not duplicate workflow.')
+    const workflow = await response.json() as WorkflowRecord
+    setWorkflows((current) => [workflow, ...current])
+    loadWorkflow(workflow)
+    setNotice('Workflow duplicated.')
+  }
+
   async function saveWorkflow() {
     if (!workflowId) return createWorkflow()
     setIsSaving(true)
@@ -85,9 +141,9 @@ export function WorkflowBuilder() {
     await loadWorkflows()
   }
 
-  function addNode(kind: 'TRIGGER' | 'ACTION') {
+  function addNode(kind: 'TRIGGER' | 'ACTION', option = nodeOptions.find((item) => item.kind === kind)!) {
     const id = `${kind.toLowerCase()}-${Date.now()}`
-    setNodes((current) => [...current, { id, type: 'default', position: { x: 160 + current.length * 40, y: 110 + current.length * 55 }, data: { label: kind === 'TRIGGER' ? 'New trigger' : 'New action', kind, description: kind === 'TRIGGER' ? 'Starts this workflow' : 'Runs an automation step' }, style: nodeStyle(kind) }])
+    setNodes((current) => [...current, { id, type: 'default', position: { x: 160 + current.length * 40, y: 110 + current.length * 55 }, data: { label: option.label, kind, description: option.description }, style: nodeStyle(kind) }])
     setSelectedId(id)
   }
 
@@ -103,13 +159,17 @@ export function WorkflowBuilder() {
     <div className="space-y-5">
       <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
         <div><p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Automation studio</p><h2 className="mt-2 text-3xl font-semibold tracking-tight">Workflow Builder</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Compose reliable automations visually, save each graph to SQLite, and dispatch to Activepieces when connected.</p></div>
-        <div className="flex flex-wrap gap-2"><button className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm hover:bg-accent" onClick={() => createWorkflow()}><Plus className="size-4" />New workflow</button><button className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground hover:opacity-90" onClick={saveWorkflow}><Save className="size-4" />{isSaving ? 'Saving...' : 'Save'}</button><button className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm hover:bg-accent" onClick={runWorkflow} disabled={!workflowId || isRunning}><Play className="size-4" />{isRunning ? 'Running...' : 'Run'}</button></div>
+        <div className="flex flex-wrap gap-2"><button className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm hover:bg-accent" onClick={() => createWorkflow()}><Plus className="size-4" />New workflow</button><button className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground hover:opacity-90" onClick={saveWorkflow}><Save className="size-4" />{isSaving ? 'Saving...' : 'Save'}</button><button className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm hover:bg-accent" onClick={runWorkflow} disabled={!workflowId || isRunning}><Play className="size-4" />{isRunning ? 'Running...' : 'Run'}</button><button className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm hover:bg-accent" onClick={duplicateWorkflow} disabled={!workflowId}><Copy className="size-4" />Duplicate</button><button className="inline-flex items-center gap-2 rounded-md border border-destructive/30 px-3 py-2 text-sm text-destructive hover:bg-destructive/10" onClick={deleteWorkflow} disabled={!workflowId}><Trash2 className="size-4" />Delete</button></div>
       </div>
 
       {notice && <div className="flex items-start gap-3 rounded-lg border border-border bg-accent/40 px-4 py-3 text-sm"><Sparkles className="mt-0.5 size-4 text-primary" /><span className="flex-1">{notice}</span><button aria-label="Dismiss notice" onClick={() => setNotice(null)}><X className="size-4 text-muted-foreground" /></button></div>}
 
+      <section className="rounded-xl border border-primary/25 bg-primary/5 p-4"><div className="flex items-center gap-2"><Sparkles className="size-4 text-primary" /><p className="text-sm font-semibold">Build from a prompt</p><span className="text-xs text-muted-foreground">AI draft</span></div><div className="mt-3 flex flex-col gap-2 sm:flex-row"><input value={prompt} onChange={(event) => setPrompt(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter') void generateFromPrompt() }} placeholder="When I get a new lead, add it to a sheet and notify Slack" className="h-10 min-w-0 flex-1 rounded-md border border-border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring" /><button type="button" onClick={() => void generateFromPrompt()} className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"><Wand2 className="size-4" />Generate draft</button></div></section>
+
+      <section className="rounded-xl border border-border bg-card p-3"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-2"><Search className="size-4 text-muted-foreground" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search saved workflows" className="h-9 w-full bg-transparent text-sm outline-none sm:w-64" /></div><p className="text-xs text-muted-foreground">{filteredWorkflows.length} saved workflow{filteredWorkflows.length === 1 ? '' : 's'}</p></div>{filteredWorkflows.length > 0 && <div className="mt-3 flex gap-2 overflow-x-auto pb-1">{filteredWorkflows.map((workflow) => <button key={workflow.id} type="button" onClick={() => loadWorkflow(workflow)} className={`shrink-0 rounded-lg border px-3 py-2 text-left text-xs ${workflow.id === workflowId ? 'border-primary bg-primary/10' : 'border-border hover:bg-accent'}`}><span className="block max-w-44 truncate font-medium">{workflow.name}</span><span className="mt-1 block text-muted-foreground">{workflow.status}</span></button>)}</div>}</section>
+
       <div className="grid gap-5 xl:grid-cols-[220px_minmax(0,1fr)_280px]">
-        <aside className="rounded-xl border border-border bg-card p-4"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Templates</p><div className="mt-3 space-y-2">{templates.map((item) => <button key={item.id} className={`w-full rounded-lg border px-3 py-3 text-left transition-colors ${template === item.id ? 'border-primary bg-primary/10' : 'border-border hover:bg-accent'}`} onClick={() => { setTemplate(item.id); if (item.id !== 'blank') createWorkflow(item.id) }}><p className="text-sm font-medium">{item.label}</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{item.description}</p></button>)}</div><div className="mt-6 border-t border-border pt-5"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Node palette</p><button className="mt-3 flex w-full items-center gap-2 rounded-md border border-dashed border-border px-3 py-2.5 text-sm hover:bg-accent" onClick={() => addNode('TRIGGER')}><Wand2 className="size-4 text-primary" />Add trigger</button><button className="mt-2 flex w-full items-center gap-2 rounded-md border border-dashed border-border px-3 py-2.5 text-sm hover:bg-accent" onClick={() => addNode('ACTION')}><Plus className="size-4 text-muted-foreground" />Add action</button></div></aside>
+        <aside className="rounded-xl border border-border bg-card p-4"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Templates</p><div className="mt-3 space-y-2">{templates.map((item) => <button key={item.id} className={`w-full rounded-lg border px-3 py-3 text-left transition-colors ${template === item.id ? 'border-primary bg-primary/10' : 'border-border hover:bg-accent'}`} onClick={() => { setTemplate(item.id); if (item.id !== 'blank') void createWorkflow(item.id) }}><p className="text-sm font-medium">{item.label}</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{item.description}</p></button>)}</div><div className="mt-6 border-t border-border pt-5"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Node palette</p><div className="mt-3 space-y-2">{nodeOptions.map((item) => <button key={`${item.kind}-${item.label}`} type="button" className="flex w-full items-center gap-2 rounded-md border border-dashed border-border px-3 py-2 text-left text-xs hover:bg-accent" onClick={() => addNode(item.kind, item)}><span className={`size-2 rounded-full ${item.kind === 'TRIGGER' ? 'bg-primary' : 'bg-muted-foreground'}`} /><span><span className="block font-medium">{item.label}</span><span className="block text-[10px] text-muted-foreground">{item.description}</span></span></button>)}</div></div></aside>
 
         <section className="overflow-hidden rounded-xl border border-border bg-card"><div className="flex items-center justify-between border-b border-border px-4 py-3"><div className="flex items-center gap-3"><input value={name} onChange={(event) => setName(event.target.value)} className="w-56 bg-transparent text-sm font-medium outline-none" aria-label="Workflow name" /><span className={`rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-wider ${activeWorkflow?.status === 'ERROR' ? 'bg-destructive/15 text-destructive' : 'bg-emerald-500/15 text-emerald-500'}`}>{activeWorkflow?.status || 'DRAFT'}</span></div><span className="text-xs text-muted-foreground">Drag nodes · connect handles</span></div><div className="h-[520px] bg-background/60"><FlowCanvas nodes={nodes} edges={edges} onNodesChange={onNodesChange} onEdgesChange={onEdgesChange} onConnect={onConnect} onNodeClick={(_, node) => setSelectedId(node.id)} fitView proOptions={{ hideAttribution: true }}><Background color="hsl(var(--border))" gap={24} /><Controls /><MiniMap nodeColor={(node) => node.data?.kind === 'TRIGGER' ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))'} /></FlowCanvas></div></section>
 
