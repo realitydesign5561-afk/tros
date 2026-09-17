@@ -28,6 +28,9 @@ model User {
   campaigns     LeadCampaign[]
   aiFeatures    AiFeature[]
   socialAutomationEnabled Boolean @default(false)
+  socialAutomationNiches String?
+  socialAutomationDays String?
+  socialAutomationPostsPerDay Int @default(1)
 }
 
 model AiFeature {
