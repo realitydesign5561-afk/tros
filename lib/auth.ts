@@ -3,10 +3,14 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import { compare, hash } from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
 
-const isSecure = process.env.NODE_ENV === 'production' && process.env.NEXTAUTH_URL?.startsWith('https://')
+const runtimeUrl =
+  process.env.NEXTAUTH_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
+
+const isSecure = process.env.NODE_ENV === 'production' && runtimeUrl.startsWith('https://')
 
 export const authOptions: NextAuthOptions = {
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET || 'tros-development-secret-change-in-production',
   session: { strategy: 'jwt' },
   pages: { signIn: '/login' },
   cookies: {
