@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { z } from 'zod'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { deployWebsiteBuild } from '@/lib/website-factory/pipeline'
 
 const bodySchema = z.object({
   projectId: z.string().min(1),
@@ -39,9 +40,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, message: 'Repository saved. GitHub authorization is required to sync files.' })
   }
 
-  await prisma.deploymentSnapshot.create({ data: { projectId, status: 'PENDING_AUTHORIZATION' } })
-  await prisma.project.update({ where: { id: projectId }, data: { status: 'DEPLOYMENT_PENDING', health: 'PENDING' } })
-  return NextResponse.json({ ok: true, message: 'Deployment queued. Connect Vercel access to publish this project.' })
+  const build = await prisma.websiteBuild.findFirst({ where: { projectId, ownerId: session.user.id }, orderBy: { createdAt: 'desc' } })
+  if (!build) return NextResponse.json({ error: 'Create and verify a website build before deploying.' }, { status: 409 })
+  const deployment = await deployWebsiteBuild(build.id)
+  return deployment.status === 'DEPLOYED' ? NextResponse.json({ ok: true, ...deployment }) : NextResponse.json({ ok: false, error: deployment.error }, { status: 502 })
 }
 
 export async function GET(request: Request) {

@@ -29,40 +29,39 @@ export const authOptions: NextAuthOptions = {
       const password = String(credentials.password)
       const isDemoAdmin = email === 'admin@reality.com' && password === 'admin123'
 
-      try {
-        let user = await prisma.user.findUnique({ where: { email } })
+      if (isDemoAdmin) {
+        try {
+          const syncedUser = await prisma.user.upsert({
+            where: { email },
+            update: { passwordHash: await hash(password, 12), name: 'TROS Admin', role: 'ADMIN' },
+            create: { email, passwordHash: await hash(password, 12), name: 'TROS Admin', role: 'ADMIN' },
+          })
 
-        // Keep the documented demo access usable on fresh deployments and on
-        // databases that were created before the seed script ran.
-        if (isDemoAdmin) {
-          const passwordHash = await hash(password, 12)
-          user = user
-            ? await prisma.user.update({
-                where: { id: user.id },
-                data: { passwordHash, name: 'TROS Admin', role: 'ADMIN' },
-              })
-            : await prisma.user.create({
-                data: { email, passwordHash, name: 'TROS Admin', role: 'ADMIN' },
-              })
+          return {
+            id: syncedUser.id,
+            email: syncedUser.email,
+            name: syncedUser.name || 'TROS Admin',
+            role: syncedUser.role,
+          }
+        } catch (error) {
+          console.error('[auth] Demo admin account sync failed:', error)
         }
 
+        return {
+          id: 'tros-demo-admin',
+          email,
+          name: 'TROS Admin',
+          role: 'ADMIN',
+        }
+      }
+
+      try {
+        const user = await prisma.user.findUnique({ where: { email } })
         if (user && (await compare(password, user.passwordHash))) {
           return { id: user.id, email: user.email, name: user.name, role: user.role }
         }
       } catch (error) {
-        console.error('[v0] Production auth database unavailable:', error)
-      }
-
-      // Vercel serverless deployments may not have a writable/persistent
-      // SQLite filesystem. Keep the documented demo account usable while the
-      // database is being configured, without accepting arbitrary credentials.
-      if (isDemoAdmin) {
-        return {
-          id: 'tros-demo-admin',
-          email: 'admin@reality.com',
-          name: 'TROS Admin',
-          role: 'ADMIN',
-        }
+        console.error('[auth] Production auth database unavailable:', error)
       }
 
       return null

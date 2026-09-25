@@ -1,3 +1,7 @@
 {
-  "crons": [{ "path": "/api/cron/social", "schedule": "0 9 * * *" }]
+  "crons": [
+    { "path": "/api/cron/social", "schedule": "0 9 * * *" },
+    { "path": "/api/agent/worker", "schedule": "* * * * *" },
+    { "path": "/api/website-factory/worker", "schedule": "* * * * *" }
+  ]
 }

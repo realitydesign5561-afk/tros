@@ -7,6 +7,7 @@
     "build": "prisma generate && prisma migrate deploy && next build",
     "lint": "next lint",
     "test": "tsx --test tests/*.test.ts",
+    "test:e2e": "playwright test",
     "start": "prisma generate && prisma migrate deploy && next start",
     "postinstall": "prisma generate",
     "db:seed": "prisma db seed"
@@ -36,6 +37,7 @@
     "zod": "^4.5.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/bcryptjs": "^3.0.0",
     "@types/node": "^24",
