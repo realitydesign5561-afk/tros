@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { publishScheduledPost } from '@/lib/social-publisher'
-import { generateText } from 'ai'
-import { gateway } from '@ai-sdk/gateway'
+import { executeAITask } from '@/lib/ai-gateway/service'
 
 export const runtime = 'nodejs'
 
@@ -23,12 +22,8 @@ async function createDailyPosts() {
     for (let index = 0; index < user.socialAutomationPostsPerDay; index += 1) {
       const platform = platforms[index % platforms.length]
       let caption = `A practical idea for ${niches}: make the next step clear, useful, and easy to test. What has worked for you?`
-      if (process.env.AI_GATEWAY_API_KEY) {
-        try {
-          const result = await generateText({ model: gateway('openai/gpt-4o-mini'), maxOutputTokens: 260, prompt: `Write one original ${platform} post about ${niches}. Give one useful solution, a concrete example, and a genuine question that invites community discussion. Avoid hard selling. Return only the post.` })
-          caption = result.text.trim() || caption
-        } catch {}
-      }
+      const generated = await executeAITask({ task: `Write one original ${platform} post about ${niches}. Give one useful solution, a concrete example, and a genuine question that invites community discussion. Avoid hard selling. Return only the post.`, capability: 'TEXT_GENERATION', userId: user.id, maxTokens: 260 })
+      caption = typeof generated.output === 'string' ? generated.output.trim() : caption
       await prisma.socialPost.create({ data: { ownerId: user.id, platform, caption, hashtags: '#community #growth #practical', status: 'SCHEDULED', scheduledAt: now, analytics: { create: {} } } })
       created += 1
     }

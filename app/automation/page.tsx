@@ -1,7 +1,7 @@
 import { AuthGuard } from '@/components/auth-guard'
 import { DashboardShell } from '@/components/dashboard-shell'
-import { AutomationControlPlane } from '@/components/automation-control-plane'
+import { AiStatusCenter } from '@/components/ai-status-center'
 
 export default function AutomationPage() {
-  return <AuthGuard><DashboardShell><AutomationControlPlane /></DashboardShell></AuthGuard>
+  return <AuthGuard><DashboardShell><AiStatusCenter /></DashboardShell></AuthGuard>
 }

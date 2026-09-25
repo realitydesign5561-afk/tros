@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server'
-import { generateText } from 'ai'
-import { gateway } from '@ai-sdk/gateway'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { executeAITask } from '@/lib/ai-gateway/service'
 
 type WorkflowGraph = {
   nodes: { id: string; type: string; position: { x: number; y: number }; data: { label: string; kind: string; description: string } }[]
@@ -60,18 +59,14 @@ export async function POST(request: Request) {
   const prompt = String(body.prompt || '').trim()
   if (prompt.length < 3) return NextResponse.json({ error: 'Describe the workflow first.' }, { status: 400 })
 
-  let result = { name: prompt.slice(0, 60), graph: fallbackGraph(prompt) }
-  if (process.env.AI_GATEWAY_API_KEY) {
-    try {
-      const generated = await generateText({
-        model: gateway('openai/gpt-4o-mini'),
-        maxOutputTokens: 900,
-        prompt: `Design an automation workflow for Activepieces from this request: ${prompt}. Return JSON only with name, nodes, and edges. Nodes must be React Flow-compatible objects with id, type, position, and data {label, kind, description}; kind must be TRIGGER or ACTION. Edges must contain id, source, target, animated. Keep it to 2-6 practical steps.`,
-      })
-      result = parseGraph(generated.text, prompt)
-    } catch {}
+  let result: { name: string; graph: WorkflowGraph }
+  try {
+    const generated = await executeAITask({ task: `Design an automation workflow for Activepieces from this request: ${prompt}. Return JSON only with name, nodes, and edges. Nodes must be React Flow-compatible objects with id, type, position, and data {label, kind, description}; kind must be TRIGGER or ACTION. Edges must contain id, source, target, animated. Keep it to 2-6 practical steps.`, capability: 'TEXT_GENERATION', userId, maxTokens: 900 })
+    result = parseGraph(typeof generated.output === 'string' ? generated.output : '', prompt)
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Workflow generation failed.' }, { status: 502 })
   }
 
   const workflow = await prisma.workflow.create({ data: { name: result.name, template: 'ai-generated', graph: JSON.stringify(result.graph), ownerId: userId } })
-  return NextResponse.json({ workflow, fallback: !process.env.AI_GATEWAY_API_KEY })
+  return NextResponse.json({ workflow, fallback: false })
 }

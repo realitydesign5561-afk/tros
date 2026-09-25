@@ -95,7 +95,7 @@ export function WorkflowBuilder() {
     setWorkflows((current) => [workflow, ...current])
     loadWorkflow(workflow)
     setPrompt('')
-    setNotice(data.fallback ? 'Workflow draft generated from the built-in planner. Add AI_GATEWAY_API_KEY for richer AI plans.' : 'AI workflow draft generated. Review the steps before activating it.')
+    setNotice('AI workflow draft generated through the configured provider registry. Review the steps before activating it.')
   }
 
   async function activateInActivepieces() {

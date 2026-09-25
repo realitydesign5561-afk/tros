@@ -9,28 +9,28 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  name         String?
-  passwordHash String
-  role         String   @default("ADMIN")
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  projects     Project[]
-  workflows    Workflow[]
-  courses      Course[]
-  socialPosts  SocialPost[]
-  socialSessions SocialSession[]
-  socialInbox SocialInbox[]
-  youtubeVideos YouTubeVideo[]
-  designs       Design[]
-  leads         Lead[]
-  campaigns     LeadCampaign[]
-  aiFeatures    AiFeature[]
-  socialAutomationEnabled Boolean @default(false)
-  socialAutomationNiches String?
-  socialAutomationDays String?
-  socialAutomationPostsPerDay Int @default(1)
+  id                          String          @id @default(cuid())
+  email                       String          @unique
+  name                        String?
+  passwordHash                String
+  role                        String          @default("ADMIN")
+  createdAt                   DateTime        @default(now())
+  updatedAt                   DateTime        @updatedAt
+  projects                    Project[]
+  workflows                   Workflow[]
+  courses                     Course[]
+  socialPosts                 SocialPost[]
+  socialSessions              SocialSession[]
+  socialInbox                 SocialInbox[]
+  youtubeVideos               YouTubeVideo[]
+  designs                     Design[]
+  leads                       Lead[]
+  campaigns                   LeadCampaign[]
+  aiFeatures                  AiFeature[]
+  socialAutomationEnabled     Boolean         @default(false)
+  socialAutomationNiches      String?
+  socialAutomationDays        String?
+  socialAutomationPostsPerDay Int             @default(1)
 }
 
 model AiFeature {
@@ -48,44 +48,44 @@ model AiFeature {
 }
 
 model Design {
-  id            String   @id @default(cuid())
-  prompt        String
-  background    String?
-  referenceUrl  String?
-  outputUrl     String?
-  outputFormat  String   @default("png")
-  provider      String   @default("gpt-4o")
-  status        String   @default("DRAFT")
-  ownerId       String
-  owner         User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String   @id @default(cuid())
+  prompt       String
+  background   String?
+  referenceUrl String?
+  outputUrl    String?
+  outputFormat String   @default("png")
+  provider     String   @default("gpt-4o")
+  status       String   @default("DRAFT")
+  ownerId      String
+  owner        User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Project {
-  id              String   @id @default(cuid())
-  name            String
-  description     String?
-  niche           String?
-  pages           String?
-  brandColors     String?
-  status          String   @default("DRAFT")
-  source          String   @default("GENERATED")
-  hasLogin        Boolean  @default(false)
-  generateSystem  Boolean  @default(false)
-  prompt          String?
-  blueprint       String?
-  repositoryUrl   String?
-  deploymentUrl   String?
-  domain          String?
-  health          String   @default("UNKNOWN")
-  ownerId         String
-  owner           User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  managementLogs  ManagementLog[]
-  deployments     DeploymentSnapshot[]
-  domains         DomainBinding[]
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String               @id @default(cuid())
+  name           String
+  description    String?
+  niche          String?
+  pages          String?
+  brandColors    String?
+  status         String               @default("DRAFT")
+  source         String               @default("GENERATED")
+  hasLogin       Boolean              @default(false)
+  generateSystem Boolean              @default(false)
+  prompt         String?
+  blueprint      String?
+  repositoryUrl  String?
+  deploymentUrl  String?
+  domain         String?
+  health         String               @default("UNKNOWN")
+  ownerId        String
+  owner          User                 @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  managementLogs ManagementLog[]
+  deployments    DeploymentSnapshot[]
+  domains        DomainBinding[]
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
 }
 
 model ManagementLog {
@@ -100,21 +100,21 @@ model ManagementLog {
 }
 
 model DeploymentSnapshot {
-  id         String   @id @default(cuid())
-  projectId  String
-  status     String
-  url        String?
-  checkedAt  DateTime @default(now())
-  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  projectId String
+  status    String
+  url       String?
+  checkedAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 model DomainBinding {
-  id         String   @id @default(cuid())
-  projectId  String
-  domain     String
-  status     String   @default("PENDING")
-  createdAt  DateTime @default(now())
-  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  projectId String
+  domain    String
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 model AnalyticsEvent {
@@ -143,40 +143,40 @@ model ProviderConnection {
 }
 
 model Workflow {
-  id                    String   @id @default(cuid())
-  name                  String
-  template              String?
-  graph                 String
-  status                String   @default("DRAFT")
-  activepiecesId        String?
-  activepiecesStatus    String?
-  ownerId               String
-  owner                 User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  runs                  WorkflowRun[]
-  alerts                WorkflowAlert[]
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  id                 String          @id @default(cuid())
+  name               String
+  template           String?
+  graph              String
+  status             String          @default("DRAFT")
+  activepiecesId     String?
+  activepiecesStatus String?
+  ownerId            String
+  owner              User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  runs               WorkflowRun[]
+  alerts             WorkflowAlert[]
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
 }
 
 model WorkflowRun {
-  id          String   @id @default(cuid())
-  workflowId  String
-  status      String
-  externalId  String?
-  logs        String?
-  startedAt   DateTime @default(now())
-  finishedAt  DateTime?
-  workflow    Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  id         String    @id @default(cuid())
+  workflowId String
+  status     String
+  externalId String?
+  logs       String?
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+  workflow   Workflow  @relation(fields: [workflowId], references: [id], onDelete: Cascade)
 }
 
 model WorkflowAlert {
-  id          String   @id @default(cuid())
-  workflowId  String
-  severity    String   @default("ERROR")
-  message     String
+  id           String   @id @default(cuid())
+  workflowId   String
+  severity     String   @default("ERROR")
+  message      String
   acknowledged Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  workflow    Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  workflow     Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
 }
 
 model Course {
@@ -195,27 +195,27 @@ model Course {
 }
 
 model CourseModule {
-  id        String   @id @default(cuid())
-  title     String
-  position  Int
-  courseId  String
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  lessons   Lesson[]
+  id       String   @id @default(cuid())
+  title    String
+  position Int
+  courseId String
+  course   Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons  Lesson[]
 }
 
 model Lesson {
-  id          String       @id @default(cuid())
-  title       String
-  position    Int
-  youtubeUrl  String?
-  script      String?
-  status      String       @default("DRAFT")
-  moduleId    String
-  module      CourseModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  videos      Video[]
-  progresses  Progress[]
-  quiz        Quiz?
-  assignment  Assignment?
+  id         String       @id @default(cuid())
+  title      String
+  position   Int
+  youtubeUrl String?
+  script     String?
+  status     String       @default("DRAFT")
+  moduleId   String
+  module     CourseModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  videos     Video[]
+  progresses Progress[]
+  quiz       Quiz?
+  assignment Assignment?
 }
 
 model Quiz {
@@ -234,23 +234,24 @@ model Assignment {
 }
 
 model Video {
-  id        String   @id @default(cuid())
-  provider  String
-  status    String   @default("PENDING")
+  id         String   @id @default(cuid())
+  provider   String
+  status     String   @default("PENDING")
   externalId String?
-  url       String?
-  lessonId  String
-  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  url        String?
+  lessonId   String
+  lesson     Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
 }
 
 model Enrollment {
-  id        String     @id @default(cuid())
-  email     String
-  courseId  String
-  course    Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  id         String     @id @default(cuid())
+  email      String
+  courseId   String
+  course     Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
   progresses Progress[]
-  createdAt DateTime   @default(now())
+  createdAt  DateTime   @default(now())
+
   @@unique([email, courseId])
 }
 
@@ -261,6 +262,7 @@ model Progress {
   lessonId     String
   enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
   lesson       Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
   @@unique([enrollmentId, lessonId])
 }
 
@@ -278,141 +280,573 @@ model PaymentLink {
 }
 
 model SocialSession {
-  id String @id @default(cuid())
-  platform String
-  status String @default("ACTIVE")
-  storageState String
-  accountId String?
-  accountName String?
+  id            String   @id @default(cuid())
+  platform      String
+  status        String   @default("ACTIVE")
+  storageState  String
+  accountId     String?
+  accountName   String?
   lastCheckedAt DateTime @default(now())
-  ownerId String
-  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId       String
+  owner         User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
   @@unique([ownerId, platform])
 }
 
 model SocialPost {
-  id String @id @default(cuid())
-  platform String
-  caption String
-  hashtags String?
+  id          String               @id @default(cuid())
+  platform    String
+  caption     String
+  hashtags    String?
   imagePrompt String?
-  imageUrl String?
+  imageUrl    String?
   scheduledAt DateTime?
   publishedAt DateTime?
-  status String @default("DRAFT")
-  ownerId String
-  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  analytics SocialPostAnalytics?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  status      String               @default("DRAFT")
+  ownerId     String
+  owner       User                 @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  analytics   SocialPostAnalytics?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
 }
 
 model SocialPostAnalytics {
-  id String @id @default(cuid())
-  postId String @unique
-  impressions Int @default(0)
-  likes Int @default(0)
-  comments Int @default(0)
-  shares Int @default(0)
-  clicks Int @default(0)
-  updatedAt DateTime @updatedAt
-  post SocialPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  id          String     @id @default(cuid())
+  postId      String     @unique
+  impressions Int        @default(0)
+  likes       Int        @default(0)
+  comments    Int        @default(0)
+  shares      Int        @default(0)
+  clicks      Int        @default(0)
+  updatedAt   DateTime   @updatedAt
+  post        SocialPost @relation(fields: [postId], references: [id], onDelete: Cascade)
 }
 
 model SocialInbox {
-  id String @id @default(cuid())
-  platform String
-  sender String
-  message String
-  reply String?
-  status String @default("OPEN")
-  ownerId String
-  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  platform  String
+  sender    String
+  message   String
+  reply     String?
+  status    String   @default("OPEN")
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 }
 
 model YouTubeVideo {
-  id            String   @id @default(cuid())
-  title         String
-  topic         String
-  stage         String   @default("RESEARCH")
-  status        String   @default("DRAFT")
-  research      String?
-  script        String?
-  scheduledAt   DateTime?
-  youtubeId     String?
-  youtubeUrl    String?
-  views         Int      @default(0)
-  likes         Int      @default(0)
-  comments      Int      @default(0)
-  ownerId       String
-  owner         User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  assets        YouTubeAsset[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id          String         @id @default(cuid())
+  title       String
+  topic       String
+  stage       String         @default("RESEARCH")
+  status      String         @default("DRAFT")
+  research    String?
+  script      String?
+  scheduledAt DateTime?
+  youtubeId   String?
+  youtubeUrl  String?
+  views       Int            @default(0)
+  likes       Int            @default(0)
+  comments    Int            @default(0)
+  ownerId     String
+  owner       User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  assets      YouTubeAsset[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 }
 
 model YouTubeAsset {
-  id        String   @id @default(cuid())
-  type      String
-  status    String   @default("QUEUED")
-  provider  String?
-  url       String?
+  id         String       @id @default(cuid())
+  type       String
+  status     String       @default("QUEUED")
+  provider   String?
+  url        String?
   externalId String?
-  videoId   String
-  video     YouTubeVideo @relation(fields: [videoId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  videoId    String
+  video      YouTubeVideo @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  createdAt  DateTime     @default(now())
 }
 
 model Lead {
-  id          String        @id @default(cuid())
-  name        String
-  company     String?
-  email       String?
-  website     String?
-  phone       String?
-  location    String?
-  niche       String?
-  source      String        @default("DEMO")
-  status      String        @default("NEW")
-  painPoints  String?
-  notes       String?
-  ownerId     String
-  owner       User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  campaignId  String?
-  campaign    LeadCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
-  messages    LeadMessage[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id         String        @id @default(cuid())
+  name       String
+  company    String?
+  email      String?
+  website    String?
+  phone      String?
+  location   String?
+  niche      String?
+  source     String        @default("DEMO")
+  status     String        @default("NEW")
+  painPoints String?
+  notes      String?
+  ownerId    String
+  owner      User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  campaignId String?
+  campaign   LeadCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  messages   LeadMessage[]
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
 }
 
 model LeadCampaign {
-  id          String        @id @default(cuid())
-  name        String
-  niche       String?
-  location    String?
-  status      String        @default("DRAFT")
-  ownerId     String
-  owner       User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  leads       Lead[]
-  messages    LeadMessage[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id        String        @id @default(cuid())
+  name      String
+  niche     String?
+  location  String?
+  status    String        @default("DRAFT")
+  ownerId   String
+  owner     User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  leads     Lead[]
+  messages  LeadMessage[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 }
 
 model LeadMessage {
-  id           String       @id @default(cuid())
-  channel      String       @default("EMAIL")
-  subject      String?
-  body         String
-  sequence     Int          @default(1)
-  status       String       @default("DRAFT")
-  scheduledAt  DateTime?
-  sentAt       DateTime?
-  providerId   String?
-  leadId       String
-  lead         Lead         @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  campaignId   String?
-  campaign     LeadCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
-  createdAt    DateTime     @default(now())
+  id          String        @id @default(cuid())
+  channel     String        @default("EMAIL")
+  subject     String?
+  body        String
+  sequence    Int           @default(1)
+  status      String        @default("DRAFT")
+  scheduledAt DateTime?
+  sentAt      DateTime?
+  providerId  String?
+  leadId      String
+  lead        Lead          @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  campaignId  String?
+  campaign    LeadCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  createdAt   DateTime      @default(now())
+}
+
+model AiProvider {
+  id                  String           @id @default(cuid())
+  key                 String           @unique
+  name                String
+  kind                String           @default("AI")
+  status              String           @default("ACTIVE")
+  baseUrl             String?
+  capabilities        Json?
+  metadata            Json?
+  priority            Int              @default(100)
+  fallbackPriority    Int              @default(100)
+  maxSpend            Decimal?         @db.Decimal(18, 8)
+  dailyLimit          Decimal?         @db.Decimal(18, 8)
+  monthlyLimit        Decimal?         @db.Decimal(18, 8)
+  circuitState        String           @default("CLOSED")
+  consecutiveFailures Int              @default(0)
+  circuitOpenedAt     DateTime?
+  lastSuccessAt       DateTime?
+  lastFailureAt       DateTime?
+  quota               Json?
+  models              AiModel[]
+  healthChecks        ProviderHealth[]
+  usages              ProviderUsage[]
+  costs               ProviderCost[]
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+}
+
+model AiModel {
+  id                   String          @id @default(cuid())
+  providerId           String
+  key                  String
+  name                 String
+  capabilities         Json?
+  contextWindow        Int?
+  inputCostPerMillion  Decimal?        @db.Decimal(18, 8)
+  outputCostPerMillion Decimal?        @db.Decimal(18, 8)
+  pricing              Json?
+  status               String          @default("ACTIVE")
+  provider             AiProvider      @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  tasks                AiTask[]
+  usages               ProviderUsage[]
+  costs                ProviderCost[]
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  @@unique([providerId, key])
+  @@index([status])
+}
+
+model Credential {
+  id          String    @id @default(cuid())
+  ownerId     String?
+  providerKey String
+  label       String
+  ciphertext  String
+  keyVersion  String
+  fingerprint String?
+  status      String    @default("ACTIVE")
+  metadata    Json?
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([ownerId, providerKey])
+  @@index([status, expiresAt])
+}
+
+model ProviderHealth {
+  id         String     @id @default(cuid())
+  providerId String
+  status     String
+  latencyMs  Int?
+  errorCode  String?
+  message    String?
+  checkedAt  DateTime   @default(now())
+  provider   AiProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([providerId, checkedAt])
+}
+
+model ProviderUsage {
+  id                   String     @id @default(cuid())
+  providerId           String
+  modelId              String?
+  taskId               String?
+  requestId            String?
+  contextWindow        Int?
+  inputCostPerMillion  Decimal?   @db.Decimal(18, 8)
+  outputCostPerMillion Decimal?   @db.Decimal(18, 8)
+  inputTokens          Int?
+  outputTokens         Int?
+  totalTokens          Int?
+  durationMs           Int?
+  status               String     @default("SUCCEEDED")
+  metadata             Json?
+  recordedAt           DateTime   @default(now())
+  provider             AiProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  model                AiModel?   @relation(fields: [modelId], references: [id], onDelete: SetNull)
+  task                 AiTask?    @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  @@index([providerId, recordedAt])
+  @@index([taskId])
+}
+
+model ProviderCost {
+  id         String     @id @default(cuid())
+  providerId String
+  modelId    String?
+  taskId     String?
+  currency   String     @default("USD")
+  amount     Decimal    @db.Decimal(18, 8)
+  basis      Json?
+  recordedAt DateTime   @default(now())
+  provider   AiProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  model      AiModel?   @relation(fields: [modelId], references: [id], onDelete: SetNull)
+  task       AiTask?    @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  @@index([providerId, recordedAt])
+  @@index([taskId])
+}
+
+model AiTask {
+  id             String          @id @default(cuid())
+  ownerId        String?
+  type           String
+  status         String          @default("QUEUED")
+  input          Json
+  result         Json?
+  errorCode      String?
+  errorMessage   String?
+  idempotencyKey String?
+  priority       Int             @default(0)
+  attempts       Int             @default(0)
+  maxAttempts    Int             @default(3)
+  availableAt    DateTime        @default(now())
+  lockedAt       DateTime?
+  lockedBy       String?
+  startedAt      DateTime?
+  finishedAt     DateTime?
+  modelId        String?
+  model          AiModel?        @relation(fields: [modelId], references: [id], onDelete: SetNull)
+  steps          AiTaskStep[]
+  outputs        AiTaskOutput[]
+  sessions       AgentSession[]
+  toolCalls      AgentToolCall[]
+  usages         ProviderUsage[]
+  costs          ProviderCost[]
+  runs           AutomationRun[]
+  logs           ExecutionLog[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@unique([ownerId, idempotencyKey])
+  @@index([status, availableAt, priority])
+  @@index([ownerId, createdAt])
+}
+
+model AiTaskStep {
+  id           String    @id @default(cuid())
+  taskId       String
+  sequence     Int
+  name         String
+  kind         String
+  status       String    @default("PENDING")
+  input        Json?
+  output       Json?
+  errorCode    String?
+  errorMessage String?
+  attempts     Int       @default(0)
+  startedAt    DateTime?
+  finishedAt   DateTime?
+  task         AiTask    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, sequence])
+  @@index([taskId, status])
+}
+
+model AiTaskOutput {
+  id        String   @id @default(cuid())
+  taskId    String
+  stepId    String?
+  type      String
+  name      String?
+  uri       String?
+  content   Json?
+  checksum  String?
+  createdAt DateTime @default(now())
+  task      AiTask   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId, createdAt])
+}
+
+model AgentSession {
+  id        String          @id @default(cuid())
+  taskId    String
+  agentType String
+  status    String          @default("ACTIVE")
+  context   Json?
+  startedAt DateTime        @default(now())
+  endedAt   DateTime?
+  task      AiTask          @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  toolCalls AgentToolCall[]
+
+  @@index([taskId, status])
+}
+
+model AgentToolCall {
+  id           String        @id @default(cuid())
+  taskId       String
+  sessionId    String?
+  toolKey      String
+  status       String        @default("PENDING")
+  input        Json?
+  output       Json?
+  errorCode    String?
+  errorMessage String?
+  durationMs   Int?
+  startedAt    DateTime?
+  finishedAt   DateTime?
+  task         AiTask        @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  session      AgentSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
+  @@index([taskId, startedAt])
+  @@index([toolKey, status])
+}
+
+model Integration {
+  id            String                  @id @default(cuid())
+  key           String                  @unique
+  name          String
+  category      String
+  status        String                  @default("AVAILABLE")
+  capabilities  Json?
+  connections   IntegrationConnection[]
+  featureHealth FeatureHealth[]
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
+}
+
+model IntegrationConnection {
+  id                String      @id @default(cuid())
+  integrationId     String
+  ownerId           String?
+  credentialId      String?
+  status            String      @default("DISCONNECTED")
+  externalAccountId String?
+  metadata          Json?
+  lastCheckedAt     DateTime?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  integration       Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+
+  @@unique([integrationId, ownerId])
+  @@index([ownerId, status])
+}
+
+model ScheduledJob {
+  id        String          @id @default(cuid())
+  ownerId   String?
+  name      String
+  jobType   String
+  schedule  String
+  timezone  String          @default("UTC")
+  status    String          @default("ACTIVE")
+  input     Json?
+  lastRunAt DateTime?
+  nextRunAt DateTime?
+  runs      AutomationRun[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@index([status, nextRunAt])
+  @@index([ownerId, status])
+}
+
+model AutomationRun {
+  id             String         @id @default(cuid())
+  ownerId        String?
+  taskId         String?
+  scheduledJobId String?
+  workflowId     String?
+  status         String         @default("QUEUED")
+  idempotencyKey String?
+  input          Json?
+  output         Json?
+  errorCode      String?
+  errorMessage   String?
+  startedAt      DateTime?
+  finishedAt     DateTime?
+  task           AiTask?        @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  scheduledJob   ScheduledJob?  @relation(fields: [scheduledJobId], references: [id], onDelete: SetNull)
+  logs           ExecutionLog[]
+  createdAt      DateTime       @default(now())
+
+  @@unique([ownerId, idempotencyKey])
+  @@index([status, createdAt])
+}
+
+model ExecutionLog {
+  id        String         @id @default(cuid())
+  taskId    String?
+  runId     String?
+  sequence  Int
+  level     String         @default("INFO")
+  event     String
+  message   String?
+  data      Json?
+  task      AiTask?        @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  run       AutomationRun? @relation(fields: [runId], references: [id], onDelete: Cascade)
+  createdAt DateTime       @default(now())
+
+  @@unique([taskId, sequence])
+  @@index([runId, sequence])
+}
+
+model UserPermission {
+  id         String   @id @default(cuid())
+  userId     String
+  permission String
+  resource   String?
+  effect     String   @default("ALLOW")
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, permission, resource])
+  @@index([userId, effect])
+}
+
+model FeaturePermission {
+  id         String   @id @default(cuid())
+  featureKey String
+  role       String?
+  userId     String?
+  permission String
+  effect     String   @default("ALLOW")
+  createdAt  DateTime @default(now())
+
+  @@index([featureKey, role, userId])
+}
+
+model FeatureHealth {
+  id            String       @id @default(cuid())
+  featureKey    String
+  integrationId String?
+  status        String
+  latencyMs     Int?
+  errorCode     String?
+  message       String?
+  checkedAt     DateTime     @default(now())
+  integration   Integration? @relation(fields: [integrationId], references: [id], onDelete: SetNull)
+
+  @@index([featureKey, checkedAt])
+}
+
+model RepairAttempt {
+  id           String    @id @default(cuid())
+  taskId       String?
+  runId        String?
+  reason       String
+  strategy     String
+  status       String    @default("PENDING")
+  attempt      Int       @default(1)
+  errorMessage String?
+  startedAt    DateTime?
+  finishedAt   DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([taskId, status])
+  @@index([runId, status])
+}
+
+model TestRun {
+  id           String    @id @default(cuid())
+  ownerId      String?
+  testType     String
+  target       String
+  status       String    @default("QUEUED")
+  input        Json?
+  output       Json?
+  errorCode    String?
+  errorMessage String?
+  startedAt    DateTime?
+  finishedAt   DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([ownerId, createdAt])
+  @@index([status, createdAt])
+}
+
+model SystemEvent {
+  id           String   @id @default(cuid())
+  actorId      String?
+  event        String
+  resourceType String?
+  resourceId   String?
+  severity     String   @default("INFO")
+  data         Json?
+  createdAt    DateTime @default(now())
+
+  @@index([event, createdAt])
+  @@index([resourceType, resourceId])
+}
+
+model ProjectSnapshot {
+  id         String   @id @default(cuid())
+  projectId  String
+  versionId  String?
+  reason     String
+  manifest   Json
+  storageUri String?
+  checksum   String?
+  createdAt  DateTime @default(now())
+
+  @@index([projectId, createdAt])
+}
+
+model ProjectVersion {
+  id        String   @id @default(cuid())
+  projectId String
+  version   Int
+  status    String   @default("DRAFT")
+  source    String?
+  manifest  Json?
+  createdBy String?
+  createdAt DateTime @default(now())
+
+  @@unique([projectId, version])
+  @@index([projectId, createdAt])
 }

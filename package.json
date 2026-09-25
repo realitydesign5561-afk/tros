@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "prisma generate && prisma migrate deploy && prisma db seed && next dev",
     "build": "prisma generate && prisma migrate deploy && next build",
+    "lint": "next lint",
+    "test": "tsx --test tests/*.test.ts",
     "start": "prisma generate && prisma migrate deploy && next start",
     "postinstall": "prisma generate",
     "db:seed": "prisma db seed"
@@ -39,6 +41,8 @@
     "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.30",
     "postcss": "^8.5",
     "prisma": "6.16.2",
     "tailwindcss": "^4.3.3",

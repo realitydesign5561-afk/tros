@@ -1,13 +1,8 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { generateText } from 'ai'
-import { gateway } from '@ai-sdk/gateway'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-
-function fallback(topic: string) {
-  return { title: `${topic}: Field Guide`, description: `A practical, outcome-driven course about ${topic}.`, modules: [{ title: 'Foundations', lessons: ['The essential mental model', 'Tools and setup'], quiz: 'What is the core principle?', assignment: 'Apply the principle to one real example.' }, { title: 'Practice', lessons: ['A repeatable workflow', 'Common mistakes'], quiz: 'Which step creates the most leverage?', assignment: 'Create a one-week action plan.' }, { title: 'Launch', lessons: ['Measure what matters', 'Build the next iteration'], quiz: 'What should you improve first?', assignment: 'Ship a small, measurable project.' }] }
-}
+import { executeAITask } from '@/lib/ai-gateway/service'
 
 export async function GET() {
   const session = await getServerSession(authOptions)
@@ -23,12 +18,12 @@ export async function POST(request: Request) {
   if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
   const { topic, prompt, format = 'self-paced', audience = 'beginners', includeVideos = true } = await request.json()
   if (!topic?.trim()) return NextResponse.json({ error: 'Topic is required' }, { status: 400 })
-  let outline = fallback(topic.trim())
-  if (process.env.AI_GATEWAY_API_KEY) {
-    try {
-      const result = await generateText({ model: gateway('openai/gpt-4o-mini'), maxOutputTokens: 900, prompt: `Create a ${format} course for ${audience} about ${topic}. ${prompt || ''} Return JSON only with title, description, modules: [{title, lessons: string[], quiz, assignment}].` })
-      outline = JSON.parse(result.text)
-    } catch { /* keep useful local outline */ }
+  let outline: { title: string; description: string; modules: { title: string; lessons: string[]; quiz?: string; assignment?: string }[] }
+  try {
+    const result = await executeAITask({ task: `Create a ${format} course for ${audience} about ${topic}. ${prompt || ''} Return JSON only with title, description, modules: [{title, lessons: string[], quiz, assignment}].`, capability: 'TEXT_GENERATION', userId: session.user.id, maxTokens: 900 })
+    outline = JSON.parse(typeof result.output === 'string' ? result.output : '')
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Course generation failed.' }, { status: 502 })
   }
   const course = await prisma.course.create({ data: { ownerId: user.id, topic: topic.trim(), title: outline.title, description: outline.description, modules: { create: outline.modules.map((module: { title: string; lessons: string[]; quiz?: string; assignment?: string }, moduleIndex: number) => ({ title: module.title, position: moduleIndex, lessons: { create: module.lessons.map((title, lessonIndex) => ({ title, position: lessonIndex, youtubeUrl: includeVideos ? `https://www.youtube.com/results?search_query=${encodeURIComponent(`${title} ${topic}`)}` : null, quiz: module.quiz ? { create: { prompt: module.quiz, answer: 'Review the lesson and explain the principle in your own words.' } } : undefined, assignment: module.assignment ? { create: { prompt: module.assignment } } : undefined })) } })) } }, include: { modules: { include: { lessons: true }, orderBy: { position: 'asc' } } } })
   return NextResponse.json(course, { status: 201 })
