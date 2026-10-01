@@ -4,7 +4,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { createAgentTask } from '@/lib/agent/runtime'
 
-const inputSchema = z.object({ prompt: z.string().trim().min(3).max(20_000), module: z.string().trim().max(80).optional(), projectId: z.string().optional(), conversationId: z.string().optional() })
+const inputSchema = z.object({ prompt: z.string().trim().min(3).max(20_000), module: z.string().trim().max(80).optional(), projectId: z.string().optional(), conversationId: z.string().optional(), idempotencyKey: z.string().min(8).max(128).optional() })
 
 async function userId() {
   return (await getServerSession(authOptions))?.user?.id
@@ -23,6 +23,8 @@ export async function POST(request: Request) {
   if (!id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const parsed = inputSchema.safeParse(await request.json())
   if (!parsed.success) return NextResponse.json({ error: 'Enter a request with at least three characters.', details: parsed.error.flatten() }, { status: 400 })
-  const task = await createAgentTask({ ...parsed.data, userId: id })
+  const idempotencyKey = request.headers.get('idempotency-key') || parsed.data.idempotencyKey
+  if (idempotencyKey && !z.string().min(8).max(128).safeParse(idempotencyKey).success) return NextResponse.json({ error: 'Invalid idempotency key.' }, { status: 400 })
+  const task = await createAgentTask({ ...parsed.data, idempotencyKey, userId: id })
   return NextResponse.json({ task }, { status: 202 })
 }

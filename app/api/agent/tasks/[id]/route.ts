@@ -5,7 +5,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { controlAgentTask } from '@/lib/agent/runtime'
 
-const actionSchema = z.object({ action: z.enum(['pause', 'resume', 'cancel', 'retry', 'approve']) })
+const actionSchema = z.object({ action: z.enum(['pause', 'resume', 'cancel', 'retry', 'approve', 'resolve']) })
 
 async function ownerId() {
   return (await getServerSession(authOptions))?.user?.id

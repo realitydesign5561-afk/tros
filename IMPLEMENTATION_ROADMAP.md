@@ -2,6 +2,12 @@
 
 The roadmap is staged so the existing application remains deployable and project data remains intact.
 
+## Current status
+
+- **Phase 0: COMPLETE** — audit, additive foundation schema, provider contracts, baseline tests, and build validation.
+- **Phase 1: COMPLETE** — persistent leased queues, task/event APIs, SSE progress, cancellation/retry controls, idempotent submissions, lease heartbeats, checkpoint resume, and manual reconciliation for uncertain side effects.
+- **Phase 2: NEXT** — finish migration of legacy plaintext provider keys and harden the credential/provider platform.
+
 ## Phase 0: Foundation (this pass)
 
 - Audit existing pages, routes, integrations, schema, deployment, and security.
@@ -20,6 +26,8 @@ Exit criteria: migration applies without altering existing tables; tests pass; b
 - Persist execution logs and idempotency keys.
 - Add cancellation, retry, timeout, and restart recovery.
 - Migrate Website Factory generation into a resumable task while preserving current synchronous API compatibility.
+
+Phase 1 implementation status: delivered. Recovery decisions are covered by unit tests; the opt-in database idempotency integration test requires a dedicated `TROS_TEST_DATABASE_URL` and is skipped by default.
 
 ## Phase 2: Provider and credential platform
 
@@ -56,10 +64,10 @@ Exit criteria: migration applies without altering existing tables; tests pass; b
 - Add end-to-end tests for login, task submission/resume, provider failure, retry, cancellation, project versioning, and authorization.
 - Load test queue claims and streaming; perform backup/restore rehearsal.
 
-## Explicit blockers before Phase 1
+## Phase 2 exit criteria
 
-- Rotate the exposed Neon password and remove plaintext/API-key risk.
-- Decide on a production queue deployment strategy.
-- Provide credentials and callback contracts for each external provider.
-- Define tenant model and RBAC roles beyond the current ADMIN default.
-- Decide object storage and browser-worker deployment targets.
+- Migrate or revoke legacy plaintext `ApiKey` values and ensure provider execution reads only encrypted credentials.
+- Configure `AI_CREDENTIAL_ENCRYPTION_KEY` in deployment secrets and rehearse key rotation.
+- Use a dedicated `TROS_TEST_DATABASE_URL` for the opt-in persistence integration tests.
+- Rotate the Neon password exposed in prior chat messages.
+- Define tenant/RBAC scope and provider credentials/callbacks needed for production integrations.
