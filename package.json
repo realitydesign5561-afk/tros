@@ -8,6 +8,8 @@
     "lint": "next lint",
     "test": "tsx --test tests/*.test.ts",
     "test:e2e": "playwright test",
+    "db:migrate-credentials:dry-run": "tsx scripts/migrate-legacy-api-keys.ts --dry-run",
+    "db:migrate-credentials": "tsx scripts/migrate-legacy-api-keys.ts",
     "start": "prisma generate && prisma migrate deploy && next start",
     "postinstall": "prisma generate",
     "db:seed": "prisma db seed"

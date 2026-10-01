@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { resolveServerCredential } from '@/lib/ai-gateway/credentials'
 
 export type WebsiteAdapterResult = { ok: boolean; verified: boolean; data?: Record<string, unknown>; error?: string }
 
@@ -9,10 +10,11 @@ function required(name: string) {
 }
 
 export async function publishToGitHub(buildId: string, repository?: string): Promise<WebsiteAdapterResult> {
-  const token = required('GITHUB_TOKEN')
   const owner = required('GITHUB_OWNER')
   const build = await prisma.websiteBuild.findUnique({ where: { id: buildId }, include: { files: true } })
   if (!build) return { ok: false, verified: false, error: 'BUILD_NOT_FOUND' }
+  const token = process.env.GITHUB_TOKEN || (await resolveServerCredential(['github', 'GitHub'], build.ownerId))?.value
+  if (!token) throw new Error('GITHUB_TOKEN or an encrypted GitHub credential is required.')
   const repoName = repository || `${process.env.GITHUB_REPOSITORY_PREFIX || 'tros-site'}-${build.projectId.slice(-8)}`
   const headers = { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }
   const existing = await fetch(`https://api.github.com/repos/${owner}/${repoName}`, { headers })
@@ -33,9 +35,10 @@ export async function publishToGitHub(buildId: string, repository?: string): Pro
 }
 
 export async function deployToVercel(buildId: string, repositoryUrl?: string): Promise<WebsiteAdapterResult> {
-  const token = required('VERCEL_TOKEN')
   const build = await prisma.websiteBuild.findUnique({ where: { id: buildId }, include: { files: true, project: true } })
   if (!build) return { ok: false, verified: false, error: 'BUILD_NOT_FOUND' }
+  const token = process.env.VERCEL_TOKEN || (await resolveServerCredential(['vercel', 'Vercel'], build.ownerId))?.value
+  if (!token) throw new Error('VERCEL_TOKEN or an encrypted Vercel credential is required.')
   const files = build.files.filter((file) => file.kind !== 'PREVIEW').map((file) => ({ file: file.path, data: file.content }))
   const payload: Record<string, unknown> = { name: build.project.name.toLowerCase().replace(/[^a-z0-9-]+/g, '-').slice(0, 48), files, target: 'production' }
   if (process.env.VERCEL_PROJECT_ID) payload.project = process.env.VERCEL_PROJECT_ID

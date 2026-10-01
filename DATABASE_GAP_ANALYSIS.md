@@ -2,7 +2,7 @@
 
 ## Current state
 
-Prisma uses PostgreSQL through `NEON_DATABASE_URL`. The existing four migrations are applied and the current schema supports users, projects, workflows, courses, social content, YouTube records, leads, AI feature records, and basic analytics/API keys.
+Prisma uses PostgreSQL through `NEON_DATABASE_URL`. Ten migrations are applied. The schema supports users, projects, workflows, courses, social content, YouTube records, leads, AI providers/credentials/tasks, integrations, agent execution, Website Factory builds, and project versions.
 
 The current schema is useful product data, but it treats most execution state as strings (`status`, `logs`, `metadata`) and has no shared execution identity or ownership model for platform operations.
 
@@ -34,8 +34,8 @@ These models are intentionally generic and use JSON fields for evolving provider
 ## Remaining migration work after this foundation
 
 - Add indexes tuned to queue polling and tenant ownership after production query metrics.
-- Move existing `ApiKey` values into encrypted `Credential` records with a one-time migration and deletion of plaintext values.
+- Run `db:migrate-credentials:dry-run` on every environment before `db:migrate-credentials`. The current Neon dry run found zero legacy `ApiKey` rows; the plaintext-compatible table remains for rollback but application code no longer reads it.
 - Backfill workflow runs into `AutomationRun` and execution logs.
-- Add project version creation to Website Factory writes.
+- Create retained project versions for all existing Website Factory writes and improvements.
 - Add retention policies and archival for logs, usage, and raw provider payloads.
 - Introduce database-level enums only after the rollout stabilizes to avoid blocking zero-downtime deployments.

@@ -1,7 +1,7 @@
 import { z } from 'zod'
+import { resolveServerCredential } from '@/lib/ai-gateway/credentials'
 
 const apiUrl = process.env.ACTIVEPIECES_API_URL?.replace(/\/$/, '')
-const apiKey = process.env.ACTIVEPIECES_API_KEY
 
 export class ActivepiecesConfigError extends Error {
   constructor() {
@@ -10,13 +10,14 @@ export class ActivepiecesConfigError extends Error {
   }
 }
 
-function requireConfig() {
+async function requireConfig(ownerId?: string) {
+  const apiKey = process.env.ACTIVEPIECES_API_KEY || (await resolveServerCredential(['activepieces', 'Activepieces'], ownerId))?.value
   if (!apiUrl || !apiKey) throw new ActivepiecesConfigError()
   return { apiUrl, apiKey }
 }
 
-async function request<T>(path: string, init: RequestInit = {}) {
-  const config = requireConfig()
+async function request<T>(path: string, init: RequestInit = {}, ownerId?: string) {
+  const config = await requireConfig(ownerId)
   const response = await fetch(`${config.apiUrl}${path}`, {
     ...init,
     headers: {
@@ -34,22 +35,24 @@ async function request<T>(path: string, init: RequestInit = {}) {
 
 const externalWorkflowSchema = z.object({ id: z.string().optional(), status: z.string().optional() }).passthrough()
 
-export async function createWorkflow(input: { name: string; graph: unknown }) {
-  return externalWorkflowSchema.parse(await request('/api/v1/flows', { method: 'POST', body: JSON.stringify({ displayName: input.name, metadata: input.graph }) }))
+export async function createWorkflow(input: { name: string; graph: unknown }, ownerId?: string) {
+  return externalWorkflowSchema.parse(await request('/api/v1/flows', { method: 'POST', body: JSON.stringify({ displayName: input.name, metadata: input.graph }) }, ownerId))
 }
 
-export async function updateWorkflow(id: string, input: { name: string; graph: unknown }) {
-  return externalWorkflowSchema.parse(await request(`/api/v1/flows/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify({ displayName: input.name, metadata: input.graph }) }))
+export async function updateWorkflow(id: string, input: { name: string; graph: unknown }, ownerId?: string) {
+  return externalWorkflowSchema.parse(await request(`/api/v1/flows/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify({ displayName: input.name, metadata: input.graph }) }, ownerId))
 }
 
-export async function runWorkflow(id: string) {
-  return externalWorkflowSchema.parse(await request(`/api/v1/flows/${encodeURIComponent(id)}/run`, { method: 'POST', body: JSON.stringify({}) }))
+export async function runWorkflow(id: string, ownerId?: string) {
+  return externalWorkflowSchema.parse(await request(`/api/v1/flows/${encodeURIComponent(id)}/run`, { method: 'POST', body: JSON.stringify({}) }, ownerId))
 }
 
-export async function getWorkflowStatus(id: string) {
-  return externalWorkflowSchema.parse(await request(`/api/v1/flows/${encodeURIComponent(id)}`))
+export async function getWorkflowStatus(id: string, ownerId?: string) {
+  return externalWorkflowSchema.parse(await request(`/api/v1/flows/${encodeURIComponent(id)}`, {}, ownerId))
 }
 
-export function isActivepiecesConfigured() {
-  return Boolean(apiUrl && apiKey)
+export async function isActivepiecesConfigured(ownerId?: string) {
+  if (!apiUrl) return false
+  if (process.env.ACTIVEPIECES_API_KEY) return true
+  try { return Boolean(await resolveServerCredential(['activepieces', 'Activepieces'], ownerId)) } catch { return false }
 }

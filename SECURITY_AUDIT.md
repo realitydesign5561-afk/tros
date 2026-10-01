@@ -2,11 +2,11 @@
 
 ## Critical findings
 
-- **Credential exposure risk:** `ApiKey.value` is stored as plaintext and is reachable from server code. Replace it with encrypted `Credential.ciphertext`; return only metadata and last-four/fingerprint values.
-- **Hard-coded cryptographic fallback:** `lib/crypto.ts` uses a fixed fallback key when `SOCIAL_ENCRYPTION_KEY` is absent. Production must fail closed and use authenticated encryption with key versioning.
-- **Hard-coded authentication credentials:** `lib/auth.ts` accepts `admin@reality.com` / `admin123`; `prisma/seed.ts` resets this password. Remove the production bypass and require an explicit bootstrap flow.
-- **Hard-coded NextAuth secret fallback:** `lib/auth.ts` includes a development secret. Production must require `NEXTAUTH_SECRET` and fail startup when absent.
-- **Database secret handling:** the connection URL has been supplied in conversation and must be rotated. `.env` files were world-writable in the workspace; use `chmod 600` and secret-manager deployment variables.
+- **Legacy credential table:** `ApiKey.value` remains a plaintext column for compatibility, but provider/admin application paths no longer read it. `scripts/migrate-legacy-api-keys.ts` verifies encrypted copies before deleting source rows. The current database dry run found zero legacy rows; run this script on each deployment database after configuring the vault key.
+- **Credential key configuration:** AI credentials use AES-256-GCM and key-version metadata through `AI_CREDENTIAL_ENCRYPTION_KEYS` and `AI_CREDENTIAL_ENCRYPTION_KEY_VERSION`; legacy single-key `v1` remains readable. Configure/backup the key ring and rotate via the admin-only API before removing old versions.
+- **Social session migration:** new social-session writes use AES-256-GCM and fail closed without `SOCIAL_ENCRYPTION_KEY`. Legacy AES-CBC sessions remain readable for migration compatibility; re-save them with a configured key to upgrade.
+- **NextAuth secret fallback:** `lib/auth.ts` still has a development fallback. Production must require `NEXTAUTH_SECRET` and fail startup when absent.
+- **Database secret handling:** the connection URL was exposed in conversation and should be rotated. Use secret-manager deployment variables and restrict local `.env` permissions.
 
 ## High findings
 
@@ -16,11 +16,11 @@
 - **Local filesystem uploads:** designer uploads under the application process are not durable or isolated for production.
 - **SQLite backup mismatch:** the backup endpoint searches for `prisma/dev.db` while the application datasource is PostgreSQL.
 - **Build type safety disabled:** `next.config.mjs` sets `typescript.ignoreBuildErrors: true`; the separate compiler currently passes but production must not suppress failures.
-- **Unverified cron boundary:** cron authentication must be mandatory and constant-time; scheduled work should enqueue jobs rather than perform all work in one request.
+- **Cron authentication comparison:** cron secrets are now mandatory for the social publisher, but authorization comparison should still be constant-time.
 
 ## Medium findings
 
-- Provider settings accept arbitrary provider labels/values without capability validation or health checks.
+- Legacy integrations using environment variables still require deployment configuration; encrypted user credentials are resolved server-side for supported adapters.
 - Raw provider errors and payloads need redaction before persistence or client response.
 - No audit trail exists for permission changes, credential access, workflow activation, publishing, or repair actions.
 - No tenant/resource policy exists beyond ad hoc `ownerId` filters.
@@ -28,7 +28,7 @@
 ## Security target controls
 
 - Secret manager for deployment secrets; encrypted credential vault for user/provider tokens.
-- AES-256-GCM or equivalent authenticated encryption, key IDs, rotation, and decrypt-only server service.
+- AES-256-GCM or equivalent authenticated encryption, key IDs, rotation, and decrypt-only server service. Social sessions still need a legacy-data re-save campaign.
 - Central authorization policies for user, role, feature, tool, and resource scopes.
 - Redaction utility applied to logs, errors, traces, and AI prompts/results where needed.
 - Rate limiting, idempotency keys, replay protection, webhook signatures, and outbound allowlists.

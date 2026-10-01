@@ -150,14 +150,14 @@ export async function executeAITask(input: ExecuteAITaskInput): Promise<ExecuteA
       lastError = new Error(`Provider ${provider.name} has no active model configured.`)
       continue
     }
-    const credential = await prisma.credential.findFirst({ where: { providerKey: provider.key, status: 'ACTIVE', OR: [{ ownerId: input.userId }, { ownerId: null }] }, orderBy: { ownerId: 'desc' } })
+    const credential = await prisma.credential.findFirst({ where: { providerKey: provider.key, status: 'ACTIVE', OR: [{ ownerId: input.userId }, { ownerId: null }] }, orderBy: [{ ownerId: 'asc' }, { updatedAt: 'desc' }] })
     if (!credential) {
       lastError = new ProviderExecutionError(401, `No credential is configured for provider ${provider.name}.`)
       await recordFailure(provider, lastError)
       continue
     }
     let apiKey: string
-    try { apiKey = decryptCredential(credential.ciphertext) } catch (error) {
+    try { apiKey = decryptCredential(credential.ciphertext, credential.keyVersion) } catch (error) {
       lastError = error
       await recordFailure(provider, error)
       continue

@@ -5,7 +5,7 @@ import { getAgentTool, listAgentTools } from '../lib/agent/registry'
 import { canTransitionAgent, requiresToolReconciliation, resumeAgentStep, staleRecoveryAction, transitionAgent } from '../lib/agent/state'
 import { shouldReuseWebsiteStage } from '../lib/website-factory/state'
 
-const expectedToolKeys = ['website.create', 'website.modify', 'website.deploy', 'workflow.create', 'workflow.update', 'social.research', 'social.generateContent', 'social.generateImage', 'social.schedule', 'course.create', 'course.generateLesson', 'course.generateExercise', 'youtube.research', 'youtube.generateScript', 'youtube.generateThumbnail', 'youtube.publish', 'designer.generate', 'designer.edit', 'lead.search', 'lead.enrich', 'lead.outreach', 'email.send', 'system.health', 'system.repair', 'system.test']
+const expectedToolKeys = ['website.create', 'website.modify', 'website.deploy', 'workflow.create', 'workflow.update', 'workflow.run', 'social.research', 'social.generateContent', 'social.generateImage', 'social.schedule', 'course.create', 'course.generateLesson', 'course.generateExercise', 'youtube.research', 'youtube.generateScript', 'youtube.generateThumbnail', 'youtube.publish', 'designer.generate', 'designer.edit', 'lead.search', 'lead.enrich', 'lead.outreach', 'email.send', 'system.health', 'system.repair', 'system.test']
 
 test('universal registry exposes the complete structured tool catalog', () => {
   const keys = listAgentTools('universal').map((tool) => tool.key)

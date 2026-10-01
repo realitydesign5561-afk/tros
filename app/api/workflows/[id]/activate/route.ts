@@ -8,7 +8,7 @@ export async function POST(_: Request, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions)
   const userId = session?.user?.id
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  if (!isActivepiecesConfigured()) return NextResponse.json({ error: new ActivepiecesConfigError().message }, { status: 503 })
+  if (!(await isActivepiecesConfigured(userId))) return NextResponse.json({ error: new ActivepiecesConfigError().message }, { status: 503 })
 
   const workflow = await prisma.workflow.findFirst({ where: { id: params.id, ownerId: userId } })
   if (!workflow) return NextResponse.json({ error: 'Workflow not found' }, { status: 404 })
@@ -16,8 +16,8 @@ export async function POST(_: Request, { params }: { params: { id: string } }) {
 
   try {
     const result = workflow.activepiecesId
-      ? await updateWorkflow(workflow.activepiecesId, { name: workflow.name, graph })
-      : await createWorkflow({ name: workflow.name, graph })
+      ? await updateWorkflow(workflow.activepiecesId, { name: workflow.name, graph }, userId)
+      : await createWorkflow({ name: workflow.name, graph }, userId)
     const updated = await prisma.workflow.update({ where: { id: workflow.id }, data: { activepiecesId: result.id, activepiecesStatus: result.status || 'ACTIVE', status: 'ACTIVE' } })
     return NextResponse.json({ workflow: updated, activepieces: result })
   } catch (error) {

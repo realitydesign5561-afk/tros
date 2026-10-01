@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { DashboardShell } from '@/components/dashboard-shell'
 import { AuthGuard } from '@/components/auth-guard'
 
-const providerList = ['Vercel AI Gateway', 'Activepieces', 'v0', 'Lovable', 'Bolt', 'Gemini', 'Pinterest references', 'Instagram', 'Facebook', 'TikTok', 'LinkedIn', 'YouTube', 'Email', 'WhatsApp']
+const providerList = ['Vercel AI Gateway', 'Activepieces', 'Resend', 'Stripe', 'GitHub', 'Vercel', 'Social publish webhook', 'v0', 'Lovable', 'Bolt', 'Gemini', 'Pinterest references', 'Instagram', 'Facebook', 'TikTok', 'LinkedIn', 'YouTube', 'Email', 'WhatsApp']
 
 export default function SettingsPage() {
   const [message, setMessage] = useState('')

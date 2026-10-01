@@ -49,8 +49,11 @@ function checksum(content: string) {
   return crypto.createHash('sha256').update(content).digest('hex')
 }
 
-export async function createWebsiteBuild(input: { ownerId: string; projectName: string; prompt: string; niche?: string; pages?: string; brandColors?: string; hasLogin?: boolean; generateSystem?: boolean }) {
-  const project = await prisma.project.create({ data: { ownerId: input.ownerId, name: input.projectName, niche: input.niche || null, pages: input.pages || null, brandColors: input.brandColors || null, prompt: input.prompt, hasLogin: Boolean(input.hasLogin), generateSystem: Boolean(input.generateSystem), source: 'AI_AGENT', status: 'BUILDING', health: 'QUEUED' } })
+export async function createWebsiteBuild(input: { ownerId: string; projectName: string; prompt: string; existingProjectId?: string; niche?: string; pages?: string; brandColors?: string; hasLogin?: boolean; generateSystem?: boolean }) {
+  const project = input.existingProjectId
+    ? await prisma.project.updateMany({ where: { id: input.existingProjectId, ownerId: input.ownerId }, data: { prompt: input.prompt, ...(input.niche !== undefined ? { niche: input.niche } : {}), ...(input.pages !== undefined ? { pages: input.pages } : {}), ...(input.brandColors !== undefined ? { brandColors: input.brandColors } : {}), status: 'BUILDING', health: 'QUEUED' } }).then(async (result) => result.count ? prisma.project.findUniqueOrThrow({ where: { id: input.existingProjectId } }) : null)
+    : await prisma.project.create({ data: { ownerId: input.ownerId, name: input.projectName, niche: input.niche || null, pages: input.pages || null, brandColors: input.brandColors || null, prompt: input.prompt, hasLogin: Boolean(input.hasLogin), generateSystem: Boolean(input.generateSystem), source: 'AI_AGENT', status: 'BUILDING', health: 'QUEUED' } })
+  if (!project) throw new Error('OWNED_PROJECT_NOT_FOUND')
   const build = await prisma.websiteBuild.create({ data: { ownerId: input.ownerId, projectId: project.id, prompt: input.prompt } })
   await log(build.id, 'PROMPT', 'Website request queued.', 'INFO', { projectId: project.id })
   return { project, build }
