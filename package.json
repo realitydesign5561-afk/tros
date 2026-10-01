@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "prisma generate && prisma migrate deploy && prisma db seed && next dev",
-    "build": "prisma generate && prisma migrate deploy && next build",
+    "dev": "set -a; [ ! -f /vercel/share/.env.project ] || . /vercel/share/.env.project; set +a; prisma generate && prisma migrate deploy && prisma db seed && next dev",
+    "build": "set -a; [ ! -f /vercel/share/.env.project ] || . /vercel/share/.env.project; set +a; prisma generate && prisma migrate deploy && next build",
     "lint": "next lint",
     "test": "tsx --test tests/*.test.ts",
     "test:e2e": "playwright test",
