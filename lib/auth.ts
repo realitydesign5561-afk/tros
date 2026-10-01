@@ -1,6 +1,6 @@
 import type { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import { compare, hash } from 'bcryptjs'
+import { compare } from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
 
 const runtimeUrl =
@@ -27,33 +27,6 @@ export const authOptions: NextAuthOptions = {
 
       const email = String(credentials.email).trim().toLowerCase()
       const password = String(credentials.password)
-      const isDemoAdmin = email === 'admin@reality.com' && password === 'admin123'
-
-      if (isDemoAdmin) {
-        try {
-          const syncedUser = await prisma.user.upsert({
-            where: { email },
-            update: { passwordHash: await hash(password, 12), name: 'TROS Admin', role: 'ADMIN' },
-            create: { email, passwordHash: await hash(password, 12), name: 'TROS Admin', role: 'ADMIN' },
-          })
-
-          return {
-            id: syncedUser.id,
-            email: syncedUser.email,
-            name: syncedUser.name || 'TROS Admin',
-            role: syncedUser.role,
-          }
-        } catch (error) {
-          console.error('[auth] Demo admin account sync failed:', error)
-        }
-
-        return {
-          id: 'tros-demo-admin',
-          email,
-          name: 'TROS Admin',
-          role: 'ADMIN',
-        }
-      }
 
       try {
         const user = await prisma.user.findUnique({ where: { email } })
