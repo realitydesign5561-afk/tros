@@ -4,8 +4,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("NEON_DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("NEON_DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -27,6 +28,8 @@ model User {
   leads         Lead[]
   campaigns     LeadCampaign[]
   aiFeatures    AiFeature[]
+  socialCampaigns SocialCampaign[]
+  brandProfiles   BrandProfile[]
   socialAutomationEnabled Boolean @default(false)
   socialAutomationNiches String?
   socialAutomationDays String?
@@ -281,7 +284,10 @@ model SocialSession {
   id String @id @default(cuid())
   platform String
   status String @default("ACTIVE")
-  storageState String
+  storageState String?
+  accessToken String?
+  refreshToken String?
+  expiresAt DateTime?
   accountId String?
   accountName String?
   lastCheckedAt DateTime @default(now())
@@ -294,12 +300,23 @@ model SocialPost {
   id String @id @default(cuid())
   platform String
   caption String
+  hook String?
+  cta String?
   hashtags String?
+  platformVariations String?
   imagePrompt String?
   imageUrl String?
+  carouselConcepts String?
+  videoConcepts String?
   scheduledAt DateTime?
   publishedAt DateTime?
-  status String @default("DRAFT")
+  status String @default("DRAFT") // DRAFT, READY_FOR_REVIEW, APPROVED, SCHEDULED, PUBLISHED, FAILED
+  externalPostId String?
+  errorMessages String?
+  qualityScore Int?
+  internalQualityReport String?
+  campaignId String?
+  campaign SocialCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
   ownerId String
   owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   analytics SocialPostAnalytics?
@@ -415,4 +432,34 @@ model LeadMessage {
   campaignId   String?
   campaign     LeadCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
   createdAt    DateTime     @default(now())
+}
+
+model SocialCampaign {
+  id String @id @default(cuid())
+  name String
+  niche String?
+  targetAudience String?
+  contentStrategy String?
+  contentPillars String?
+  startDate DateTime?
+  endDate DateTime?
+  status String @default("DRAFT")
+  ownerId String
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  posts SocialPost[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BrandProfile {
+  id String @id @default(cuid())
+  name String
+  logoUrl String?
+  brandColors String?
+  fonts String?
+  visualGuidelines String?
+  ownerId String
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
