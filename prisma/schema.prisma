@@ -61,6 +61,8 @@ model Design {
   status        String   @default("DRAFT")
   ownerId       String
   owner         User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  sessions      DesignSession[]
+  versions      DesignVersion[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
@@ -525,6 +527,8 @@ model BrandProfile {
   brandColors String?
   fonts String?
   visualGuidelines String?
+  preferredFormats String?
+  spacing String?
   ownerId String
   owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
@@ -542,4 +546,22 @@ model CourseGenerationJob {
   course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+model DesignSession {
+  id        String   @id @default(cuid())
+  designId  String
+  design    Design   @relation(fields: [designId], references: [id], onDelete: Cascade)
+  chatHistory String? // JSON serialized chat
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DesignVersion {
+  id        String   @id @default(cuid())
+  designId  String
+  design    Design   @relation(fields: [designId], references: [id], onDelete: Cascade)
+  assetUrl  String
+  prompt    String?
+  format    String   @default("png")
+  createdAt DateTime @default(now())
 }
