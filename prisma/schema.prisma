@@ -14,7 +14,11 @@ model User {
   email        String   @unique
   name         String?
   passwordHash String
-  role         String   @default("ADMIN")
+  role String @default("USER")
+  status String @default("PENDING_APPROVAL")
+  systemRoleId String?
+  systemRole SystemRole? @relation(fields: [systemRoleId], references: [id], onDelete: SetNull)
+  featurePermissions UserFeaturePermission[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   projects     Project[]
@@ -619,6 +623,55 @@ model FeatureAuditLog {
   feature     AiFeature @relation(fields: [featureId], references: [id], onDelete: Cascade)
   action      String   // BUILD, TEST, APPROVE, DEPLOY, ROLLBACK, DISABLE
   status      String   // SUCCESS, FAILED
+  logs        String?
+  createdAt   DateTime @default(now())
+}
+model SystemRole {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  permissions String?  // JSON list of permissions
+  users       User[]
+}
+
+model UserFeaturePermission {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  featureName String
+  accessLevel String   @default("READ") // READ, WRITE, ADMIN
+}
+
+model SystemHealth {
+  id          String   @id @default(cuid())
+  service     String
+  status      String   @default("HEALTHY") // HEALTHY, DEGRADED, DOWN
+  lastChecked DateTime @default(now())
+  details     String?
+}
+
+model RepairJob {
+  id          String   @id @default(cuid())
+  service     String
+  status      String   @default("PENDING") // PENDING, RUNNING, SUCCESS, FAILED
+  logs        String?
+  snapshotId  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SystemRestartJob {
+  id          String   @id @default(cuid())
+  status      String   @default("PENDING")
+  initiatedBy String
+  reason      String?
+  createdAt   DateTime @default(now())
+}
+
+model TestRun {
+  id          String   @id @default(cuid())
+  module      String
+  testType    String   // SMOKE, INTEGRATION, E2E, HEALTH
+  status      String   @default("RUNNING") // RUNNING, PASS, FAIL, WARNING
   logs        String?
   createdAt   DateTime @default(now())
 }
