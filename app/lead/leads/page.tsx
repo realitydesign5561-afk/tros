@@ -2,16 +2,25 @@
 import { useState } from 'react';
 
 export default function LeadTable() {
-  const [leads] = useState([
-    { id: 1, name: 'John Doe', company: 'Tech Lagos', email: 'john@techlagos.demo', score: 85, status: 'ENRICHED' },
-    { id: 2, name: 'Jane Smith', company: 'Naija Real Estate', email: 'jane@naijarealestate.demo', score: 92, status: 'MESSAGED' },
-  ]);
+  const [leads, setLeads] = useState<any[]>([]);
+
+  const handleDiscover = async () => {
+    try {
+      const res = await fetch('/api/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'discover', query: 'web dev', ownerId: 'demo' })
+      });
+      const data = await res.json();
+      if (data.leads) setLeads(data.leads);
+    } catch(e) {}
+  };
 
   return (
     <div className="p-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Prospects</h1>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded">Discover Leads</button>
+        <button onClick={handleDiscover} className="bg-blue-600 text-white px-4 py-2 rounded">Discover Leads</button>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
