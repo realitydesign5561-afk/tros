@@ -32,8 +32,6 @@ export const authOptions: NextAuthOptions = {
       try {
         let user = await prisma.user.findUnique({ where: { email } })
 
-        // Keep the documented demo access usable on fresh deployments and on
-        // databases that were created before the seed script ran.
         if (isDemoAdmin) {
           const passwordHash = await hash(password, 12)
           user = user
@@ -49,8 +47,13 @@ export const authOptions: NextAuthOptions = {
         if (user && (await compare(password, user.passwordHash))) {
           return { id: user.id, email: user.email, name: user.name, role: user.role }
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('[v0] Production auth database unavailable:', error)
+        // If it's a connection error (like Neon cold start), explicitly reject with a message
+        if (error.message?.includes("Can't reach database server")) {
+          throw new Error('Database is waking up from sleep. Please try again in 5 seconds.');
+        }
+        throw new Error('Database connection failed. ' + error.message);
       }
 
       // Vercel serverless deployments may not have a writable/persistent
