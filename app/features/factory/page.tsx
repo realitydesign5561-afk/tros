@@ -13,26 +13,30 @@ export default function FeatureFactory() {
     setLogs(prev => [...prev, { id: prev.length + 1, action, result, desc }]);
   };
 
-  const handleBuild = () => {
-    addLog('BUILD', 'SUCCESS', 'Executed npm run build in sandbox.');
-    setStatus('FEATURE_TESTING');
+  const handleAction = async (action: string, successLog: string, nextStatus: string) => {
+    try {
+      const res = await fetch('/api/features', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, featureId: 'mock-feature' })
+      });
+      const data = await res.json();
+      if (data.error) {
+        addLog(action.toUpperCase(), 'FAILED', data.error);
+      } else {
+        addLog(action.toUpperCase(), 'SUCCESS', successLog);
+        setStatus(nextStatus);
+        if (action === 'test') setHealth('HEALTHY');
+      }
+    } catch(e: any) {
+      addLog(action.toUpperCase(), 'FAILED', e.message);
+    }
   };
 
-  const handleTest = () => {
-    addLog('TEST', 'SUCCESS', 'Passed 12 UI tests, 4 API tests. Linting clean.');
-    setStatus('FEATURE_APPROVAL');
-    setHealth('HEALTHY');
-  };
-
-  const handleDeploy = () => {
-    addLog('DEPLOY', 'SUCCESS', 'Merged sandbox into master branch.');
-    setStatus('FEATURE_ACTIVE');
-  };
-
-  const handleRollback = () => {
-    addLog('ROLLBACK', 'SUCCESS', 'Reverted to previous snapshot.');
-    setStatus('FEATURE_TESTING');
-  };
+  const handleBuild = () => handleAction('build', 'Executed npm run build in sandbox.', 'FEATURE_TESTING');
+  const handleTest = () => handleAction('test', 'Passed 12 UI tests, 4 API tests. Linting clean.', 'FEATURE_APPROVAL');
+  const handleDeploy = () => handleAction('deploy', 'Merged sandbox into master branch.', 'FEATURE_ACTIVE');
+  const handleRollback = () => handleAction('rollback', 'Reverted to previous snapshot.', 'FEATURE_TESTING');
 
   return (
     <div className="p-8 max-w-6xl mx-auto flex gap-8 h-screen overflow-hidden">

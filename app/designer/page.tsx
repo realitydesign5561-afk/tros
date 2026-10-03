@@ -12,15 +12,26 @@ export default function ConversationalDesigner() {
   const sendMessage = async () => {
     if (!input) return;
     setMessages([...messages, { role: 'user', text: input }]);
-    
-    // Simulate AI response delay
-    setTimeout(() => {
-      setMessages(m => [...m, { role: 'agent', text: 'Design updated successfully!' }]);
-      setVersions(v => [...v, `https://via.placeholder.com/600x400?text=Design+Version+${v.length + 1}`]);
-      setActiveVersion(versions.length);
-    }, 1500);
-
+    const currentInput = input;
     setInput('');
+    
+    try {
+      const formData = new FormData();
+      formData.append('prompt', currentInput);
+      formData.append('reference', new Blob(['fake image data'], { type: 'image/png' }));
+      const res = await fetch('/api/designer', { method: 'POST', body: formData });
+      const data = await res.json();
+      
+      if (data.error) {
+        setMessages(m => [...m, { role: 'agent', text: 'Error: ' + data.error }]);
+      } else {
+        setMessages(m => [...m, { role: 'agent', text: 'Design updated successfully!' }]);
+        setVersions(v => [...v, data.outputUrl || `https://via.placeholder.com/600x400?text=Design+Version+${v.length + 1}`]);
+        setActiveVersion(versions.length);
+      }
+    } catch(e) {
+      setMessages(m => [...m, { role: 'agent', text: 'Network Error.' }]);
+    }
   };
 
   const undo = () => setActiveVersion(Math.max(0, activeVersion - 1));
