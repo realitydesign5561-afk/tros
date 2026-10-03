@@ -23,7 +23,7 @@ model User {
   socialPosts  SocialPost[]
   socialSessions SocialSession[]
   socialInbox SocialInbox[]
-  youtubeVideos YouTubeVideo[]
+  youtubeChannels YouTubeChannel[]
   designs       Design[]
   leads         Lead[]
   campaigns     LeadCampaign[]
@@ -183,42 +183,58 @@ model WorkflowAlert {
 }
 
 model Course {
-  id          String         @id @default(cuid())
-  title       String
-  topic       String
-  description String?
-  status      String         @default("DRAFT")
-  ownerId     String
-  owner       User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  modules     CourseModule[]
-  enrollments Enrollment[]
-  payments    PaymentLink[]
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  id               String         @id @default(cuid())
+  title            String
+  topic            String
+  description      String?
+  targetAudience   String?
+  prerequisites    String?
+  learningOutcomes String?
+  generationJobId  String?
+  generationStatus String?
+  status           String         @default("DRAFT")
+  ownerId          String
+  owner            User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  modules          CourseModule[]
+  enrollments      Enrollment[]
+  payments         PaymentLink[]
+  jobs             CourseGenerationJob[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 }
 
 model CourseModule {
   id        String   @id @default(cuid())
   title     String
   position  Int
+  objectives String?
   courseId  String
   course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   lessons   Lesson[]
 }
 
 model Lesson {
-  id          String       @id @default(cuid())
-  title       String
-  position    Int
-  youtubeUrl  String?
-  script      String?
-  status      String       @default("DRAFT")
-  moduleId    String
-  module      CourseModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  videos      Video[]
-  progresses  Progress[]
-  quiz        Quiz?
-  assignment  Assignment?
+  id                      String       @id @default(cuid())
+  title                   String
+  position                Int
+  youtubeUrl              String?
+  script                  String?
+  examples                String?
+  practicalDemonstrations String?
+  exercises               String?
+  downloadableResources   String?
+  assessments             String?
+  finalProject            String?
+  completionCriteria      String?
+  videoStatus             String?
+  videoUrl                String?
+  status                  String       @default("DRAFT")
+  moduleId                String
+  module                  CourseModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  videos                  Video[]
+  progresses              Progress[]
+  quiz                    Quiz?
+  assignment              Assignment?
 }
 
 model Quiz {
@@ -348,25 +364,60 @@ model SocialInbox {
   createdAt DateTime @default(now())
 }
 
+model YouTubeChannel {
+  id               String   @id @default(cuid())
+  name             String
+  niche            String?
+  targetAudience   String?
+  strategy         String?
+  subscribers      Int      @default(0)
+  watchHours       Int      @default(0)
+  shortsViews      Int      @default(0)
+  monetizationEligible Boolean @default(false)
+  autoPublish      Boolean  @default(false)
+  ownerId          String
+  owner            User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  videos           YouTubeVideo[]
+  ideas            YouTubeVideoIdea[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model YouTubeVideoIdea {
+  id               String   @id @default(cuid())
+  title            String
+  description      String?
+  demandScore      Int      @default(0)
+  competitionScore Int      @default(0)
+  topicScore       Int      @default(0)
+  channelId        String
+  channel          YouTubeChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
 model YouTubeVideo {
-  id            String   @id @default(cuid())
-  title         String
-  topic         String
-  stage         String   @default("RESEARCH")
-  status        String   @default("DRAFT")
-  research      String?
-  script        String?
-  scheduledAt   DateTime?
-  youtubeId     String?
-  youtubeUrl    String?
-  views         Int      @default(0)
-  likes         Int      @default(0)
-  comments      Int      @default(0)
-  ownerId       String
-  owner         User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  assets        YouTubeAsset[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id               String   @id @default(cuid())
+  title            String
+  titleVariants    String?
+  description      String?
+  tags             String?
+  script           String?
+  thumbnailUrl     String?
+  thumbnailVariants String?
+  videoUrl         String?
+  shortUrl         String?
+  status           String   @default("RESEARCH") 
+  format           String   @default("LONG") 
+  externalVideoId  String?
+  channelId        String
+  channel          YouTubeChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  assets           YouTubeAsset[]
+  analytics        YouTubeAnalytics?
+  scheduledAt      DateTime?
+  publishedAt      DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 model YouTubeAsset {
@@ -381,6 +432,22 @@ model YouTubeAsset {
   createdAt DateTime @default(now())
 }
 
+model YouTubeAnalytics {
+  id               String   @id @default(cuid())
+  impressions      Int      @default(0)
+  ctr              Float    @default(0)
+  views            Int      @default(0)
+  avgViewDuration  Int      @default(0)
+  retention        Float    @default(0)
+  likes            Int      @default(0)
+  comments         Int      @default(0)
+  returningViewers Int      @default(0)
+  trafficSources   String?
+  videoId          String   @unique
+  video            YouTubeVideo @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
 model Lead {
   id          String        @id @default(cuid())
   name        String
@@ -462,4 +529,17 @@ model BrandProfile {
   owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model CourseGenerationJob {
+  id          String   @id @default(cuid())
+  prompt      String
+  status      String   @default("QUEUED") // QUEUED, RUNNING, PAUSED, COMPLETED, FAILED
+  progress    Int      @default(0)
+  logs        String?
+  error       String?
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
