@@ -43,11 +43,14 @@ model AiFeature {
   name        String
   description String?
   prompt      String
-  provider    String   @default("copilot")
-  status      String   @default("DRAFT")
-  externalUrl String?
+  provider    String   @default("gpt-4o")
+  status      String   @default("FEATURE_DRAFT") // FEATURE_DRAFT, FEATURE_TESTING, FEATURE_APPROVAL, FEATURE_ACTIVE, DISABLED
+  isEnabled   Boolean  @default(false)
+  isHealthy   Boolean  @default(true)
   ownerId     String
   owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  versions    AiFeatureVersion[]
+  logs        FeatureAuditLog[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -598,4 +601,24 @@ model SuppressionList {
   ownerId   String
   owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+}
+model AiFeatureVersion {
+  id          String   @id @default(cuid())
+  featureId   String
+  feature     AiFeature @relation(fields: [featureId], references: [id], onDelete: Cascade)
+  apiRoutes   String?  // JSON
+  uiRoutes    String?  // JSON
+  changelog   String?
+  commitHash  String?
+  createdAt   DateTime @default(now())
+}
+
+model FeatureAuditLog {
+  id          String   @id @default(cuid())
+  featureId   String
+  feature     AiFeature @relation(fields: [featureId], references: [id], onDelete: Cascade)
+  action      String   // BUILD, TEST, APPROVE, DEPLOY, ROLLBACK, DISABLE
+  status      String   // SUCCESS, FAILED
+  logs        String?
+  createdAt   DateTime @default(now())
 }
