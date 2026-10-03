@@ -1,16 +1,16 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function OperationsCenter() {
-  const [telemetry] = useState({
-    aiLatency: '245ms',
-    aiFailureRate: '0.04%',
-    errorRate: '0.02%',
-    activeJobs: 17,
-    dlqSize: 2,
-    dbHealth: '99.99% UPTIME',
-    oauthHealth: 'HEALTHY'
+  const [telemetry, setTelemetry] = useState({
+    aiLatency: '-', aiFailureRate: '-', errorRate: '-', activeJobs: 0, dlqSize: 0, dbHealth: '-', oauthHealth: '-'
   });
+
+  useEffect(() => {
+    fetch('/api/admin/telemetry').then(res => res.json()).then(data => {
+      if (data.telemetry) setTelemetry(prev => ({...prev, ...data.telemetry}));
+    });
+  }, []);
 
   const modules = [
     { name: 'SYSTEM', status: 'HEALTHY', repairable: true },

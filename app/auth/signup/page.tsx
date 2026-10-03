@@ -4,9 +4,23 @@ import { useState } from 'react';
 export default function SignupPage() {
   const [status, setStatus] = useState('');
 
-  const handleSignup = (e: any) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSignup = async (e: any) => {
     e.preventDefault();
-    setStatus('Account created! Pending Admin approval.');
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if (data.error) setStatus('Error: ' + data.error);
+      else setStatus('Account created! Pending Admin approval.');
+    } catch(e) {
+      setStatus('Network error occurred.');
+    }
   };
 
   return (
@@ -22,11 +36,11 @@ export default function SignupPage() {
           <form onSubmit={handleSignup} className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-1">Email</label>
-              <input type="email" required className="w-full border p-2 rounded" />
+              <input type="email" value={email} onChange={e=>setEmail(e.target.value)} required className="w-full border p-2 rounded" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Password</label>
-              <input type="password" required className="w-full border p-2 rounded" />
+              <input type="password" value={password} onChange={e=>setPassword(e.target.value)} required className="w-full border p-2 rounded" />
             </div>
             <button className="w-full bg-blue-600 text-white p-2 rounded font-medium">Sign Up</button>
             <div className="text-center text-sm text-gray-500 mt-4">or</div>
