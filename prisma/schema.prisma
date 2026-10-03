@@ -26,6 +26,8 @@ model User {
   youtubeChannels YouTubeChannel[]
   designs       Design[]
   leads         Lead[]
+  emailConnections EmailConnection[]
+  suppressions  SuppressionList[]
   campaigns     LeadCampaign[]
   aiFeatures    AiFeature[]
   socialCampaigns SocialCampaign[]
@@ -460,7 +462,10 @@ model Lead {
   location    String?
   niche       String?
   source      String        @default("DEMO")
-  status      String        @default("NEW")
+  status       String        @default("NEW")
+  score        Int           @default(0)
+  unsubscribed Boolean       @default(false)
+  bounced      Boolean       @default(false)
   painPoints  String?
   notes       String?
   ownerId     String
@@ -478,6 +483,7 @@ model LeadCampaign {
   niche       String?
   location    String?
   status      String        @default("DRAFT")
+  dailySendingLimit Int     @default(50)
   ownerId     String
   owner       User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   leads       Lead[]
@@ -495,6 +501,7 @@ model LeadMessage {
   status       String       @default("DRAFT")
   scheduledAt  DateTime?
   sentAt       DateTime?
+  repliedAt    DateTime?
   providerId   String?
   leadId       String
   lead         Lead         @relation(fields: [leadId], references: [id], onDelete: Cascade)
@@ -563,5 +570,32 @@ model DesignVersion {
   assetUrl  String
   prompt    String?
   format    String   @default("png")
+  createdAt DateTime @default(now())
+}
+model EmailConnection {
+  id           String   @id @default(cuid())
+  provider     String   @default("GMAIL") // GMAIL, SMTP
+  emailAddress String
+  accessToken  String?
+  refreshToken String?
+  expiresAt    DateTime?
+  smtpHost     String?
+  smtpPort     Int?
+  smtpUser     String?
+  smtpPass     String?
+  status       String   @default("CONNECTED") // CONNECTED, ERROR, DISCONNECTED
+  ownerId      String
+  owner        User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model SuppressionList {
+  id        String   @id @default(cuid())
+  email     String?  // Exact email
+  domain    String?  // Or entire domain
+  reason    String   @default("UNSUBSCRIBED") // UNSUBSCRIBED, BOUNCED, MANUAL
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 }
