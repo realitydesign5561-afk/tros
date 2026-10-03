@@ -3,7 +3,7 @@ import { OpenAI } from 'openai';
 import { videoAdapterManager } from './VideoService';
 
 const prisma = new PrismaClient();
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || 'mock-key-for-build' });
 
 export class CourseAgent {
   /**

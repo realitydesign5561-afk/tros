@@ -1,4 +1,4 @@
-import { VideoAdapterManager } from './adapters/VideoProvider';
+import { VideoAdapterManager } from './VideoProvider';
 import { MockVideoProvider } from './adapters/MockVideoProvider';
 
 // Singleton manager instance

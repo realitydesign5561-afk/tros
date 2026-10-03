@@ -7,3 +7,4 @@ export async function executeAITask(params: any) {
   }
   return { output: { url: '/mock-design.png' }, providerName: 'mock', taskId: 'mock' };
 }
+export async function testAIProvider(id: string) { return { status: 'mock' }; }

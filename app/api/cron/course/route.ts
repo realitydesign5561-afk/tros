@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { JobWorker } from '@/lib/course/JobWorker';
 
 const prisma = new PrismaClient();
+export const dynamic = 'force-dynamic';
 
 /**
  * Cron endpoint that processes all queued CourseGenerationJob entries.
