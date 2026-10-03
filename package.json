@@ -7,7 +7,8 @@
     "build": "prisma generate && prisma migrate deploy && next build",
     "start": "prisma generate && prisma migrate deploy && next start",
     "postinstall": "prisma generate",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "test": "jest"
   },
   "dependencies": {
     "@ai-sdk/gateway": "^4.0.76",
