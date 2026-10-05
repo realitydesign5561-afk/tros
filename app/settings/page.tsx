@@ -29,18 +29,30 @@ export default function SettingsPage() {
   // Mock connected state
   const [connected, setConnected] = useState<string[]>(['OpenAI'])
 
-  const saveKey = (e: React.FormEvent) => {
+  const saveKey = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!provider || !value) return
     
-    // Simulate save
-    setTimeout(() => {
-      setConnected(prev => [...prev, provider])
-      setMessage(`Successfully connected ${provider}!`)
-      setValue('')
-      setProvider('')
-      setTimeout(() => setMessage(''), 3000)
-    }, 1000)
+    try {
+      const response = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider, value, label: provider })
+      })
+      
+      if (response.ok) {
+        setConnected(prev => [...prev, provider])
+        setMessage(`Successfully connected ${provider}!`)
+        setValue('')
+        setProvider('')
+      } else {
+        setMessage(`Failed to connect ${provider}. Please try again.`)
+      }
+    } catch (error) {
+      setMessage('An error occurred while connecting.')
+    }
+    
+    setTimeout(() => setMessage(''), 3000)
   }
 
   return (
