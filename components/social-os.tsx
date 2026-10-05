@@ -1,87 +1,156 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import Link from 'next/link'
-import { BarChart3, CalendarDays, CheckCircle2, Eye, Inbox, ImagePlus, Plus, Send, Sparkles, ToggleLeft, ToggleRight } from 'lucide-react'
+import { useState } from 'react'
+import { Sparkles, ArrowRight, Loader2, ImagePlus, Send, MessageSquare } from 'lucide-react'
 
-type Analytics = { impressions: number; likes: number; comments: number; shares: number; clicks: number }
-type Post = { id: string; platform: string; caption: string; hashtags: string | null; imagePrompt: string | null; imageUrl: string | null; scheduledAt: string | null; publishedAt?: string | null; status: string; analytics?: Analytics | null }
-type Session = { platform: string; status: string; accountName: string | null }
-const platforms = ['linkedin', 'instagram', 'threads']
+export function SocialOS() {
+  const [prompt, setPrompt] = useState('')
+  const [state, setState] = useState<'idle' | 'loading' | 'done'>('idle')
+  const [result, setResult] = useState<{ caption: string, image: string, platforms: string[] } | null>(null)
 
-export function SocialOS({ view = 'calendar' }: { view?: string }) {
-  const [posts, setPosts] = useState<Post[]>([])
-  const [sessions, setSessions] = useState<Session[]>([])
-  const [platform, setPlatform] = useState('linkedin')
-  const [caption, setCaption] = useState('')
-  const [hashtags, setHashtags] = useState('')
-  const [scheduledAt, setScheduledAt] = useState('')
-  const [imagePrompt, setImagePrompt] = useState('')
-  const [automation, setAutomation] = useState(false)
-  const [niches, setNiches] = useState('')
-  const [days, setDays] = useState('MON,TUE,WED,THU,FRI')
-  const [postsPerDay, setPostsPerDay] = useState(1)
-  const [selected, setSelected] = useState<Post | null>(null)
-  const [message, setMessage] = useState('')
-
-  async function load() {
-    const [postResponse, sessionResponse, automationResponse] = await Promise.all([fetch('/api/social/posts'), fetch('/api/social/sessions'), fetch('/api/social/automation')])
-    const [postData, sessionData, automationData] = await Promise.all([postResponse.json(), sessionResponse.json(), automationResponse.json()])
-    setPosts(Array.isArray(postData) ? postData : [])
-    setSessions(sessionData.sessions || [])
-    setAutomation(Boolean(automationData.enabled)); setNiches(automationData.niches || ''); setDays(automationData.days || 'MON,TUE,WED,THU,FRI'); setPostsPerDay(Number(automationData.postsPerDay || 1))
+  const generateContent = () => {
+    if (!prompt.trim()) return
+    setState('loading')
+    
+    // Simulate AI generation
+    setTimeout(() => {
+      setResult({
+        caption: "✨ Building a community isn't just about numbers—it's about connection! Whether you're growing your brand or launching a new product, authentic engagement is the key to converting followers into loyal customers. What's the biggest challenge you face when trying to engage your audience? Let's discuss below! 👇\n\n#CommunityBuilding #Engagement #GrowthStrategy",
+        image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop",
+        platforms: ['Instagram', 'LinkedIn', 'Twitter']
+      })
+      setState('done')
+    }, 2000)
   }
 
-  useEffect(() => { void load() }, [])
+  return (
+    <div className="flex flex-col h-[calc(100vh-8rem)] w-full max-w-6xl mx-auto px-4 lg:px-8 py-6">
+      
+      {state === 'idle' && (
+        <div className="flex-1 flex flex-col justify-center items-center">
+          <div className="w-full max-w-4xl space-y-10">
+            <div className="text-center space-y-4">
+              <h1 className="text-5xl sm:text-6xl font-light tracking-tight text-[#1B1E1C]">
+                Grow your <br/><span className="font-medium">community & sales.</span>
+              </h1>
+              <p className="text-gray-500 font-medium text-lg max-w-2xl mx-auto">
+                Prompt the AI to create engaging social content, generate stunning visuals, and drive conversions across all platforms.
+              </p>
+            </div>
 
-  async function toggleAutomation() {
-    const response = await fetch('/api/social/automation', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ enabled: !automation, niches, days, postsPerDay }) })
-    const data = await response.json()
-    if (response.ok) { setAutomation(data.enabled); setMessage(data.enabled ? 'Automatic publishing is on.' : 'Automatic publishing is paused.') }
-  }
+            <div className="relative group">
+              <div className="relative flex w-full flex-col rounded-[2rem] border-2 border-gray-100 bg-[#F4F5F4] shadow-sm transition-all focus-within:border-[#1B1E1C] focus-within:bg-white">
+                <textarea
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); generateContent() } }}
+                  placeholder="e.g. Create content that builds community that can buy what I sell and also engage..."
+                  className="min-h-[160px] w-full resize-none rounded-[2rem] bg-transparent px-8 py-6 text-lg font-medium outline-none placeholder:text-gray-400 text-black"
+                />
+                
+                <div className="flex items-center justify-between px-6 pb-6">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-gray-400 px-2">
+                    <MessageSquare className="size-4" />
+                    <span>Multi-platform</span>
+                    <ImagePlus className="size-4 ml-4" />
+                    <span>Visual Generation</span>
+                  </div>
+                  
+                  <button
+                    onClick={generateContent}
+                    disabled={!prompt.trim()}
+                    className="flex size-14 items-center justify-center rounded-full bg-[#1B1E1C] text-white transition-all hover:bg-black disabled:opacity-50 hover:shadow-lg"
+                  >
+                    <Send className="size-6" />
+                  </button>
+                </div>
+              </div>
+            </div>
 
-  async function saveAutomationPreferences() {
-    const response = await fetch('/api/social/automation', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ enabled: automation, niches, days, postsPerDay }) })
-    setMessage(response.ok ? 'Automation plan saved.' : 'Unable to save automation plan.')
-  }
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {["Product Launch Announcement", "Community Question", "Behind the Scenes", "Customer Success Story"].map((suggestion, i) => (
+                <button
+                  key={i}
+                  onClick={() => setPrompt(`Generate a ${suggestion.toLowerCase()} post to build community and drive engagement.`)}
+                  className="rounded-full border border-gray-200 bg-white px-5 py-2.5 text-xs font-semibold text-gray-500 transition hover:bg-[#F4F5F4] hover:text-black shadow-sm"
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
-  async function generateImage() {
-    if (!imagePrompt.trim()) { setMessage('Describe the visual first.'); return '' }
-    const response = await fetch('/api/social/images', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: imagePrompt }) })
-    const data = await response.json()
-    if (!response.ok) { setMessage(data.error || 'Image generation failed.'); return '' }
-    setMessage('Matching visual generated.')
-    return data.imageUrl as string
-  }
+      {state === 'loading' && (
+        <div className="flex-1 flex flex-col justify-center items-center text-center">
+          <div className="rounded-2xl bg-[#EAF79F] p-5 text-[#1B1E1C] mb-8 shadow-sm animate-pulse">
+            <Sparkles className="size-10" />
+          </div>
+          <h2 className="text-4xl font-light tracking-tight mb-4">Crafting your <span className="font-medium">content...</span></h2>
+          <p className="text-gray-500 font-medium">The AI is analyzing trends, generating imagery, and writing engaging copy.</p>
+        </div>
+      )}
 
-  async function savePost() {
-    const imageUrl = imagePrompt.trim() ? await generateImage() : ''
-    const result = await fetch('/api/social/posts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ platform, caption, hashtags, imagePrompt, imageUrl, scheduledAt: scheduledAt || null }) }).then(response => response.json())
-    if (result.id) { setPosts(current => [result, ...current]); setCaption(''); setHashtags(''); setScheduledAt(''); setImagePrompt(''); setMessage(scheduledAt ? 'Post scheduled for automatic publishing.' : 'Draft saved.') }
-  }
+      {state === 'done' && result && (
+        <div className="flex-1 flex flex-col h-full bg-[#F4F5F4] rounded-[2.5rem] p-8 lg:p-12 border border-gray-100 shadow-sm relative overflow-y-auto">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-3xl font-semibold tracking-tight">Review Generated Content</h2>
+            <div className="flex gap-3">
+              <button onClick={() => { setState('idle'); setPrompt(''); setResult(null) }} className="px-5 py-2.5 rounded-full font-bold text-sm bg-white border border-gray-200 text-gray-600 hover:text-black transition shadow-sm">Discard</button>
+              <button className="px-6 py-2.5 rounded-full font-bold text-sm bg-[#1B1E1C] text-white hover:bg-black transition shadow-lg flex items-center gap-2">
+                Schedule to Platforms <ArrowRight className="size-4" />
+              </button>
+            </div>
+          </div>
+          
+          <div className="grid lg:grid-cols-2 gap-10">
+            {/* Visuals */}
+            <div className="flex flex-col gap-4">
+              <h3 className="font-semibold text-gray-500 uppercase tracking-widest text-xs">Generated Visual</h3>
+              <div className="rounded-[2rem] overflow-hidden border-4 border-white shadow-xl bg-white aspect-square w-full relative">
+                <img src={result.image} alt="Generated Visual" className="w-full h-full object-cover" />
+                <button className="absolute bottom-4 right-4 bg-white/90 backdrop-blur px-4 py-2 rounded-full text-xs font-bold shadow-lg hover:bg-white transition flex items-center gap-2">
+                  <ImagePlus className="size-4" /> Regenerate Image
+                </button>
+              </div>
+            </div>
 
-  async function connectPlatform(platformName: string) {
-    const response = await fetch('/api/social/sessions/connect', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ platform: platformName }) })
-    const data = await response.json()
-    if (!response.ok) return setMessage(data.error || 'Unable to start connection.')
-    window.open(data.loginUrl, '_blank', 'noopener,noreferrer')
-    setMessage(`${platformName} sign-in opened. Complete the official login, then refresh this page.`)
-  }
+            {/* Copy & Platforms */}
+            <div className="flex flex-col gap-8">
+              <div className="flex flex-col gap-4">
+                <h3 className="font-semibold text-gray-500 uppercase tracking-widest text-xs">Caption & Copy</h3>
+                <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100 relative">
+                  <textarea 
+                    className="w-full h-64 resize-none bg-transparent outline-none text-lg leading-relaxed font-medium text-gray-800"
+                    defaultValue={result.caption}
+                  />
+                  <div className="absolute top-6 right-6">
+                    <button className="size-10 bg-[#F4F5F4] rounded-full flex items-center justify-center text-gray-500 hover:text-black transition" title="Rewrite with AI">
+                      <Sparkles className="size-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
 
-  const connected = (name: string) => sessions.some(session => session.platform === name && session.status === 'ACTIVE')
-  const tabs = [['calendar', 'Calendar', CalendarDays], ['composer', 'Composer', Send], ['analytics', 'Analytics', BarChart3], ['inbox', 'Inbox', Inbox]] as const
+              <div className="flex flex-col gap-4">
+                <h3 className="font-semibold text-gray-500 uppercase tracking-widest text-xs">Target Platforms</h3>
+                <div className="flex flex-wrap gap-3">
+                  {result.platforms.map(p => (
+                    <div key={p} className="px-5 py-2.5 rounded-full bg-[#EAF79F] text-[#1B1E1C] font-bold text-sm shadow-sm flex items-center gap-2">
+                      <div className="size-2 rounded-full bg-[#1B1E1C]" /> {p}
+                    </div>
+                  ))}
+                  <button className="px-5 py-2.5 rounded-full border-2 border-dashed border-gray-300 text-gray-500 font-bold text-sm hover:border-gray-400 hover:text-black transition">
+                    + Add Platform
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
-  return <div className="space-y-8">
-    <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Social operations</p><h2 className="mt-2 text-3xl font-semibold tracking-tight">{view === 'composer' ? 'Composer' : view === 'analytics' ? 'Analytics' : view === 'inbox' ? 'Inbox' : 'Content calendar'}</h2><p className="mt-2 text-muted-foreground">Create once, generate the visual, then let the schedule publish it.</p></div><button type="button" onClick={toggleAutomation} className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium ${automation ? 'bg-emerald-600 text-white' : 'border border-border bg-card'}`}>{automation ? <ToggleRight className="size-5" /> : <ToggleLeft className="size-5" />}Auto-publish {automation ? 'on' : 'off'}</button></div>
-    <div className="grid gap-3 sm:grid-cols-4">{tabs.map(([key, label, Icon]) => <Link key={key} href={`/social/${key}`} className={`flex items-center gap-3 rounded-lg border p-4 text-sm ${view === key ? 'border-primary bg-primary/10' : 'border-border bg-card'}`}><Icon className="size-4" /><span>{label}</span></Link>)}</div>
-    {view === 'composer' && <section className="grid gap-6 lg:grid-cols-[1fr_320px]"><div className="rounded-xl border border-border bg-card p-6"><div className="mb-5 flex items-center gap-2"><Sparkles className="size-4 text-primary" /><h3 className="font-semibold">Compose an automated post</h3></div><div className="space-y-4"><select value={platform} onChange={event => setPlatform(event.target.value)} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm">{platforms.map(item => <option key={item}>{item}</option>)}</select><textarea value={caption} onChange={event => setCaption(event.target.value)} placeholder="Write a caption for your audience..." className="min-h-32 w-full rounded-md border border-border bg-background p-3 text-sm outline-none focus:ring-2 focus:ring-primary" /><input value={hashtags} onChange={event => setHashtags(event.target.value)} placeholder="#hashtags" className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" /><input value={imagePrompt} onChange={event => setImagePrompt(event.target.value)} placeholder="Matching visual: editorial photo of..." className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" /><input type="datetime-local" value={scheduledAt} onChange={event => setScheduledAt(event.target.value)} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" /><div className="flex flex-wrap gap-2"><button type="button" onClick={generateImage} className="flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm"><ImagePlus className="size-4" />Preview visual</button><button type="button" onClick={savePost} className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground"><Send className="size-4" />{scheduledAt ? 'Schedule post' : 'Save draft'}</button></div>{message && <p className="text-sm text-emerald-500" role="status">{message}</p>}</div></div><div className="rounded-xl border border-border bg-card p-6"><h3 className="font-semibold">Automation status</h3><p className="mt-2 text-sm text-muted-foreground">The schedule uses your niche, days, and daily post count to guide content generation.</p><div className="mt-5 space-y-3"><label className="block text-xs text-muted-foreground">Niches<input value={niches} onChange={event => setNiches(event.target.value)} placeholder="e.g. calm productivity, creator systems" className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm" /></label><label className="block text-xs text-muted-foreground">Days<input value={days} onChange={event => setDays(event.target.value)} placeholder="MON,WED,FRI" className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm" /></label><label className="block text-xs text-muted-foreground">Posts per day<input type="number" min="1" max="10" value={postsPerDay} onChange={event => setPostsPerDay(Number(event.target.value))} className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm" /></label><button type="button" onClick={saveAutomationPreferences} className="w-full rounded-md border border-border px-3 py-2 text-sm">Save automation plan</button><button type="button" onClick={toggleAutomation} className={`flex w-full items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium ${automation ? 'bg-emerald-600 text-white' : 'border border-border bg-card'}`}>{automation ? <ToggleRight className="size-5" /> : <ToggleLeft className="size-5" />}Auto-publish {automation ? 'on' : 'off'}</button><div className="space-y-3">{platforms.map(item => <div key={item} className="flex items-center justify-between rounded-md border border-border p-3"><span className="capitalize">{item}</span>{connected(item) ? <span className="flex items-center gap-1 text-xs text-emerald-500"><CheckCircle2 className="size-3" />Connected</span> : <button type="button" onClick={() => connectPlatform(item)} className="rounded-md border border-primary px-2.5 py-1 text-xs font-medium text-primary hover:bg-primary/10">Connect</button>}</div>)}</div></div></div></section>}
-    {view === 'calendar' && <section className="rounded-xl border border-border bg-card p-5"><div className="flex items-center justify-between"><div><h3 className="font-semibold">Scheduled queue</h3><p className="mt-1 text-sm text-muted-foreground">Posts publish automatically when the toggle is on.</p></div><Link href="/social/composer" className="flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground"><Plus className="size-4" />New post</Link></div><div className="mt-5 space-y-3">{posts.length ? posts.map(post => <PostRow key={post.id} post={post} onSelect={setSelected} />) : <p className="py-10 text-center text-sm text-muted-foreground">No posts scheduled yet.</p>}</div></section>}
-    {view === 'analytics' && <section className="grid gap-4 md:grid-cols-2">{posts.map(post => <PostRow key={post.id} post={post} onSelect={setSelected} />)}{!posts.length && <p className="text-sm text-muted-foreground">Publish a post to see per-post analytics.</p>}</section>}
-    {view === 'inbox' && <section className="rounded-xl border border-border bg-card p-8 text-center"><Inbox className="mx-auto size-8 text-muted-foreground" /><p className="mt-3 font-medium">Inbox is ready</p><p className="mt-1 text-sm text-muted-foreground">Connect a social session to collect replies and mentions.</p></section>}
-    {selected && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setSelected(null)}><section className="max-h-[90vh] w-full max-w-lg overflow-auto rounded-xl border border-border bg-card p-6" onClick={event => event.stopPropagation()}><div className="flex items-start justify-between"><div><p className="text-xs uppercase tracking-wider text-muted-foreground">{selected.platform} / {selected.status}</p><h3 className="mt-1 text-xl font-semibold">Post analytics</h3></div><button type="button" onClick={() => setSelected(null)} className="text-sm text-muted-foreground">Close</button></div>{selected.imageUrl && <img src={selected.imageUrl} alt="Generated post visual" className="mt-5 aspect-square w-full rounded-lg object-cover" />}<p className="mt-5 text-sm leading-6">{selected.caption}</p><div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5">{[['Impressions', selected.analytics?.impressions || 0], ['Likes', selected.analytics?.likes || 0], ['Comments', selected.analytics?.comments || 0], ['Shares', selected.analytics?.shares || 0], ['Clicks', selected.analytics?.clicks || 0]].map(([label, value]) => <div key={label as string} className="rounded-lg border border-border p-3"><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 text-lg font-semibold">{value}</p></div>)}</div></section></div>}
-  </div>
-}
-
-function PostRow({ post, onSelect }: { post: Post; onSelect: (post: Post) => void }) {
-  return <button type="button" onClick={() => onSelect(post)} className="flex w-full items-center gap-4 rounded-lg border border-border p-4 text-left hover:bg-accent"><div className="size-14 shrink-0 overflow-hidden rounded-md bg-muted">{post.imageUrl ? <img src={post.imageUrl} alt="" className="size-full object-cover" /> : <Eye className="m-5 size-4 text-muted-foreground" />}</div><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><span className="font-medium capitalize">{post.platform}</span><span className="rounded-full bg-muted px-2 py-0.5 text-xs">{post.status}</span></div><p className="mt-1 truncate text-sm text-muted-foreground">{post.caption}</p><p className="mt-1 text-xs text-muted-foreground">{post.scheduledAt ? new Date(post.scheduledAt).toLocaleString() : 'Unscheduled'}</p></div><BarChart3 className="size-4 text-muted-foreground" /></button>
+    </div>
+  )
 }
