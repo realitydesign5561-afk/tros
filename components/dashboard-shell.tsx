@@ -54,9 +54,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             <Link href="/settings" title="Settings" className={`flex size-12 items-center justify-center rounded-full transition-colors ${pathname === '/settings' ? 'bg-[#3b3c3b] text-white' : 'text-white/50 hover:bg-[#2a2c2a] hover:text-white'}`}>
               <Settings className="size-5" />
             </Link>
-            <button onClick={() => signOut({ callbackUrl: '/login' })} title="Sign out" className="flex size-12 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
+            <Link href="/profile" title="Profile" className={`flex size-12 items-center justify-center rounded-full transition-colors ${pathname === '/profile' ? 'bg-[#3b3c3b] text-white' : 'bg-white/10 text-white hover:bg-white/20'}`}>
               <CircleUserRound className="size-6" />
-            </button>
+            </Link>
           </div>
         </aside>
 
