@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { ArrowUpRight, ArrowRight, Loader2, Sparkles, Send, Box, Code2, Globe } from 'lucide-react'
+import { ArrowUpRight, ArrowRight, Loader2, Sparkles, Code2, Globe } from 'lucide-react'
 
 export function WebsiteFactory() {
   const [prompt, setPrompt] = useState('')
@@ -51,24 +51,24 @@ export function WebsiteFactory() {
 
   if (result) {
     return (
-      <div className="flex h-[calc(100vh-10rem)] flex-col items-center justify-center text-center">
-        <div className="rounded-full bg-emerald-500/10 p-4 text-emerald-500 mb-6">
+      <div className="flex h-[calc(100vh-12rem)] flex-col items-center justify-center text-center">
+        <div className="rounded-2xl bg-[#EAF79F] p-5 text-[#1B1E1C] mb-8 shadow-sm">
           <Sparkles className="size-10" />
         </div>
-        <h2 className="text-3xl font-bold tracking-tight mb-3">Your project is building...</h2>
-        <p className="text-muted-foreground max-w-md mx-auto mb-8">
+        <h2 className="text-5xl font-light tracking-tight mb-4">Your project is <span className="font-medium">building...</span></h2>
+        <p className="text-gray-500 font-medium max-w-md mx-auto mb-10 text-lg">
           The AI agents have received your prompt and are currently scaffolding your application.
         </p>
         <div className="flex gap-4">
           <Link 
             href={`/website-factory/${result.projectId}`} 
-            className="flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:opacity-90 transition"
+            className="flex items-center gap-2 rounded-full bg-[#1B1E1C] px-8 py-4 text-sm font-bold text-white hover:bg-black transition shadow-lg"
           >
             Go to Project Studio <ArrowRight className="size-4" />
           </Link>
           <button 
             onClick={() => { setResult(null); setState('idle'); setPrompt('') }}
-            className="rounded-full border border-border bg-background px-6 py-3 text-sm font-medium hover:bg-accent transition"
+            className="rounded-full border border-gray-200 bg-[#F4F5F4] px-8 py-4 text-sm font-bold text-black hover:bg-white hover:shadow-sm transition"
           >
             Create Another
           </button>
@@ -78,57 +78,57 @@ export function WebsiteFactory() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] flex-col items-center justify-center">
-      <div className="w-full max-w-3xl space-y-8">
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight bg-gradient-to-br from-white to-gray-400 bg-clip-text text-transparent">
-            What do you want to build?
+    <div className="flex h-[calc(100vh-12rem)] flex-col items-center justify-center p-4">
+      <div className="w-full max-w-4xl space-y-10">
+        <div className="text-center space-y-4">
+          <h1 className="text-5xl sm:text-6xl font-light tracking-tight text-[#1B1E1C]">
+            What do you <br/><span className="font-medium">want to build?</span>
           </h1>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-gray-500 font-medium text-lg max-w-2xl mx-auto">
             Prompt your entire web app, dashboard, or landing page into existence.
           </p>
         </div>
 
         <form onSubmit={submit} className="relative group">
-          <div className="relative flex w-full flex-col rounded-3xl border border-border bg-card shadow-sm transition-all focus-within:border-emerald-500/50 focus-within:ring-4 focus-within:ring-emerald-500/10">
+          <div className="relative flex w-full flex-col rounded-[2rem] border-2 border-gray-100 bg-[#F4F5F4] shadow-sm transition-all focus-within:border-[#1B1E1C] focus-within:bg-white">
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Describe your app in detail..."
-              className="min-h-[120px] w-full resize-none rounded-3xl bg-transparent px-6 py-5 text-base outline-none placeholder:text-muted-foreground/60"
+              className="min-h-[160px] w-full resize-none rounded-[2rem] bg-transparent px-8 py-6 text-lg font-medium outline-none placeholder:text-gray-400 text-black"
             />
             
-            <div className="flex items-center justify-between px-4 pb-4">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground/60 px-2">
-                <Globe className="size-3" />
+            <div className="flex items-center justify-between px-6 pb-6">
+              <div className="flex items-center gap-2 text-xs font-semibold text-gray-400 px-2">
+                <Globe className="size-4" />
                 <span>Full-stack</span>
-                <Code2 className="size-3 ml-2" />
+                <Code2 className="size-4 ml-4" />
                 <span>Next.js App Router</span>
               </div>
               
               <button
                 type="submit"
                 disabled={state === 'loading' || prompt.length < 5}
-                className="flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground transition-all hover:opacity-90 disabled:opacity-50 disabled:hover:opacity-50"
+                className="flex size-14 items-center justify-center rounded-full bg-[#1B1E1C] text-white transition-all hover:bg-black disabled:opacity-50 hover:shadow-lg"
               >
                 {state === 'loading' ? (
-                  <Loader2 className="size-5 animate-spin" />
+                  <Loader2 className="size-6 animate-spin" />
                 ) : (
-                  <ArrowUpRight className="size-5" />
+                  <ArrowUpRight className="size-6" />
                 )}
               </button>
             </div>
           </div>
-          {error && <p className="mt-3 text-sm text-destructive text-center">{error}</p>}
+          {error && <p className="mt-4 text-sm font-semibold text-red-500 text-center">{error}</p>}
         </form>
 
-        <div className="flex flex-wrap items-center justify-center gap-2">
+        <div className="flex flex-wrap items-center justify-center gap-3">
           {suggestionPills.map((suggestion, i) => (
             <button
               key={i}
               onClick={() => setPrompt(suggestion)}
-              className="rounded-full border border-border/50 bg-card/50 px-4 py-2 text-xs text-muted-foreground transition hover:bg-card hover:text-foreground hover:border-border"
+              className="rounded-full border border-gray-200 bg-white px-5 py-2.5 text-xs font-semibold text-gray-500 transition hover:bg-[#F4F5F4] hover:text-black shadow-sm"
             >
               {suggestion}
             </button>
