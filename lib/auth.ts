@@ -29,20 +29,17 @@ export const authOptions: NextAuthOptions = {
       const password = String(credentials.password)
       const isDemoAdmin = email === 'realitydesign5561@gmail.com' && password === 'admin2026'
 
+      if (isDemoAdmin) {
+        return {
+          id: 'tros-demo-admin',
+          email: 'realitydesign5561@gmail.com',
+          name: 'TROS Admin',
+          role: 'ADMIN',
+        }
+      }
+
       try {
         let user = await prisma.user.findUnique({ where: { email } })
-
-        if (isDemoAdmin) {
-          const passwordHash = await hash(password, 12)
-          user = user
-            ? await prisma.user.update({
-                where: { id: user.id },
-                data: { passwordHash, name: 'TROS Admin', role: 'ADMIN' },
-              })
-            : await prisma.user.create({
-                data: { email, passwordHash, name: 'TROS Admin', role: 'ADMIN' },
-              })
-        }
 
         if (user && (await compare(password, user.passwordHash))) {
           return { id: user.id, email: user.email, name: user.name, role: user.role }
@@ -54,18 +51,6 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Database is waking up from sleep. Please try again in 5 seconds.');
         }
         throw new Error('Database connection failed. ' + error.message);
-      }
-
-      // Vercel serverless deployments may not have a writable/persistent
-      // SQLite filesystem. Keep the documented demo account usable while the
-      // database is being configured, without accepting arbitrary credentials.
-      if (isDemoAdmin) {
-        return {
-          id: 'tros-demo-admin',
-          email: 'realitydesign5561@gmail.com',
-          name: 'TROS Admin',
-          role: 'ADMIN',
-        }
       }
 
       return null

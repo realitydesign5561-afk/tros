@@ -18,7 +18,7 @@ export default function LoginPage() {
       callbackUrl: '/',
     })
     if (!result || result.error || !result.ok) {
-      setError('Invalid credentials')
+      setError(result?.error || 'Invalid credentials')
       setLoading(false)
       return
     }
