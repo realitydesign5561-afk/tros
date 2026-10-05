@@ -27,7 +27,7 @@ export const authOptions: NextAuthOptions = {
 
       const email = String(credentials.email).trim().toLowerCase()
       const password = String(credentials.password)
-      const isDemoAdmin = email === 'admin@reality.com' && password === 'admin123'
+      const isDemoAdmin = email === 'realitydesign5561@gmail.com' && password === 'admin2026'
 
       try {
         let user = await prisma.user.findUnique({ where: { email } })
@@ -62,7 +62,7 @@ export const authOptions: NextAuthOptions = {
       if (isDemoAdmin) {
         return {
           id: 'tros-demo-admin',
-          email: 'admin@reality.com',
+          email: 'realitydesign5561@gmail.com',
           name: 'TROS Admin',
           role: 'ADMIN',
         }
