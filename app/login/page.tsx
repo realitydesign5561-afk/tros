@@ -104,6 +104,15 @@ export default function LoginPage() {
                 {loading && <Loader2 className="size-4 animate-spin" />}
                 Enter workspace <ArrowUpRight className="size-4" />
               </button>
+
+              <div className="mt-4 text-center">
+                <p className="text-sm text-gray-500 font-medium">
+                  Don't have an account?{' '}
+                  <a href="/auth/signup" className="text-[#1B1E1C] font-semibold hover:underline">
+                    Sign up
+                  </a>
+                </p>
+              </div>
             </form>
             
           </div>

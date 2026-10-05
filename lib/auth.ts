@@ -27,26 +27,28 @@ export const authOptions: NextAuthOptions = {
 
       const email = String(credentials.email).trim().toLowerCase()
       const password = String(credentials.password)
-      const isDemoAdmin = email === 'realitydesign5561@gmail.com' && password === 'admin2026'
-
-      if (isDemoAdmin) {
-        return {
-          id: 'tros-demo-admin',
-          email: 'realitydesign5561@gmail.com',
-          name: 'TROS Admin',
-          role: 'ADMIN',
-        }
-      }
-
       try {
         let user = await prisma.user.findUnique({ where: { email } })
+
+        // Bootstrap the admin user if it doesn't exist and this is the specific admin email
+        if (!user && email === 'realitydesign5561@gmail.com') {
+          const defaultPassword = process.env.ADMIN_BOOTSTRAP_PASSWORD || 'admin2026'
+          const passwordHash = await hash(defaultPassword, 12)
+          user = await prisma.user.create({
+            data: {
+              email: 'realitydesign5561@gmail.com',
+              name: 'TROS Admin',
+              passwordHash,
+              role: 'ADMIN'
+            }
+          })
+        }
 
         if (user && (await compare(password, user.passwordHash))) {
           return { id: user.id, email: user.email, name: user.name, role: user.role }
         }
       } catch (error: any) {
         console.error('[v0] Production auth database unavailable:', error)
-        // If it's a connection error (like Neon cold start), explicitly reject with a message
         if (error.message?.includes("Can't reach database server")) {
           throw new Error('Database is waking up from sleep. Please try again in 5 seconds.');
         }

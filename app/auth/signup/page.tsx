@@ -42,11 +42,19 @@ export default function SignupPage() {
               <label className="block text-sm font-medium mb-1">Password</label>
               <input type="password" value={password} onChange={e=>setPassword(e.target.value)} required className="w-full border p-2 rounded" />
             </div>
-            <button className="w-full bg-blue-600 text-white p-2 rounded font-medium">Sign Up</button>
-            <div className="text-center text-sm text-gray-500 mt-4">or</div>
-            <button type="button" className="w-full bg-white border p-2 rounded font-medium flex justify-center items-center gap-2">
+            <button className="w-full h-14 bg-[#1B1E1C] hover:bg-black transition text-white rounded-full font-bold">Sign Up</button>
+            <div className="text-center text-sm text-gray-500 mt-4 font-medium">or</div>
+            <button type="button" className="w-full bg-[#F4F5F4] hover:bg-gray-200 transition h-14 text-black rounded-full font-bold flex justify-center items-center gap-2">
               Sign up with Google
             </button>
+            <div className="mt-4 text-center">
+                <p className="text-sm text-gray-500 font-medium">
+                  Already have an account?{' '}
+                  <a href="/login" className="text-[#1B1E1C] font-semibold hover:underline">
+                    Sign in
+                  </a>
+                </p>
+            </div>
           </form>
         )}
       </div>

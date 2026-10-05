@@ -1,42 +1,28 @@
-import { PrismaClient } from '@prisma/client';
-import { OpenAI } from 'openai';
+import { PrismaClient } from '@prisma/client'
+import { executeAITask } from '@/lib/ai-gateway/service'
 
-const prisma = new PrismaClient();
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const prisma = new PrismaClient()
 
 export class YouTubeAgent {
-  /**
-   * youtube.research
-   */
-  async research(niche: string) {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: `Research YouTube content gaps and pain points for: ${niche}` }]
-    });
-    return completion.choices[0].message?.content;
+  async research(niche: string, userId: string = 'system') {
+    const aiResponse = await executeAITask({
+      task: `Research YouTube content gaps and pain points for: ${niche}`,
+      capability: 'TEXT_GENERATION',
+      userId
+    })
+    return aiResponse.output
   }
 
-  /**
-   * youtube.trendResearch
-   */
   async trendResearch(niche: string) {
-    // Stub for web/search trend data
-    return `Trends for ${niche}: high demand, low competition.`;
+    return `Trends for ${niche}: high demand, low competition.`
   }
 
-  /**
-   * youtube.topicScore
-   */
   topicScore(demand: number, competition: number, evergreen: boolean) {
-    // Basic scoring formula
-    let score = (demand * 0.6) - (competition * 0.4);
-    if (evergreen) score += 20;
-    return Math.max(0, Math.min(100, Math.floor(score)));
+    let score = (demand * 0.6) - (competition * 0.4)
+    if (evergreen) score += 20
+    return Math.max(0, Math.min(100, Math.floor(score)))
   }
 
-  /**
-   * youtube.generateIdea
-   */
   async generateIdea(channelId: string, prompt: string) {
     const idea = await prisma.youTubeVideoIdea.create({
       data: {
@@ -47,41 +33,40 @@ export class YouTubeAgent {
         topicScore: 72,
         channelId
       }
-    });
-    return idea;
+    })
+    return idea
   }
 
-  /**
-   * youtube.generateOutline
-   */
-  async generateOutline(topic: string) {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: `Generate a YouTube video outline for: ${topic}` }]
-    });
-    return completion.choices[0].message?.content;
+  async generateOutline(topic: string, userId: string = 'system') {
+    const aiResponse = await executeAITask({
+      task: `Generate a YouTube video outline for: ${topic}`,
+      capability: 'TEXT_GENERATION',
+      userId
+    })
+    return aiResponse.output
   }
 
-  /**
-   * youtube.generateScript
-   */
-  async generateScript(outline: string) {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: `Write a highly engaging YouTube script based on this outline: ${outline}` }]
-    });
-    return completion.choices[0].message?.content;
+  async generateScript(outline: string, userId: string = 'system') {
+    const aiResponse = await executeAITask({
+      task: `Write a highly engaging YouTube script based on this outline: ${outline}`,
+      capability: 'TEXT_GENERATION',
+      userId
+    })
+    return aiResponse.output
   }
 
-  /**
-   * youtube.metadata
-   */
-  async metadata(script: string) {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: `Based on this script, provide a catchy title (with 3 variants), description, and tags in JSON format: ${script}` }]
-    });
-    return completion.choices[0].message?.content;
+  async metadata(script: string, userId: string = 'system') {
+    const aiResponse = await executeAITask({
+      task: `Based on this script, provide a catchy title (with 3 variants), description, and tags in JSON format ONLY: ${script}`,
+      capability: 'TEXT_GENERATION',
+      userId
+    })
+    try {
+      const cleanJson = aiResponse.output.replace(/^```json\s*/i, '').replace(/```$/g, '').trim()
+      return JSON.parse(cleanJson)
+    } catch {
+      return aiResponse.output
+    }
   }
 
   // Media generation stubs (connecting to gateway)

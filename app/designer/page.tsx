@@ -30,14 +30,33 @@ export default function ConversationalDesigner() {
     setInput('');
     setLoading(true);
     
-    // Simulate AI generation process
-    setTimeout(() => {
-      const generatedImageUrl = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop";
-      setVersions(v => [...v, generatedImageUrl]);
+    try {
+      const formData = new FormData()
+      formData.append('prompt', currentInput)
+      formData.append('provider', 'automatic')
+      formData.append('format', 'png')
+      
+      const fileInput = fileInputRef.current;
+      if (fileInput && fileInput.files && fileInput.files.length > 0) {
+        formData.append('reference', fileInput.files[0])
+      }
+
+      const res = await fetch('/api/designer', {
+        method: 'POST',
+        body: formData
+      })
+      
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to generate')
+
+      setVersions(v => [...v, data.outputUrl]);
       setActiveVersion(v => v.length);
       setMessages(m => [...m, { role: 'agent', text: 'I updated the design based on your request!' }]);
+    } catch (err: any) {
+      setMessages(m => [...m, { role: 'agent', text: `Error: ${err.message}` }]);
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   const undo = () => setActiveVersion(Math.max(0, activeVersion - 1));

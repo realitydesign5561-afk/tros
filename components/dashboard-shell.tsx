@@ -11,14 +11,8 @@ import { ThemeToggle } from '@/components/theme-toggle'
 const navigation = [
   { label: 'Dashboard', href: '/', icon: Gauge },
   { label: 'Website Factory', href: '/website-factory', icon: Globe2 },
-  { label: 'Workflow Builder', href: '/workflows', icon: Workflow },
   { label: 'Social OS', href: '/social/calendar', icon: Megaphone },
-  { label: 'Course Studio', href: '/courses', icon: Boxes },
-  { label: 'YouTube OS', href: '/youtube-os', icon: Video },
   { label: 'AI Designer', href: '/designer', icon: Sparkles },
-  { label: 'Lead Gen', href: '/leads', icon: Activity },
-  { label: 'Automation', href: '/automation', icon: Bot },
-  { label: 'AI Features', href: '/ai-features', icon: Wand2 },
 ]
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
