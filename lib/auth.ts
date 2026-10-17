@@ -10,9 +10,9 @@ const runtimeUrl =
 const isSecure = process.env.NODE_ENV === 'production' && runtimeUrl.startsWith('https://')
 
 export const authOptions: NextAuthOptions = {
-  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET || (() => {
-    throw new Error('NEXTAUTH_SECRET or AUTH_SECRET must be configured.')
-  })(),
+  // Next.js imports route modules during static collection. Let NextAuth report a
+  // missing secret at request time instead of crashing the production build.
+  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
   session: { strategy: 'jwt' },
   pages: { signIn: '/login' },
   cookies: {

@@ -58,8 +58,23 @@ export async function createAgentTask(data: { prompt: string; module?: string; p
 }
 
 export async function submitAgentTaskWorker(data: { taskId: string; workerId?: string }) {
-  const task = await claimNextAgentTask(data.workerId)
-  return task ? { success: true, taskId: task.id } : { success: false }
+  const task = await prisma.agentTask.findUnique({ where: { id: data.taskId }, select: { id: true, status: true } })
+  if (!task) throw new Error('TASK_NOT_FOUND')
+  if (task.status !== 'QUEUED') return { success: false, taskId: task.id, reason: 'TASK_NOT_QUEUED' }
+
+  const claimed = await prisma.agentTask.updateMany({
+    where: { id: data.taskId, status: 'QUEUED' },
+    data: {
+      status: 'RUNNING',
+      lockedBy: data.workerId || workerId(),
+      lockedAt: new Date(),
+      startedAt: new Date(),
+      attempts: { increment: 1 },
+    },
+  })
+  if (!claimed.count) return { success: false, taskId: data.taskId, reason: 'TASK_ALREADY_CLAIMED' }
+  await appendEvent(data.taskId, 'TASK_CLAIMED', { workerId: data.workerId || workerId() })
+  return { success: true, taskId: data.taskId }
 }
 
 export async function claimNextAgentTask(region?: string) {
@@ -106,7 +121,10 @@ async function executeAgentTask(id: string) {
     await appendEvent(id, 'TASK_STARTED', { attempt: task.attempts })
 
     const current = await prisma.agentTask.findUniqueOrThrow({ where: { id }, select: { status: true, attempts: true } })
-    if (current.status === 'CANCELLED' || current.status === 'PAUSED') return current
+    if (current.status === 'CANCELLED' || current.status === 'PAUSED') {
+      await prisma.agentTask.update({ where: { id }, data: { lockedBy: null, lockedAt: null } })
+      return prisma.agentTask.findUniqueOrThrow({ where: { id } })
+    }
 
     // Module handlers can be added without changing queue, leasing, or persistence.
     // Until a handler is registered, retain the request as a durable execution receipt.

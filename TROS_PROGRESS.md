@@ -5,7 +5,7 @@ Updated: 2026-10-17
 ## Current phase
 Phase 2 — Shared execution plane (runtime hardening in progress).
 
-Latest increment: authentication bootstrap removed and task execution/idempotency paths hardened.
+Latest increment: shared task execution paths hardened with task-specific claiming, cancellation lease cleanup, and build-safe authentication configuration.
 
 ## Completed
 - Inspected repository structure, manifest, Next configuration, Prisma schema, agent runtime, AI gateway, layout, and existing audit.
