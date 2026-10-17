@@ -20,7 +20,7 @@ export class JobWorker {
       });
 
       // Simulate step 1: Generate Module
-      const module = await agent.generateModule(job.courseId, 'Introduction Module', 1);
+      const generatedModule = await agent.generateModule(job.courseId, 'Introduction Module', 1);
       
       await prisma.courseGenerationJob.update({
         where: { id: jobId },
@@ -28,7 +28,7 @@ export class JobWorker {
       });
 
       // Simulate step 2: Generate Lesson
-      await agent.generateLesson(module.id, 'What is AI?', 1);
+      await agent.generateLesson(generatedModule.id, 'What is AI?', 1);
 
       await prisma.courseGenerationJob.update({
         where: { id: jobId },

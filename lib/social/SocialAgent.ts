@@ -35,6 +35,9 @@ Make the output concise and suitable for a 30-day campaign.`
     try {
       const cleanJson = raw.replace(/^```json\s*/i, '').replace(/```$/g, '').trim()
       return JSON.parse(cleanJson)
+    } catch {
+      return raw
+    }
   }
 
   async generatePost(pillar: string, hook: string, userId: string = 'system') {

@@ -6,7 +6,7 @@ export default function CalendarPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">30-Day Content Calendar</h1>
         <div className="flex gap-2">
-          <button className="bg-gray-200 px-4 py-2 rounded-md">Generate Today's Content</button>
+          <button className="bg-gray-200 px-4 py-2 rounded-md">Generate Today&apos;s Content</button>
           <button className="bg-blue-600 text-white px-4 py-2 rounded-md">Generate Campaign</button>
         </div>
       </div>
