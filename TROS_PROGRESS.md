@@ -3,7 +3,7 @@
 Updated: 2026-10-17
 
 ## Current phase
-Phase 1 — Safety and evidence.
+Phase 2 — Shared execution plane.
 
 ## Completed
 - Inspected repository structure, manifest, Next configuration, Prisma schema, agent runtime, AI gateway, layout, and existing audit.

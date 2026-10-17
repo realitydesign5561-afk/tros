@@ -1,104 +1,105 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  name         String?
-  passwordHash String
-  role String @default("USER")
-  status String @default("PENDING_APPROVAL")
-  systemRoleId String?
-  systemRole SystemRole? @relation(fields: [systemRoleId], references: [id], onDelete: SetNull)
-  featurePermissions UserFeaturePermission[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  projects     Project[]
-  workflows    Workflow[]
-  courses      Course[]
-  socialPosts  SocialPost[]
-  socialSessions SocialSession[]
-  socialInbox SocialInbox[]
-  youtubeChannels YouTubeChannel[]
-  designs       Design[]
-  leads         Lead[]
-  emailConnections EmailConnection[]
-  suppressions  SuppressionList[]
-  campaigns     LeadCampaign[]
-  aiFeatures    AiFeature[]
-  socialCampaigns SocialCampaign[]
-  brandProfiles   BrandProfile[]
-  socialAutomationEnabled Boolean @default(false)
-  socialAutomationNiches String?
-  socialAutomationDays String?
-  socialAutomationPostsPerDay Int @default(1)
+  id                          String                  @id @default(cuid())
+  email                       String                  @unique
+  name                        String?
+  passwordHash                String
+  role                        String                  @default("USER")
+  status                      String                  @default("PENDING_APPROVAL")
+  systemRoleId                String?
+  systemRole                  SystemRole?             @relation(fields: [systemRoleId], references: [id], onDelete: SetNull)
+  featurePermissions          UserFeaturePermission[]
+  createdAt                   DateTime                @default(now())
+  updatedAt                   DateTime                @updatedAt
+  projects                    Project[]
+  workflows                   Workflow[]
+  courses                     Course[]
+  socialPosts                 SocialPost[]
+  socialSessions              SocialSession[]
+  socialInbox                 SocialInbox[]
+  youtubeChannels             YouTubeChannel[]
+  designs                     Design[]
+  leads                       Lead[]
+  emailConnections            EmailConnection[]
+  suppressions                SuppressionList[]
+  campaigns                   LeadCampaign[]
+  aiFeatures                  AiFeature[]
+  socialCampaigns             SocialCampaign[]
+  brandProfiles               BrandProfile[]
+  agentTasks                  AgentTask[]
+  socialAutomationEnabled     Boolean                 @default(false)
+  socialAutomationNiches      String?
+  socialAutomationDays        String?
+  socialAutomationPostsPerDay Int                     @default(1)
 }
 
 model AiFeature {
-  id          String   @id @default(cuid())
+  id          String             @id @default(cuid())
   name        String
   description String?
   prompt      String
-  provider    String   @default("gpt-4o")
-  status      String   @default("FEATURE_DRAFT") // FEATURE_DRAFT, FEATURE_TESTING, FEATURE_APPROVAL, FEATURE_ACTIVE, DISABLED
-  isEnabled   Boolean  @default(false)
-  isHealthy   Boolean  @default(true)
+  provider    String             @default("gpt-4o")
+  status      String             @default("FEATURE_DRAFT") // FEATURE_DRAFT, FEATURE_TESTING, FEATURE_APPROVAL, FEATURE_ACTIVE, DISABLED
+  isEnabled   Boolean            @default(false)
+  isHealthy   Boolean            @default(true)
   ownerId     String
-  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  owner       User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   versions    AiFeatureVersion[]
   logs        FeatureAuditLog[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
 }
 
 model Design {
-  id            String   @id @default(cuid())
-  prompt        String
-  background    String?
-  referenceUrl  String?
-  outputUrl     String?
-  outputFormat  String   @default("png")
-  provider      String   @default("gpt-4o")
-  status        String   @default("DRAFT")
-  ownerId       String
-  owner         User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  sessions      DesignSession[]
-  versions      DesignVersion[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String          @id @default(cuid())
+  prompt       String
+  background   String?
+  referenceUrl String?
+  outputUrl    String?
+  outputFormat String          @default("png")
+  provider     String          @default("gpt-4o")
+  status       String          @default("DRAFT")
+  ownerId      String
+  owner        User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  sessions     DesignSession[]
+  versions     DesignVersion[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
 }
 
 model Project {
-  id              String   @id @default(cuid())
-  name            String
-  description     String?
-  niche           String?
-  pages           String?
-  brandColors     String?
-  status          String   @default("DRAFT")
-  source          String   @default("GENERATED")
-  hasLogin        Boolean  @default(false)
-  generateSystem  Boolean  @default(false)
-  prompt          String?
-  blueprint       String?
-  repositoryUrl   String?
-  deploymentUrl   String?
-  domain          String?
-  health          String   @default("UNKNOWN")
-  ownerId         String
-  owner           User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  managementLogs  ManagementLog[]
-  deployments     DeploymentSnapshot[]
-  domains         DomainBinding[]
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String               @id @default(cuid())
+  name           String
+  description    String?
+  niche          String?
+  pages          String?
+  brandColors    String?
+  status         String               @default("DRAFT")
+  source         String               @default("GENERATED")
+  hasLogin       Boolean              @default(false)
+  generateSystem Boolean              @default(false)
+  prompt         String?
+  blueprint      String?
+  repositoryUrl  String?
+  deploymentUrl  String?
+  domain         String?
+  health         String               @default("UNKNOWN")
+  ownerId        String
+  owner          User                 @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  managementLogs ManagementLog[]
+  deployments    DeploymentSnapshot[]
+  domains        DomainBinding[]
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
 }
 
 model ManagementLog {
@@ -113,21 +114,21 @@ model ManagementLog {
 }
 
 model DeploymentSnapshot {
-  id         String   @id @default(cuid())
-  projectId  String
-  status     String
-  url        String?
-  checkedAt  DateTime @default(now())
-  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  projectId String
+  status    String
+  url       String?
+  checkedAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 model DomainBinding {
-  id         String   @id @default(cuid())
-  projectId  String
-  domain     String
-  status     String   @default("PENDING")
-  createdAt  DateTime @default(now())
-  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  projectId String
+  domain    String
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 model AnalyticsEvent {
@@ -156,44 +157,44 @@ model ProviderConnection {
 }
 
 model Workflow {
-  id                    String   @id @default(cuid())
-  name                  String
-  template              String?
-  graph                 String
-  status                String   @default("DRAFT")
-  activepiecesId        String?
-  activepiecesStatus    String?
-  ownerId               String
-  owner                 User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  runs                  WorkflowRun[]
-  alerts                WorkflowAlert[]
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  id                 String          @id @default(cuid())
+  name               String
+  template           String?
+  graph              String
+  status             String          @default("DRAFT")
+  activepiecesId     String?
+  activepiecesStatus String?
+  ownerId            String
+  owner              User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  runs               WorkflowRun[]
+  alerts             WorkflowAlert[]
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
 }
 
 model WorkflowRun {
-  id          String   @id @default(cuid())
-  workflowId  String
-  status      String
-  externalId  String?
-  logs        String?
-  startedAt   DateTime @default(now())
-  finishedAt  DateTime?
-  workflow    Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  id         String    @id @default(cuid())
+  workflowId String
+  status     String
+  externalId String?
+  logs       String?
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+  workflow   Workflow  @relation(fields: [workflowId], references: [id], onDelete: Cascade)
 }
 
 model WorkflowAlert {
-  id          String   @id @default(cuid())
-  workflowId  String
-  severity    String   @default("ERROR")
-  message     String
+  id           String   @id @default(cuid())
+  workflowId   String
+  severity     String   @default("ERROR")
+  message      String
   acknowledged Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  workflow    Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  workflow     Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
 }
 
 model Course {
-  id               String         @id @default(cuid())
+  id               String                @id @default(cuid())
   title            String
   topic            String
   description      String?
@@ -202,25 +203,25 @@ model Course {
   learningOutcomes String?
   generationJobId  String?
   generationStatus String?
-  status           String         @default("DRAFT")
+  status           String                @default("DRAFT")
   ownerId          String
-  owner            User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  owner            User                  @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   modules          CourseModule[]
   enrollments      Enrollment[]
   payments         PaymentLink[]
   jobs             CourseGenerationJob[]
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
 }
 
 model CourseModule {
-  id        String   @id @default(cuid())
-  title     String
-  position  Int
+  id         String   @id @default(cuid())
+  title      String
+  position   Int
   objectives String?
-  courseId  String
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  lessons   Lesson[]
+  courseId   String
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons    Lesson[]
 }
 
 model Lesson {
@@ -263,23 +264,24 @@ model Assignment {
 }
 
 model Video {
-  id        String   @id @default(cuid())
-  provider  String
-  status    String   @default("PENDING")
+  id         String   @id @default(cuid())
+  provider   String
+  status     String   @default("PENDING")
   externalId String?
-  url       String?
-  lessonId  String
-  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  url        String?
+  lessonId   String
+  lesson     Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
 }
 
 model Enrollment {
-  id        String     @id @default(cuid())
-  email     String
-  courseId  String
-  course    Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  id         String     @id @default(cuid())
+  email      String
+  courseId   String
+  course     Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
   progresses Progress[]
-  createdAt DateTime   @default(now())
+  createdAt  DateTime   @default(now())
+
   @@unique([email, courseId])
 }
 
@@ -290,6 +292,7 @@ model Progress {
   lessonId     String
   enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
   lesson       Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
   @@unique([enrollmentId, lessonId])
 }
 
@@ -307,266 +310,269 @@ model PaymentLink {
 }
 
 model SocialSession {
-  id String @id @default(cuid())
-  platform String
-  status String @default("ACTIVE")
-  storageState String?
-  accessToken String?
-  refreshToken String?
-  expiresAt DateTime?
-  accountId String?
-  accountName String?
-  lastCheckedAt DateTime @default(now())
-  ownerId String
-  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  id            String    @id @default(cuid())
+  platform      String
+  status        String    @default("ACTIVE")
+  storageState  String?
+  accessToken   String?
+  refreshToken  String?
+  expiresAt     DateTime?
+  accountId     String?
+  accountName   String?
+  lastCheckedAt DateTime  @default(now())
+  ownerId       String
+  owner         User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
   @@unique([ownerId, platform])
 }
 
 model SocialPost {
-  id String @id @default(cuid())
-  platform String
-  caption String
-  hook String?
-  cta String?
-  hashtags String?
-  platformVariations String?
-  imagePrompt String?
-  imageUrl String?
-  carouselConcepts String?
-  videoConcepts String?
-  scheduledAt DateTime?
-  publishedAt DateTime?
-  status String @default("DRAFT") // DRAFT, READY_FOR_REVIEW, APPROVED, SCHEDULED, PUBLISHED, FAILED
-  externalPostId String?
-  errorMessages String?
-  qualityScore Int?
+  id                    String               @id @default(cuid())
+  platform              String
+  caption               String
+  hook                  String?
+  cta                   String?
+  hashtags              String?
+  platformVariations    String?
+  imagePrompt           String?
+  imageUrl              String?
+  carouselConcepts      String?
+  videoConcepts         String?
+  scheduledAt           DateTime?
+  publishedAt           DateTime?
+  status                String               @default("DRAFT") // DRAFT, READY_FOR_REVIEW, APPROVED, SCHEDULED, PUBLISHED, FAILED
+  externalPostId        String?
+  errorMessages         String?
+  qualityScore          Int?
   internalQualityReport String?
-  campaignId String?
-  campaign SocialCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
-  ownerId String
-  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  analytics SocialPostAnalytics?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  campaignId            String?
+  campaign              SocialCampaign?      @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  ownerId               String
+  owner                 User                 @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  analytics             SocialPostAnalytics?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
 }
 
 model SocialPostAnalytics {
-  id String @id @default(cuid())
-  postId String @unique
-  impressions Int @default(0)
-  likes Int @default(0)
-  comments Int @default(0)
-  shares Int @default(0)
-  clicks Int @default(0)
-  updatedAt DateTime @updatedAt
-  post SocialPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  id          String     @id @default(cuid())
+  postId      String     @unique
+  impressions Int        @default(0)
+  likes       Int        @default(0)
+  comments    Int        @default(0)
+  shares      Int        @default(0)
+  clicks      Int        @default(0)
+  updatedAt   DateTime   @updatedAt
+  post        SocialPost @relation(fields: [postId], references: [id], onDelete: Cascade)
 }
 
 model SocialInbox {
-  id String @id @default(cuid())
-  platform String
-  sender String
-  message String
-  reply String?
-  status String @default("OPEN")
-  ownerId String
-  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  platform  String
+  sender    String
+  message   String
+  reply     String?
+  status    String   @default("OPEN")
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 }
 
 model YouTubeChannel {
-  id               String   @id @default(cuid())
-  name             String
-  niche            String?
-  targetAudience   String?
-  strategy         String?
-  subscribers      Int      @default(0)
-  watchHours       Int      @default(0)
-  shortsViews      Int      @default(0)
-  monetizationEligible Boolean @default(false)
-  autoPublish      Boolean  @default(false)
-  ownerId          String
-  owner            User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  videos           YouTubeVideo[]
-  ideas            YouTubeVideoIdea[]
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id                   String             @id @default(cuid())
+  name                 String
+  niche                String?
+  targetAudience       String?
+  strategy             String?
+  subscribers          Int                @default(0)
+  watchHours           Int                @default(0)
+  shortsViews          Int                @default(0)
+  monetizationEligible Boolean            @default(false)
+  autoPublish          Boolean            @default(false)
+  ownerId              String
+  owner                User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  videos               YouTubeVideo[]
+  ideas                YouTubeVideoIdea[]
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
 }
 
 model YouTubeVideoIdea {
-  id               String   @id @default(cuid())
+  id               String         @id @default(cuid())
   title            String
   description      String?
-  demandScore      Int      @default(0)
-  competitionScore Int      @default(0)
-  topicScore       Int      @default(0)
+  demandScore      Int            @default(0)
+  competitionScore Int            @default(0)
+  topicScore       Int            @default(0)
   channelId        String
   channel          YouTubeChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 }
 
 model YouTubeVideo {
-  id               String   @id @default(cuid())
-  title            String
-  titleVariants    String?
-  description      String?
-  tags             String?
-  script           String?
-  thumbnailUrl     String?
+  id                String            @id @default(cuid())
+  title             String
+  titleVariants     String?
+  description       String?
+  tags              String?
+  script            String?
+  thumbnailUrl      String?
   thumbnailVariants String?
-  videoUrl         String?
-  shortUrl         String?
-  status           String   @default("RESEARCH") 
-  format           String   @default("LONG") 
-  externalVideoId  String?
-  channelId        String
-  channel          YouTubeChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
-  assets           YouTubeAsset[]
-  analytics        YouTubeAnalytics?
-  scheduledAt      DateTime?
-  publishedAt      DateTime?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  videoUrl          String?
+  shortUrl          String?
+  status            String            @default("RESEARCH")
+  format            String            @default("LONG")
+  externalVideoId   String?
+  channelId         String
+  channel           YouTubeChannel    @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  assets            YouTubeAsset[]
+  analytics         YouTubeAnalytics?
+  scheduledAt       DateTime?
+  publishedAt       DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 }
 
 model YouTubeAsset {
-  id        String   @id @default(cuid())
-  type      String
-  status    String   @default("QUEUED")
-  provider  String?
-  url       String?
+  id         String       @id @default(cuid())
+  type       String
+  status     String       @default("QUEUED")
+  provider   String?
+  url        String?
   externalId String?
-  videoId   String
-  video     YouTubeVideo @relation(fields: [videoId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  videoId    String
+  video      YouTubeVideo @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  createdAt  DateTime     @default(now())
 }
 
 model YouTubeAnalytics {
-  id               String   @id @default(cuid())
-  impressions      Int      @default(0)
-  ctr              Float    @default(0)
-  views            Int      @default(0)
-  avgViewDuration  Int      @default(0)
-  retention        Float    @default(0)
-  likes            Int      @default(0)
-  comments         Int      @default(0)
-  returningViewers Int      @default(0)
+  id               String       @id @default(cuid())
+  impressions      Int          @default(0)
+  ctr              Float        @default(0)
+  views            Int          @default(0)
+  avgViewDuration  Int          @default(0)
+  retention        Float        @default(0)
+  likes            Int          @default(0)
+  comments         Int          @default(0)
+  returningViewers Int          @default(0)
   trafficSources   String?
-  videoId          String   @unique
+  videoId          String       @unique
   video            YouTubeVideo @relation(fields: [videoId], references: [id], onDelete: Cascade)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 }
+
 model Lead {
-  id          String        @id @default(cuid())
-  name        String
-  company     String?
-  email       String?
-  website     String?
-  phone       String?
-  location    String?
-  niche       String?
-  source      String        @default("DEMO")
+  id           String        @id @default(cuid())
+  name         String
+  company      String?
+  email        String?
+  website      String?
+  phone        String?
+  location     String?
+  niche        String?
+  source       String        @default("DEMO")
   status       String        @default("NEW")
   score        Int           @default(0)
   unsubscribed Boolean       @default(false)
   bounced      Boolean       @default(false)
-  painPoints  String?
-  notes       String?
-  ownerId     String
-  owner       User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  campaignId  String?
-  campaign    LeadCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
-  messages    LeadMessage[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  painPoints   String?
+  notes        String?
+  ownerId      String
+  owner        User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  campaignId   String?
+  campaign     LeadCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  messages     LeadMessage[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
 
 model LeadCampaign {
-  id          String        @id @default(cuid())
-  name        String
-  niche       String?
-  location    String?
-  status      String        @default("DRAFT")
-  dailySendingLimit Int     @default(50)
-  ownerId     String
-  owner       User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  leads       Lead[]
-  messages    LeadMessage[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id                String        @id @default(cuid())
+  name              String
+  niche             String?
+  location          String?
+  status            String        @default("DRAFT")
+  dailySendingLimit Int           @default(50)
+  ownerId           String
+  owner             User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  leads             Lead[]
+  messages          LeadMessage[]
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 }
 
 model LeadMessage {
-  id           String       @id @default(cuid())
-  channel      String       @default("EMAIL")
-  subject      String?
-  body         String
-  sequence     Int          @default(1)
-  status       String       @default("DRAFT")
-  scheduledAt  DateTime?
-  sentAt       DateTime?
-  repliedAt    DateTime?
-  providerId   String?
-  leadId       String
-  lead         Lead         @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  campaignId   String?
-  campaign     LeadCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
-  createdAt    DateTime     @default(now())
+  id          String        @id @default(cuid())
+  channel     String        @default("EMAIL")
+  subject     String?
+  body        String
+  sequence    Int           @default(1)
+  status      String        @default("DRAFT")
+  scheduledAt DateTime?
+  sentAt      DateTime?
+  repliedAt   DateTime?
+  providerId  String?
+  leadId      String
+  lead        Lead          @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  campaignId  String?
+  campaign    LeadCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  createdAt   DateTime      @default(now())
 }
 
 model SocialCampaign {
-  id String @id @default(cuid())
-  name String
-  niche String?
-  targetAudience String?
+  id              String       @id @default(cuid())
+  name            String
+  niche           String?
+  targetAudience  String?
   contentStrategy String?
-  contentPillars String?
-  startDate DateTime?
-  endDate DateTime?
-  status String @default("DRAFT")
-  ownerId String
-  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  posts SocialPost[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  contentPillars  String?
+  startDate       DateTime?
+  endDate         DateTime?
+  status          String       @default("DRAFT")
+  ownerId         String
+  owner           User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  posts           SocialPost[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 }
 
 model BrandProfile {
-  id String @id @default(cuid())
-  name String
-  logoUrl String?
-  brandColors String?
-  fonts String?
+  id               String   @id @default(cuid())
+  name             String
+  logoUrl          String?
+  brandColors      String?
+  fonts            String?
   visualGuidelines String?
   preferredFormats String?
-  spacing String?
-  ownerId String
-  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  spacing          String?
+  ownerId          String
+  owner            User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model CourseGenerationJob {
+  id        String   @id @default(cuid())
+  prompt    String
+  status    String   @default("QUEUED") // QUEUED, RUNNING, PAUSED, COMPLETED, FAILED
+  progress  Int      @default(0)
+  logs      String?
+  error     String?
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model CourseGenerationJob {
+model DesignSession {
   id          String   @id @default(cuid())
-  prompt      String
-  status      String   @default("QUEUED") // QUEUED, RUNNING, PAUSED, COMPLETED, FAILED
-  progress    Int      @default(0)
-  logs        String?
-  error       String?
-  courseId    String
-  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  designId    String
+  design      Design   @relation(fields: [designId], references: [id], onDelete: Cascade)
+  chatHistory String? // JSON serialized chat
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-}
-model DesignSession {
-  id        String   @id @default(cuid())
-  designId  String
-  design    Design   @relation(fields: [designId], references: [id], onDelete: Cascade)
-  chatHistory String? // JSON serialized chat
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model DesignVersion {
@@ -578,9 +584,10 @@ model DesignVersion {
   format    String   @default("png")
   createdAt DateTime @default(now())
 }
+
 model EmailConnection {
-  id           String   @id @default(cuid())
-  provider     String   @default("GMAIL") // GMAIL, SMTP
+  id           String    @id @default(cuid())
+  provider     String    @default("GMAIL") // GMAIL, SMTP
   emailAddress String
   accessToken  String?
   refreshToken String?
@@ -589,55 +596,57 @@ model EmailConnection {
   smtpPort     Int?
   smtpUser     String?
   smtpPass     String?
-  status       String   @default("CONNECTED") // CONNECTED, ERROR, DISCONNECTED
+  status       String    @default("CONNECTED") // CONNECTED, ERROR, DISCONNECTED
   ownerId      String
-  owner        User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  owner        User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
 
 model SuppressionList {
   id        String   @id @default(cuid())
-  email     String?  // Exact email
-  domain    String?  // Or entire domain
+  email     String? // Exact email
+  domain    String? // Or entire domain
   reason    String   @default("UNSUBSCRIBED") // UNSUBSCRIBED, BOUNCED, MANUAL
   ownerId   String
   owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 }
+
 model AiFeatureVersion {
-  id          String   @id @default(cuid())
-  featureId   String
-  feature     AiFeature @relation(fields: [featureId], references: [id], onDelete: Cascade)
-  apiRoutes   String?  // JSON
-  uiRoutes    String?  // JSON
-  changelog   String?
-  commitHash  String?
-  createdAt   DateTime @default(now())
+  id         String    @id @default(cuid())
+  featureId  String
+  feature    AiFeature @relation(fields: [featureId], references: [id], onDelete: Cascade)
+  apiRoutes  String? // JSON
+  uiRoutes   String? // JSON
+  changelog  String?
+  commitHash String?
+  createdAt  DateTime  @default(now())
 }
 
 model FeatureAuditLog {
-  id          String   @id @default(cuid())
-  featureId   String
-  feature     AiFeature @relation(fields: [featureId], references: [id], onDelete: Cascade)
-  action      String   // BUILD, TEST, APPROVE, DEPLOY, ROLLBACK, DISABLE
-  status      String   // SUCCESS, FAILED
-  logs        String?
-  createdAt   DateTime @default(now())
+  id        String    @id @default(cuid())
+  featureId String
+  feature   AiFeature @relation(fields: [featureId], references: [id], onDelete: Cascade)
+  action    String // BUILD, TEST, APPROVE, DEPLOY, ROLLBACK, DISABLE
+  status    String // SUCCESS, FAILED
+  logs      String?
+  createdAt DateTime  @default(now())
 }
+
 model SystemRole {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  permissions String?  // JSON list of permissions
+  id          String  @id @default(cuid())
+  name        String  @unique
+  permissions String? // JSON list of permissions
   users       User[]
 }
 
 model UserFeaturePermission {
-  id          String   @id @default(cuid())
+  id          String @id @default(cuid())
   userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   featureName String
-  accessLevel String   @default("READ") // READ, WRITE, ADMIN
+  accessLevel String @default("READ") // READ, WRITE, ADMIN
 }
 
 model SystemHealth {
@@ -649,13 +658,13 @@ model SystemHealth {
 }
 
 model RepairJob {
-  id          String   @id @default(cuid())
-  service     String
-  status      String   @default("PENDING") // PENDING, RUNNING, SUCCESS, FAILED
-  logs        String?
-  snapshotId  String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  service    String
+  status     String   @default("PENDING") // PENDING, RUNNING, SUCCESS, FAILED
+  logs       String?
+  snapshotId String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model SystemRestartJob {
@@ -667,10 +676,142 @@ model SystemRestartJob {
 }
 
 model TestRun {
-  id          String   @id @default(cuid())
-  module      String
-  testType    String   // SMOKE, INTEGRATION, E2E, HEALTH
-  status      String   @default("RUNNING") // RUNNING, PASS, FAIL, WARNING
-  logs        String?
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  module    String
+  testType  String // SMOKE, INTEGRATION, E2E, HEALTH
+  status    String   @default("RUNNING") // RUNNING, PASS, FAIL, WARNING
+  logs      String?
+  createdAt DateTime @default(now())
+}
+
+model Agent {
+  id          String      @id @default(cuid())
+  name        String
+  description String?
+  module      String      @unique
+  version     Int         @default(1)
+  enabled     Boolean     @default(true)
+  tasks       AgentTask[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model AgentTask {
+  id             String            @id @default(cuid())
+  userId         String
+  agentId        String?
+  module         String            @default("general")
+  prompt         String
+  status         String            @default("QUEUED")
+  progress       Int               @default(0)
+  currentStep    String?
+  input          Json?
+  output         Json?
+  error          String?
+  conversationId String?
+  idempotencyKey String?
+  lockedBy       String?
+  lockedAt       DateTime?
+  attempts       Int               @default(0)
+  maxAttempts    Int               @default(3)
+  availableAt    DateTime          @default(now())
+  startedAt      DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agent          Agent?            @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  steps          AgentStep[]
+  artifacts      AgentArtifact[]
+  errors         AgentError[]
+  checkpoints    AgentCheckpoint[]
+  events         AgentEvent[]
+  messages       AgentMessage[]
+
+  @@unique([userId, idempotencyKey])
+  @@index([status, availableAt])
+  @@index([userId, createdAt])
+}
+
+model AgentStep {
+  id          String          @id @default(cuid())
+  taskId      String
+  sequence    Int
+  name        String
+  status      String          @default("QUEUED")
+  input       Json?
+  output      Json?
+  error       String?
+  startedAt   DateTime?
+  completedAt DateTime?
+  task        AgentTask       @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  toolCalls   AgentToolCall[]
+
+  @@unique([taskId, sequence])
+}
+
+model AgentToolCall {
+  id          String    @id @default(cuid())
+  stepId      String
+  tool        String
+  status      String    @default("REQUESTED")
+  input       Json?
+  output      Json?
+  error       String?
+  requestedAt DateTime  @default(now())
+  completedAt DateTime?
+  step        AgentStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
+}
+
+model AgentArtifact {
+  id        String    @id @default(cuid())
+  taskId    String
+  type      String
+  name      String
+  url       String?
+  metadata  Json?
+  createdAt DateTime  @default(now())
+  task      AgentTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+model AgentError {
+  id        String    @id @default(cuid())
+  taskId    String
+  code      String
+  message   String
+  retryable Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  task      AgentTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+model AgentCheckpoint {
+  id        String    @id @default(cuid())
+  taskId    String
+  sequence  Int
+  state     Json
+  createdAt DateTime  @default(now())
+  task      AgentTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, sequence])
+}
+
+model AgentEvent {
+  id        String    @id @default(cuid())
+  taskId    String
+  sequence  Int
+  type      String
+  payload   Json?
+  createdAt DateTime  @default(now())
+  task      AgentTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, sequence])
+}
+
+model AgentMessage {
+  id        String    @id @default(cuid())
+  taskId    String
+  role      String
+  content   String
+  createdAt DateTime  @default(now())
+  task      AgentTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
 }
