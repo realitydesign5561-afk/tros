@@ -5,6 +5,8 @@ Updated: 2026-10-17
 ## Current phase
 Phase 2 — Shared execution plane (runtime hardening in progress).
 
+Latest increment: authentication bootstrap removed and task execution/idempotency paths hardened.
+
 ## Completed
 - Inspected repository structure, manifest, Next configuration, Prisma schema, agent runtime, AI gateway, layout, and existing audit.
 - Established baseline: dependencies were missing; `npm install` completed and Prisma Client generated.

@@ -1,6 +1,6 @@
 import type { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import { compare, hash } from 'bcryptjs'
+import { compare } from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
 
 const runtimeUrl =
@@ -10,7 +10,9 @@ const runtimeUrl =
 const isSecure = process.env.NODE_ENV === 'production' && runtimeUrl.startsWith('https://')
 
 export const authOptions: NextAuthOptions = {
-  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET || 'tros-development-secret-change-in-production',
+  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET || (() => {
+    throw new Error('NEXTAUTH_SECRET or AUTH_SECRET must be configured.')
+  })(),
   session: { strategy: 'jwt' },
   pages: { signIn: '/login' },
   cookies: {
@@ -29,20 +31,6 @@ export const authOptions: NextAuthOptions = {
       const password = String(credentials.password)
       try {
         let user = await prisma.user.findUnique({ where: { email } })
-
-        // Bootstrap the admin user if it doesn't exist and this is the specific admin email
-        if (!user && email === 'realitydesign5561@gmail.com') {
-          const defaultPassword = process.env.ADMIN_BOOTSTRAP_PASSWORD || 'admin2026'
-          const passwordHash = await hash(defaultPassword, 12)
-          user = await prisma.user.create({
-            data: {
-              email: 'realitydesign5561@gmail.com',
-              name: 'TROS Admin',
-              passwordHash,
-              role: 'ADMIN'
-            }
-          })
-        }
 
         if (user && (await compare(password, user.passwordHash))) {
           return { id: user.id, email: user.email, name: user.name, role: user.role }

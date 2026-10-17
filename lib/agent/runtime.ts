@@ -44,9 +44,17 @@ export async function createAgentTask(data: { prompt: string; module?: string; p
     const existing = await prisma.agentTask.findFirst({ where: { userId: data.userId, idempotencyKey: data.idempotencyKey } })
     if (existing) return existing
   }
-  const task = await prisma.agentTask.create({ data: { userId: data.userId, module: data.module || 'general', prompt: data.prompt, conversationId: data.conversationId, idempotencyKey: data.idempotencyKey, input: data.projectId ? { projectId: data.projectId } : undefined, steps: { create: { sequence: 1, name: 'accepted' } } } })
-  await appendEvent(task.id, 'TASK_QUEUED', { module: task.module })
-  return task
+  try {
+    const task = await prisma.agentTask.create({ data: { userId: data.userId, module: data.module || 'general', prompt: data.prompt, conversationId: data.conversationId, idempotencyKey: data.idempotencyKey, input: data.projectId ? { projectId: data.projectId } : undefined, steps: { create: { sequence: 1, name: 'accepted' } } } })
+    await appendEvent(task.id, 'TASK_QUEUED', { module: task.module })
+    return task
+  } catch (error) {
+    if (data.idempotencyKey) {
+      const existing = await prisma.agentTask.findFirst({ where: { userId: data.userId, idempotencyKey: data.idempotencyKey } })
+      if (existing) return existing
+    }
+    throw error
+  }
 }
 
 export async function submitAgentTaskWorker(data: { taskId: string; workerId?: string }) {
@@ -96,6 +104,8 @@ async function executeAgentTask(id: string) {
     await prisma.agentCheckpoint.create({ data: { taskId: id, sequence: task.attempts, state: { step: step?.name || 'execution', progress: 10 } } })
     await appendEvent(id, 'TASK_STARTED', { attempt: task.attempts })
 
+      const current = await prisma.agentTask.findUniqueOrThrow({ where: { id }, select: { status: true, attempts: true } })
+    if (current.status === 'CANCELLED' || current.status === 'PAUSED') return current
     const output = { accepted: true, module: task.module, message: 'Task accepted by the durable execution plane.' }
     await prisma.$transaction(async (tx) => {
       if (step) await tx.agentStep.update({ where: { id: step.id }, data: { status: 'COMPLETED', output, completedAt: new Date() } })
