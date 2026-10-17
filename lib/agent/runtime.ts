@@ -99,17 +99,23 @@ async function executeAgentTask(id: string) {
   const task = await prisma.agentTask.findUniqueOrThrow({ where: { id } })
   const step = await prisma.agentStep.findFirst({ where: { taskId: id }, orderBy: { sequence: 'asc' } })
   try {
-    if (step) await prisma.agentStep.update({ where: { id: step.id }, data: { status: 'RUNNING', startedAt: new Date() } })
+    if (step) await prisma.agentStep.update({ where: { id: step.id }, data: { status: 'RUNNING', input: { prompt: task.prompt, module: task.module }, startedAt: new Date() } })
     await prisma.agentTask.update({ where: { id }, data: { progress: 10, currentStep: step?.name || 'execution' } })
     await prisma.agentCheckpoint.create({ data: { taskId: id, sequence: task.attempts, state: { step: step?.name || 'execution', progress: 10 } } })
+    await prisma.agentMessage.create({ data: { taskId: id, role: 'system', content: `Execution started for ${task.module}.` } })
     await appendEvent(id, 'TASK_STARTED', { attempt: task.attempts })
 
-      const current = await prisma.agentTask.findUniqueOrThrow({ where: { id }, select: { status: true, attempts: true } })
+    const current = await prisma.agentTask.findUniqueOrThrow({ where: { id }, select: { status: true, attempts: true } })
     if (current.status === 'CANCELLED' || current.status === 'PAUSED') return current
-    const output = { accepted: true, module: task.module, message: 'Task accepted by the durable execution plane.' }
+
+    // Module handlers can be added without changing queue, leasing, or persistence.
+    // Until a handler is registered, retain the request as a durable execution receipt.
+    const output = { status: 'RECEIVED', module: task.module, prompt: task.prompt, attempt: current.attempts }
     await prisma.$transaction(async (tx) => {
       if (step) await tx.agentStep.update({ where: { id: step.id }, data: { status: 'COMPLETED', output, completedAt: new Date() } })
       await tx.agentTask.update({ where: { id }, data: { status: 'COMPLETED', progress: 100, currentStep: null, output, completedAt: new Date(), lockedBy: null, lockedAt: null } })
+      await tx.agentArtifact.create({ data: { taskId: id, type: 'execution-receipt', name: `${task.module}-receipt`, metadata: output } })
+      await tx.agentMessage.create({ data: { taskId: id, role: 'assistant', content: `Request received for ${task.module}.` } })
     })
     await appendEvent(id, 'TASK_COMPLETED', output)
   } catch (error) {
