@@ -15,8 +15,17 @@ function workerId(region?: string) {
 }
 
 async function appendEvent(taskId: string, type: string, payload?: unknown) {
-  const last = await prisma.agentEvent.findFirst({ where: { taskId }, orderBy: { sequence: 'desc' }, select: { sequence: true } })
-  return prisma.agentEvent.create({ data: { taskId, sequence: (last?.sequence || 0) + 1, type, payload: payload as object | undefined } })
+  // Event ordering is protected by the compound unique constraint; retrying a
+  // sequence collision keeps concurrent status updates from losing history.
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const last = await prisma.agentEvent.findFirst({ where: { taskId }, orderBy: { sequence: 'desc' }, select: { sequence: true } })
+    try {
+      return await prisma.agentEvent.create({ data: { taskId, sequence: (last?.sequence || 0) + 1, type, payload: payload as object | undefined } })
+    } catch (error) {
+      if (attempt === 2) throw error
+    }
+  }
+  throw new Error('EVENT_APPEND_FAILED')
 }
 
 export async function controlAgentTask(id: string, userId: string, action: string) {
@@ -47,9 +56,24 @@ export async function submitAgentTaskWorker(data: { taskId: string; workerId?: s
 
 export async function claimNextAgentTask(region?: string) {
   const id = workerId(region)
-  const candidate = await prisma.agentTask.findFirst({ where: { status: 'QUEUED', availableAt: { lte: new Date() } }, orderBy: { createdAt: 'asc' }, select: { id: true } })
+  const leaseCutoff = new Date(Date.now() - 5 * 60 * 1000)
+  const candidate = await prisma.agentTask.findFirst({
+    where: {
+      OR: [
+        { status: 'QUEUED', availableAt: { lte: new Date() } },
+        { status: 'RUNNING', lockedAt: { lt: leaseCutoff } },
+      ],
+    },
+    orderBy: { createdAt: 'asc' },
+    select: { id: true, status: true },
+  })
   if (!candidate) return null
-  const claimed = await prisma.agentTask.updateMany({ where: { id: candidate.id, status: 'QUEUED' }, data: { status: 'RUNNING', lockedBy: id, lockedAt: new Date(), startedAt: new Date(), attempts: { increment: 1 } } })
+  const claimed = await prisma.agentTask.updateMany({
+    where: candidate.status === 'QUEUED'
+      ? { id: candidate.id, status: 'QUEUED' }
+      : { id: candidate.id, status: 'RUNNING', lockedAt: { lt: leaseCutoff } },
+    data: { status: 'RUNNING', lockedBy: id, lockedAt: new Date(), startedAt: new Date(), attempts: { increment: 1 } },
+  })
   if (!claimed.count) return null
   await appendEvent(candidate.id, 'TASK_CLAIMED', { workerId: id })
   return prisma.agentTask.findUnique({ where: { id: candidate.id } })
@@ -66,14 +90,29 @@ export async function runAgentTask(id: string, lockedBy?: string, runAsync = fal
 async function executeAgentTask(id: string) {
   const task = await prisma.agentTask.findUniqueOrThrow({ where: { id } })
   const step = await prisma.agentStep.findFirst({ where: { taskId: id }, orderBy: { sequence: 'asc' } })
-  if (step) await prisma.agentStep.update({ where: { id: step.id }, data: { status: 'RUNNING', startedAt: new Date() } })
-  await prisma.agentTask.update({ where: { id }, data: { progress: 10, currentStep: step?.name || 'execution' } })
-  await appendEvent(id, 'TASK_STARTED')
-  const output = { accepted: true, module: task.module, message: 'Task accepted by the durable execution plane.' }
-  await prisma.$transaction(async (tx) => {
-    if (step) await tx.agentStep.update({ where: { id: step.id }, data: { status: 'COMPLETED', output, completedAt: new Date() } })
-    await tx.agentTask.update({ where: { id }, data: { status: 'COMPLETED', progress: 100, currentStep: null, output, completedAt: new Date(), lockedBy: null, lockedAt: null } })
-  })
-  await appendEvent(id, 'TASK_COMPLETED', output)
+  try {
+    if (step) await prisma.agentStep.update({ where: { id: step.id }, data: { status: 'RUNNING', startedAt: new Date() } })
+    await prisma.agentTask.update({ where: { id }, data: { progress: 10, currentStep: step?.name || 'execution' } })
+    await prisma.agentCheckpoint.create({ data: { taskId: id, sequence: task.attempts, state: { step: step?.name || 'execution', progress: 10 } } })
+    await appendEvent(id, 'TASK_STARTED', { attempt: task.attempts })
+
+    const output = { accepted: true, module: task.module, message: 'Task accepted by the durable execution plane.' }
+    await prisma.$transaction(async (tx) => {
+      if (step) await tx.agentStep.update({ where: { id: step.id }, data: { status: 'COMPLETED', output, completedAt: new Date() } })
+      await tx.agentTask.update({ where: { id }, data: { status: 'COMPLETED', progress: 100, currentStep: null, output, completedAt: new Date(), lockedBy: null, lockedAt: null } })
+    })
+    await appendEvent(id, 'TASK_COMPLETED', output)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Task execution failed.'
+    const retryable = task.attempts < task.maxAttempts
+    await prisma.agentError.create({ data: { taskId: id, code: 'EXECUTION_FAILED', message, retryable } })
+    await prisma.agentTask.update({
+      where: { id },
+      data: retryable
+        ? { status: 'QUEUED', error: message, availableAt: new Date(Date.now() + task.attempts * 30_000), lockedBy: null, lockedAt: null }
+        : { status: 'FAILED', error: message, completedAt: new Date(), lockedBy: null, lockedAt: null },
+    })
+    await appendEvent(id, retryable ? 'TASK_REQUEUED' : 'TASK_FAILED', { message, retryable })
+  }
   return prisma.agentTask.findUnique({ where: { id } })
 }
