@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
 import { executeAITask } from '@/lib/ai-gateway/service'
-
-const prisma = new PrismaClient()
 
 export class YouTubeAgent {
   async research(niche: string, userId: string = 'system') {

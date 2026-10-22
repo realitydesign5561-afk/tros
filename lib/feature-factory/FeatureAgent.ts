@@ -1,8 +1,6 @@
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
 import { executeAITask } from '@/lib/ai-gateway/service'
 import { sandboxService } from './SandboxService'
-
-const prisma = new PrismaClient()
 
 export class FeatureAgent {
   async analyzeRequirement(prompt: string, userId: string = 'system') {

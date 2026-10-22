@@ -49,10 +49,47 @@ export function WorkflowBuilder() {
   const [isActivating, setIsActivating] = useState(false)
   const [search, setSearch] = useState('')
   const [prompt, setPrompt] = useState('')
+  const [mcpStatus, setMcpStatus] = useState<{
+    connected: boolean
+    status: string
+    toolsCount?: number
+  } | null>(null)
 
   const selectedNode = useMemo(() => nodes.find((node) => node.id === selectedId), [nodes, selectedId])
   const activeWorkflow = workflows.find((workflow) => workflow.id === workflowId)
   const filteredWorkflows = workflows.filter((workflow) => workflow.name.toLowerCase().includes(search.toLowerCase()))
+
+  const checkMcpStatus = useCallback(async () => {
+    try {
+      const res = await fetch('/api/activepieces/connection')
+      if (res.ok) {
+        const data = await res.json()
+        setMcpStatus(data)
+      }
+    } catch {
+      // ignore
+    }
+  }, [])
+
+  const connectActivepieces = () => {
+    const width = 600
+    const height = 720
+    const left = window.screenX + (window.outerWidth - width) / 2
+    const top = window.screenY + (window.outerHeight - height) / 2
+    window.open(
+      '/api/activepieces/oauth/start',
+      'ActivepiecesOAuth',
+      `width=${width},height=${height},left=${left},top=${top},status=no,menubar=no`
+    )
+    const listener = (event: MessageEvent) => {
+      if (event.data?.type === 'ACTIVEPIECES_AUTH_SUCCESS') {
+        window.removeEventListener('message', listener)
+        void checkMcpStatus()
+        setNotice('Activepieces remote MCP server connected via OAuth.')
+      }
+    }
+    window.addEventListener('message', listener)
+  }
 
   const loadWorkflows = useCallback(async () => {
     const response = await fetch('/api/workflows')
@@ -73,7 +110,10 @@ export function WorkflowBuilder() {
     setNotice(null)
   }
 
-  useEffect(() => { void loadWorkflows() }, [loadWorkflows])
+  useEffect(() => {
+    void loadWorkflows()
+    void checkMcpStatus()
+  }, [loadWorkflows, checkMcpStatus])
 
   const onConnect = useCallback((connection: Connection) => setEdges((current) => addEdge({ ...connection, animated: true }, current)), [setEdges])
 
@@ -100,13 +140,17 @@ export function WorkflowBuilder() {
 
   async function activateInActivepieces() {
     if (!workflowId) return
+    if (mcpStatus && !mcpStatus.connected) {
+      setNotice('Activepieces MCP is disconnected. Connect via OAuth before activating.')
+      return
+    }
     setIsActivating(true)
     const response = await fetch(`/api/workflows/${workflowId}/activate`, { method: 'POST' })
     const data = await response.json() as { workflow?: WorkflowRecord; error?: string }
     setIsActivating(false)
     if (!response.ok) return setNotice(data.error || 'Could not activate in Activepieces.')
     if (data.workflow) { setWorkflows((current) => current.map((item) => item.id === data.workflow?.id ? data.workflow : item)) }
-    setNotice('Workflow activated in Activepieces. You can now run it from this workspace.')
+    setNotice('Workflow activated in Activepieces MCP. You can now run it from this workspace.')
     await loadWorkflows()
   }
 
@@ -167,7 +211,28 @@ export function WorkflowBuilder() {
   return (
     <div className="space-y-5">
       <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
-        <div><p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Automation studio</p><h2 className="mt-2 text-3xl font-semibold tracking-tight">Workflow Builder</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Compose reliable automations visually, save each graph to SQLite, and dispatch to Activepieces when connected.</p></div>
+        <div>
+          <div className="flex items-center gap-3 flex-wrap">
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Automation studio</p>
+            {mcpStatus?.connected ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-600">
+                <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Activepieces MCP ({mcpStatus.toolsCount ?? 0} tools)
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={connectActivepieces}
+                className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-amber-700 hover:bg-amber-500/20 transition cursor-pointer"
+              >
+                <span className="size-1.5 rounded-full bg-amber-500" />
+                Connect Activepieces MCP
+              </button>
+            )}
+          </div>
+          <h2 className="mt-2 text-3xl font-semibold tracking-tight">Workflow Builder</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Compose reliable automations visually, save each graph to database, and dispatch to Activepieces remote MCP server.</p>
+        </div>
         <div className="flex flex-wrap gap-2"><button className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm hover:bg-accent" onClick={() => createWorkflow()}><Plus className="size-4" />New workflow</button><button className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground hover:opacity-90" onClick={saveWorkflow}><Save className="size-4" />{isSaving ? 'Saving...' : 'Save'}</button><button className="inline-flex items-center gap-2 rounded-md bg-emerald-600 px-3 py-2 text-sm text-white hover:bg-emerald-700" onClick={activateInActivepieces} disabled={!workflowId || isActivating}><Wand2 className="size-4" />{isActivating ? 'Activating...' : 'Activate in Activepieces'}</button><button className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm hover:bg-accent" onClick={runWorkflow} disabled={!workflowId || isRunning}><Play className="size-4" />{isRunning ? 'Running...' : 'Run'}</button><button className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm hover:bg-accent" onClick={duplicateWorkflow} disabled={!workflowId}><Copy className="size-4" />Duplicate</button><button className="inline-flex items-center gap-2 rounded-md border border-destructive/30 px-3 py-2 text-sm text-destructive hover:bg-destructive/10" onClick={deleteWorkflow} disabled={!workflowId}><Trash2 className="size-4" />Delete</button></div>
       </div>
 

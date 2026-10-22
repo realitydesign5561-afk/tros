@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
 import { executeAITask } from '@/lib/ai-gateway/service'
-
-const prisma = new PrismaClient()
 
 export class LeadAgent {
   async discover(query: string, ownerId: string) {

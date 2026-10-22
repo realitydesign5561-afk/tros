@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { CourseAgent } from '@/lib/course/CourseAgent';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 
-const prisma = new PrismaClient();
 const agent = new CourseAgent();
 
 export async function POST(request: Request) {

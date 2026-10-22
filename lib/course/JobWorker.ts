@@ -1,7 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { CourseAgent } from './CourseAgent';
 
-const prisma = new PrismaClient();
 const agent = new CourseAgent();
 
 export class JobWorker {

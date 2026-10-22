@@ -1,7 +1,7 @@
-import { PrismaClient } from '@prisma/client';
-import { v4 as uuidv4 } from 'uuid';
+import { prisma } from '@/lib/prisma';
+import crypto from 'crypto';
 
-const prisma = new PrismaClient();
+const uuidv4 = () => crypto.randomUUID();
 
 export class OperationsService {
   /**

@@ -1,0 +1,1200 @@
+TROS — THE REALITY OPERATION SYSTEM
+
+MASTER BUILD DIRECTIVE
+
+1. YOUR ROLE
+
+Act as my principal software architect, senior full-stack engineer, AI infrastructure engineer, autonomous-agent developer, product designer, automation specialist, security engineer, and quality-assurance lead.
+
+Your assignment is to transform my existing TROS application into a comprehensive AI-powered business operating system.
+
+Existing production website:
+https://tros-opal.vercel.app/
+
+Product name: TROS — The Reality Operation System.
+
+Owner and primary user: Reality Design.
+
+Do not create an unrelated replacement application. Inspect the existing project, understand its implementation, and evolve it into the product specified below.
+
+Do not stop at producing a plan, a landing page, a visual mockup, or a list of recommendations. Implement functional software, test it, and clearly identify anything that requires external credentials, infrastructure, or manual configuration.
+
+Do not claim that a feature works until its implementation and actual behavior have been verified.
+
+---
+
+2. THE PRODUCT VISION
+
+TROS must become one unified workspace through which I can operate my creative and digital-services business.
+
+My work includes:
+
+- Website design and management.
+- AI-assisted website development.
+- Graphic design and flyer creation.
+- Video production.
+- Faceless YouTube channel management.
+- Social media management.
+- Google Business Profile setup and management.
+- SEO and digital marketing.
+- Lead generation and client acquisition.
+- Client project management.
+- Marketing automation.
+- Email marketing.
+- Business analytics.
+- Future services that I may add as my business expands.
+
+The platform must coordinate specialized AI agents, connect to external tools, maintain project context, automate repeatable workflows, and measure business results.
+
+My objective is to reduce manual work, improve creative quality, attract qualified customers, increase conversions, and manage my business from one application.
+
+Build for real operational use, not merely impressive demonstrations.
+
+---
+
+3. FIRST: INSPECT MY EXISTING APPLICATION
+
+Before changing any code:
+
+1. Inspect the complete project structure.
+2. Identify the frontend framework and application architecture.
+3. Identify the backend and API structure.
+4. Inspect authentication and authorization.
+5. Inspect the database configuration and existing schema.
+6. Identify every existing page, component, route, and working feature.
+7. Inspect all existing environment-variable references.
+8. Identify configured AI providers and integrations.
+9. Inspect the deployment configuration.
+10. Identify existing bugs, missing features, and security risks.
+
+Produce a concise implementation report.
+
+Distinguish between:
+
+- Features already implemented and verified.
+- Features partially implemented.
+- Features that are only visual placeholders.
+- Features that are missing.
+- Features blocked by missing credentials or infrastructure.
+
+Preserve working functionality, existing user data, and the current product identity.
+
+Do not replace the project with a fresh starter template merely because that is easier.
+
+Do not overwrite production data or perform destructive migrations without an appropriate backup and approval.
+
+After the inspection, begin implementing the highest-priority missing functionality.
+
+---
+
+4. BUILD A PROFESSIONAL TROS COMMAND CENTER
+
+Create a polished, responsive application interface for desktop and mobile.
+
+The authenticated dashboard should include:
+
+- Overview.
+- AI Command Center.
+- AI Agents.
+- Website Factory.
+- Creative Studio.
+- Video Studio.
+- Faceless YouTube.
+- Social Media Manager.
+- Google Business Manager.
+- Lead Generation.
+- CRM and Sales.
+- Client Projects.
+- Marketing Campaigns.
+- Workflow Automation.
+- AI Provider Manager.
+- Integrations.
+- Analytics.
+- File and Asset Library.
+- Settings and Security.
+
+The interface should use a coherent visual design system, accessible components, useful empty states, responsive layouts, loading indicators, notifications, and clear error messages.
+
+Avoid displaying fake statistics, fake connected accounts, or fictitious automation activity.
+
+Show real data when available and honest setup states when integrations are not configured.
+
+---
+
+5. THE CENTRAL AI COMMAND CENTER
+
+Build a natural-language command interface where I can describe an entire business task.
+
+Example:
+
+"Find suitable real estate businesses that need websites, research their current online presence, prepare personalized website concepts, generate proposals, add qualified prospects to my CRM, and prepare outreach for my approval."
+
+The command center should:
+
+1. Interpret my request.
+2. Identify the desired outcome.
+3. Break the task into smaller operations.
+4. Select the appropriate agents and tools.
+5. Establish task dependencies.
+6. Check required permissions and credentials.
+7. Estimate costs where possible.
+8. Create an execution plan.
+9. Run authorized tasks.
+10. Save intermediate results.
+11. Verify important outputs.
+12. Report success, failure, or blockers.
+
+Provide a task board showing queued, running, waiting for approval, completed, and failed tasks.
+
+Support cancellation, retrying, resuming, and inspecting task logs.
+
+Maintain useful project context without unnecessarily resending entire conversation histories to AI providers.
+
+Allow me to approve, edit, reject, or stop proposed actions.
+
+---
+
+6. BUILD A MULTI-AGENT AI WORKFORCE
+
+Create specialized agents with explicit roles, tools, permissions, and output contracts.
+
+Required agents:
+
+A. Executive Orchestrator.
+B. Website Architect.
+C. Full-Stack Coding Agent.
+D. Database Engineer.
+E. Code Review Agent.
+F. Quality Assurance Agent.
+G. Graphic Designer.
+H. Brand Identity Agent.
+I. Video Production Agent.
+J. YouTube Research and Growth Agent.
+K. Social Media Strategist.
+L. Social Publishing Agent.
+M. SEO Specialist.
+N. Google Business Profile Specialist.
+O. Lead Research Agent.
+P. Sales and Outreach Agent.
+Q. CRM and Client Manager.
+R. Email Marketing Agent.
+S. Analytics Agent.
+T. Security and Operations Agent.
+
+Agents must be able to delegate work through the central orchestrator where appropriate.
+
+Each task must have a clear objective, execution status, relevant inputs, outputs, and error-handling strategy.
+
+Prevent uncontrolled agent loops, duplicate execution, and unnecessary consumption of paid AI tokens.
+
+Apply least-privilege permissions to each agent.
+
+Agents must never receive unrestricted access to every client account, production database, credential, or external integration.
+
+---
+
+7. MULTI-PROVIDER AI ROUTING AND AUTOMATIC FALLBACK
+
+This is a critical product requirement.
+
+Build a provider-independent AI gateway that supports multiple configurable AI providers.
+
+Design provider adapters for supported services offering:
+
+- Text generation.
+- Reasoning.
+- Coding.
+- Image generation.
+- Speech generation.
+- Video generation.
+- Embeddings.
+- Research or search.
+
+Use provider APIs and authentication methods that the relevant services officially support.
+
+Do not assume all models offer the same capabilities or API format.
+
+The administrator must be able to configure provider credentials securely, select default models, establish routing priorities, and assign providers to particular task categories.
+
+For each provider, track available operational information, including:
+
+- Connection status.
+- Supported capabilities.
+- Rate-limit responses.
+- Quota errors.
+- Billing or quota status where exposed.
+- Latency.
+- Task success rates.
+- Usage and estimated costs where available.
+
+Implement intelligent fallback.
+
+When a provider fails:
+
+1. Classify the error.
+2. Determine whether retrying is appropriate.
+3. Save the current task checkpoint.
+4. Select a configured alternative that supports the required operation.
+5. Transfer the minimum necessary context.
+6. Resume the task.
+7. Validate the resulting output.
+8. Record the provider change and task outcome.
+
+Handle rate limits, transient failures, outages, unsupported models, invalid credentials, and exhausted quotas appropriately.
+
+Do not endlessly retry failed requests.
+
+Do not switch to an alternative that lacks the required capabilities.
+
+Do not create duplicate payments, posts, websites, or other side effects when retrying an operation.
+
+Implement idempotency wherever the destination service supports it.
+
+If every suitable provider is unavailable, save the work and mark the task as waiting for a provider, budget, or credential.
+
+Use model selection, caching, task deduplication, context reduction, and inexpensive models for simpler work to reduce costs.
+
+Show users which provider is being used and why a fallback occurred.
+
+Do not promise unlimited free AI usage. Provider switching can reduce interruptions but cannot eliminate external quotas, billing requirements, or infrastructure limits.
+
+Do not automatically purchase credits or upgrade subscriptions.
+
+---
+
+8. THE AI WEBSITE FACTORY
+
+This is one of the highest-priority modules.
+
+Build an AI website builder that can generate real applications from natural-language instructions.
+
+Example:
+
+"Build a premium website for a Lagos real estate company with property listings, property detail pages, lead forms, an admin dashboard, responsive layouts, authentication, and a database."
+
+The Website Factory should:
+
+1. Convert the prompt into a structured project specification.
+2. Identify requirements and missing information.
+3. Design the application architecture.
+4. Generate a project plan.
+5. Create the frontend and backend.
+6. Generate reusable components.
+7. Create database schemas and migrations.
+8. Implement API endpoints.
+9. Connect authorized integrations.
+10. Run the build.
+11. Execute available automated tests.
+12. Inspect errors.
+13. Repair failures.
+14. Present a working preview.
+15. Support further prompt-based editing.
+16. Preserve project history and versions.
+17. Prepare deployment.
+18. Publish only after the required approval and configuration.
+
+Support multi-page websites, responsive layouts, authentication, forms, databases, dashboards, and reusable design systems.
+
+Allow me to specify a preferred framework or let the coding agent select a suitable one.
+
+Provide a code editor or an appropriate source-code editing interface.
+
+Support project file inspection, file changes, version control, and rollback.
+
+Do not overwrite unrelated projects when generating a new website.
+
+Each website must be a separate project with its own settings, files, permissions, and database configuration.
+
+LIVE PREVIEW
+
+Provide a preview environment that reflects the actual generated application.
+
+Display compilation errors and runtime errors where available.
+
+Do not represent a static screenshot as a functioning website.
+
+DEPLOYMENT
+
+Create a deployment abstraction for supported hosting providers.
+
+Support configuration of build settings, environment variables, domains, and deployment status where the provider API permits it.
+
+Keep secrets server-side.
+
+Show the resulting public URL only after deployment has succeeded.
+
+WEBSITE PROJECT PORTABILITY
+
+Where technically feasible, support exporting source code and connecting Git repositories.
+
+Avoid locking every project into a proprietary execution environment.
+
+---
+
+9. DIRECT PROJECT AND DATABASE OPERATIONS
+
+I want development workflows similar to modern AI coding environments.
+
+Build secure tooling that allows the Coding Agent to:
+
+- Inspect project files.
+- Create and edit source files.
+- Search the codebase.
+- Install approved dependencies.
+- Run builds and tests.
+- Inspect logs.
+- Diagnose bugs.
+- Generate migrations.
+- Inspect database schemas.
+- Execute authorized queries.
+- Review database changes.
+- Apply approved migrations.
+- Verify resulting application behavior.
+- Manage project-specific environment variables.
+- Work with connected Git repositories.
+
+Use an isolated server-side execution environment for project builds and generated code.
+
+Never execute arbitrary generated code directly in the production application process with unrestricted privileges.
+
+For database access:
+
+- Use project-specific credentials.
+- Restrict privileges to the required database and operations.
+- Separate development, staging, and production environments.
+- Create backups before destructive operations.
+- Preview migrations.
+- Require approval for destructive production changes.
+- Record important database operations.
+- Provide rollback procedures where possible.
+
+Never expose database passwords, provider API keys, or other secrets to browser code.
+
+Do not let the AI execute destructive SQL merely because a natural-language prompt requests a change.
+
+---
+
+10. THE PROFESSIONAL CREATIVE STUDIO
+
+Build a graphic design workspace for producing professional commercial designs.
+
+Supported outputs should include:
+
+- Birthday flyers.
+- Event flyers.
+- Promotional posters.
+- Business advertisements.
+- Product graphics.
+- Real estate flyers.
+- YouTube thumbnails.
+- Instagram posts.
+- LinkedIn graphics.
+- Carousel slides.
+- Website banners.
+- Brand identity concepts.
+- Marketing campaign graphics.
+
+Accept natural-language prompts and reference images.
+
+Example:
+
+"Design a premium birthday flyer using editorial art direction, realistic photography, sophisticated typography, balanced composition, and a luxury visual identity. Avoid generic AI-generated flyer aesthetics."
+
+The system should translate the request into a design brief before generating the artwork.
+
+Implement a pipeline for:
+
+1. Interpreting the creative brief.
+2. Identifying the audience and intended use.
+3. Researching relevant design references where authorized tools are available.
+4. Extracting composition, typography, color, and visual hierarchy principles.
+5. Generating original visual concepts.
+6. Adding accurate editable text.
+7. Applying brand assets.
+8. Checking readability and layout.
+9. Exporting the requested dimensions and format.
+
+PINTEREST-INSPIRED DESIGN
+
+Support authorized search and analysis of public design references, including Pinterest where an appropriate access method is available.
+
+Analyze references for:
+
+- Typography.
+- Layout.
+- Composition.
+- Spacing.
+- Color relationships.
+- Visual hierarchy.
+- Photography style.
+- Overall art direction.
+
+Use these principles to create original designs.
+
+Do not assume that every Pinterest image is licensed for reuse.
+
+Do not copy complete protected designs or remove watermarks.
+
+EDITABLE OUTPUTS
+
+Where possible, generate designs using structured layers or editable vector layouts instead of flattening everything into a single image.
+
+Allow me to revise text, colors, dimensions, imagery, and branding.
+
+Support PNG, JPEG, and other suitable export formats.
+
+Maintain a reusable library of brand assets and approved templates for each client.
+
+---
+
+11. THE FACELESS YOUTUBE AUTOMATION ENGINE
+
+Build a dedicated YouTube production and growth system.
+
+Its purpose is to help me establish, operate, and improve faceless YouTube channels through original content, consistent production, authorized publishing, and data-driven decisions.
+
+NICHE DISCOVERY
+
+Research potential niches using available evidence about:
+
+- Search interest.
+- Audience demand.
+- Competition.
+- Topic longevity.
+- Commercial relevance.
+- Advertiser suitability.
+- Production feasibility.
+- Content differentiation.
+- Potential sponsorship or affiliate opportunities.
+
+Use authorized data sources and explain the evidence behind recommendations.
+
+Score candidate niches using configurable criteria.
+
+Do not invent revenue figures or claim that a niche is guaranteed to succeed.
+
+Recommend a niche based on my resources, interests, production capacity, and available market evidence.
+
+Require approval before committing to a new channel strategy.
+
+CHANNEL SETUP
+
+Assist with:
+
+- Channel naming.
+- Branding.
+- Channel descriptions.
+- Content pillars.
+- Publishing schedules.
+- Competitor research.
+- Content planning.
+- Original visual identity.
+- Channel assets.
+
+Use official YouTube integrations where available and respect account permissions.
+
+AUTOMATED VIDEO PRODUCTION
+
+Build a repeatable production pipeline that can:
+
+1. Discover suitable topics.
+2. Research source material.
+3. Draft original scripts.
+4. Verify factual claims.
+5. Create narration.
+6. Generate or source appropriately licensed visuals.
+7. Assemble video scenes.
+8. Add captions.
+9. Add suitable transitions and audio.
+10. Generate thumbnail concepts.
+11. Create titles and descriptions.
+12. Review content quality.
+13. Save final assets.
+14. Prepare publication.
+15. Track the published video's performance.
+
+Support configured video and speech providers through appropriate adapters.
+
+Use HeyGen and Creatomate integrations when configured and suitable for the intended video format.
+
+Do not assume every video requires an AI avatar.
+
+Support original narration, illustrations, animation, licensed footage, and other appropriate formats.
+
+THUMBNAIL GENERATION
+
+Generate multiple original thumbnail concepts where useful.
+
+Evaluate visual clarity, readability, topic relevance, and consistency with the channel identity.
+
+Never falsely claim that a thumbnail will guarantee clicks.
+
+PUBLISHING
+
+Support authorized YouTube uploads and scheduling.
+
+Require appropriate authorization and permissions.
+
+Allow the owner to establish which content types may be published automatically and which require review.
+
+Check video files, metadata, publication status, and platform responses.
+
+Do not report a video as published until the platform confirms the operation.
+
+CHANNEL OPTIMIZATION
+
+Monitor available metrics, including:
+
+- Impressions.
+- Click-through rate.
+- Views.
+- Watch time.
+- Audience retention.
+- Subscribers gained.
+- Returning viewers.
+- Traffic sources.
+- Topic-level performance.
+
+Use observed results to improve future content planning.
+
+MONETIZATION TRACKING
+
+Track current official YouTube Partner Program eligibility criteria using reliable, up-to-date sources.
+
+Show progress toward applicable milestones and identify outstanding requirements.
+
+Do not guarantee monetization, manipulate engagement, purchase subscribers, or circumvent eligibility requirements.
+
+Prioritize original, valuable, policy-compliant content.
+
+Detect repetitive production patterns that could undermine originality or monetization eligibility.
+
+The goal is sustainable audience growth, not mass publication of low-value videos.
+
+After monetization, continue producing content and monitoring channel performance.
+
+---
+
+12. SOCIAL MEDIA MANAGEMENT AND AUTOMATION
+
+Create a unified workspace for managing my own accounts and separate client accounts.
+
+Support authorized integrations for platforms such as:
+
+- Instagram.
+- Facebook.
+- LinkedIn.
+- YouTube.
+- Google Business Profile where supported.
+
+The system should support:
+
+- Content research.
+- Content calendars.
+- Caption generation.
+- Platform-specific content adaptation.
+- Graphic generation.
+- Short-form video production.
+- Scheduling.
+- Authorized publishing.
+- Post status tracking.
+- Analytics.
+- Reporting.
+- Content repurposing.
+
+Avoid treating every platform as identical.
+
+Develop platform-specific content strategies using current official guidance, available account analytics, audience research, and observed results.
+
+Respect each platform's official API, rate limits, publishing permissions, and automation policies.
+
+Do not promise guaranteed virality or access to proprietary ranking algorithms.
+
+Do not fabricate engagement metrics.
+
+DAILY AUTOMATION
+
+Allow me to establish schedules for each account and campaign.
+
+For each scheduled run:
+
+1. Identify the appropriate content pillar.
+2. Check the content calendar.
+3. Generate a proposed post.
+4. Create any required visual assets.
+5. Validate the content against the brand profile.
+6. Check for duplicate content.
+7. Publish or queue the post according to my configured permissions.
+8. Record the actual outcome.
+9. Collect performance data where available.
+
+Provide pause controls, approval settings, and per-account publishing limits.
+
+Prevent duplicate posts when jobs retry.
+
+---
+
+13. GOOGLE BUSINESS PROFILE MANAGER
+
+Build a workspace for managing authorized Google Business Profiles.
+
+Support available and permitted workflows for:
+
+- Business profile setup assistance.
+- Business information review.
+- Business descriptions.
+- Service and product information.
+- Business updates.
+- Review monitoring and response assistance where supported.
+- Local search content.
+- Performance reporting.
+
+Use official Google APIs and authorized access methods.
+
+Identify which setup or verification steps require the business owner to act manually.
+
+Never fabricate reviews or claim a profile is verified without evidence.
+
+Keep every client's business account isolated from other clients.
+
+---
+
+14. THE LEAD GENERATION ENGINE
+
+Build a lead generation system designed to identify suitable prospects and help convert them into paying customers.
+
+Do not optimize for lead quantity alone.
+
+Optimize for relevance, evidence of need, qualified opportunities, and actual conversions.
+
+PROSPECT DISCOVERY
+
+Use permitted sources, authorized business directories, official APIs, public business information, and user-provided data.
+
+Support filters for:
+
+- Industry.
+- Location.
+- Business size where available.
+- Services offered.
+- Website presence.
+- Observable online visibility issues.
+- Relevant business opportunities.
+- Contactability.
+
+OPPORTUNITY ANALYSIS
+
+Where evidence is available, inspect a prospect's public digital presence for:
+
+- Missing or ineffective websites.
+- Mobile usability problems.
+- Outdated business information.
+- Weak service pages.
+- Inconsistent branding.
+- Inactive social media.
+- Local visibility opportunities.
+- Relevant marketing needs.
+
+Clearly separate verified observations from AI-generated assumptions.
+
+LEAD SCORING
+
+Score leads based on:
+
+- Service fit.
+- Evidence of need.
+- Relevant buying signals.
+- Potential commercial value.
+- Contactability.
+- Timing where known.
+
+Explain why each lead receives its score.
+
+Never invent personal information, contact details, budgets, or purchase intent.
+
+PERSONALIZED SALES ASSETS
+
+Generate:
+
+- Website audit reports.
+- Personalized proposals.
+- Sample website concepts.
+- Relevant graphic mockups.
+- Service recommendations.
+- Outreach messages.
+- Follow-up sequences.
+- Meeting briefs.
+
+Use authorized sources and clearly label speculative estimates.
+
+OUTREACH AND CONVERSION
+
+Integrate supported communication channels using authorized APIs.
+
+Respect applicable privacy, consent, and anti-spam requirements.
+
+Support:
+
+- Drafting personalized emails.
+- Preparing professional direct messages.
+- Tracking outreach status.
+- Following up on permitted schedules.
+- Recording replies.
+- Booking meetings.
+- Preparing proposals.
+- Tracking negotiations.
+- Recording won and lost deals.
+
+Require approval where appropriate before sending sensitive or high-impact communications.
+
+Do not promise instant conversions or guaranteed daily sales.
+
+Continuously measure the relationship between prospect sources, outreach, qualified meetings, proposals, and closed revenue.
+
+Optimize based on real results.
+
+---
+
+15. CLIENT MANAGEMENT AND CREATIVE AGENCY OPERATIONS
+
+Build a complete client relationship and project management system.
+
+Each client workspace must include:
+
+- Business details.
+- Contact records.
+- Services purchased.
+- Project briefs.
+- Contracts and agreements.
+- Brand guidelines.
+- Files and assets.
+- Website projects.
+- Graphic design projects.
+- Video projects.
+- Social media accounts.
+- Content calendars.
+- Deliverables.
+- Tasks.
+- Deadlines.
+- Approvals.
+- Communication history.
+- Invoices.
+- Payments.
+- Campaign results.
+
+Allow a single natural-language command to create a project plan and assign tasks to appropriate agents.
+
+Provide clear task status, deadlines, dependencies, deliverables, and blockers.
+
+Separate internal workspaces from client-facing portals.
+
+Clients must only access information explicitly authorized for them.
+
+Build configurable project templates for common services such as website design, social media management, Google Business Profile setup, and video production.
+
+---
+
+16. CRM, SALES, AND BUSINESS GROWTH
+
+Implement a CRM with customizable pipeline stages.
+
+Default stages:
+
+- New lead.
+- Researching.
+- Qualified.
+- Contacted.
+- Replied.
+- Meeting booked.
+- Proposal prepared.
+- Proposal sent.
+- Negotiation.
+- Won.
+- Lost.
+- Follow-up.
+
+Track:
+
+- Lead source.
+- Service interest.
+- Outreach history.
+- Response history.
+- Meetings.
+- Proposal values.
+- Deal status.
+- Conversion rates.
+- Revenue where recorded.
+- Follow-up dates.
+
+Generate business reports that distinguish actual results from estimates.
+
+Identify the best-performing services, lead sources, outreach approaches, and customer segments.
+
+Recommend next actions without automatically making unauthorized commitments.
+
+---
+
+17. ACTIVEPIECES MCP AND EXTERNAL AUTOMATIONS
+
+My existing Activepieces MCP endpoint is:
+
+https://cloud.activepieces.com/mcp/platform
+
+Inspect the existing integration before making changes.
+
+If Activepieces MCP is suitable, implement a compatible server-side MCP client using a supported transport and authentication flow.
+
+Do not treat an MCP endpoint as an ordinary REST API.
+
+Do not assume that adding a URL to an API URL field creates an MCP connection.
+
+Support OAuth or another officially supported authentication method as appropriate.
+
+Discover available tools through the actual MCP server instead of inventing tool names.
+
+Allow agents to use authorized Activepieces tools for supported workflows.
+
+If the runtime cannot support the required MCP transport, implement an appropriate backend integration or identify the specific infrastructure needed.
+
+Separate MCP credentials from ordinary REST API credentials.
+
+Use other direct integrations only when required and supported.
+
+Provide connection testing, authorization status, error handling, and revocation.
+
+Do not claim that a connection is working without verification.
+
+---
+
+18. EMAIL MARKETING AND COMMUNICATIONS
+
+Integrate Resend where configured.
+
+Support authorized workflows for:
+
+- Transactional email.
+- Client notifications.
+- Lead follow-ups.
+- Proposal delivery.
+- Project updates.
+- Appointment reminders.
+- Approved marketing campaigns.
+
+Use appropriate consent and unsubscribe handling for marketing communications.
+
+Track delivery outcomes when supported.
+
+Do not expose email API credentials in browser code.
+
+---
+
+19. PAYMENTS AND REVENUE MANAGEMENT
+
+Integrate Stripe where configured and appropriate.
+
+Support:
+
+- Payment links.
+- Invoices.
+- Subscription management.
+- Customer billing records.
+- Subscription status.
+- Payment notifications.
+- Transaction history.
+
+Verify payment events through secure server-side mechanisms.
+
+Never trust an unverified browser redirect as proof of payment.
+
+Require appropriate approval for refunds, pricing changes, and financial commitments.
+
+Do not activate paid services until the relevant credentials and account settings are configured.
+
+---
+
+20. EXTENSIBLE FEATURE SYSTEM
+
+TROS must be able to expand as my business grows.
+
+Create modular interfaces for registering new tools, agents, providers, and application modules.
+
+Where appropriate, allow administrators to configure:
+
+- New AI providers.
+- New agent roles.
+- New workflow templates.
+- New external integrations.
+- New client services.
+- New publishing destinations.
+- New creative tools.
+- New analytics sources.
+
+Provide an integration registry showing each integration's purpose, required permissions, setup status, available capabilities, and dependencies.
+
+Allow a future feature request to generate an implementation plan, identify requirements, implement code, run tests, and propose a safe rollout.
+
+Do not let agents install arbitrary code or grant themselves unrestricted permissions.
+
+New features must be tested and approved before being enabled in production.
+
+---
+
+21. DATA ARCHITECTURE AND SECURITY
+
+Inspect the existing database and preserve working data.
+
+Implement appropriate persistent records for:
+
+- Users.
+- Workspaces.
+- Clients.
+- Projects.
+- Tasks.
+- Agent runs.
+- AI provider configurations.
+- Integration metadata.
+- Content assets.
+- Publishing schedules.
+- Social accounts.
+- Leads.
+- Sales opportunities.
+- Campaigns.
+- Invoices.
+- Usage records.
+- Audit logs.
+
+Use the existing database when it is suitable.
+
+If the application uses PostgreSQL, use appropriate migrations and project-specific database access.
+
+Never place production secrets in client-side environment variables or publicly accessible source code.
+
+Use secure server-side credential storage and encryption where appropriate.
+
+Apply authorization at the server and database layers.
+
+Separate development, staging, and production.
+
+Protect against cross-client data access.
+
+Validate user inputs and external API responses.
+
+Implement backups, appropriate audit logs, and recovery procedures.
+
+Do not expose one client's private information to another client or to unrelated AI agents.
+
+---
+
+22. SCHEDULED AND EVENT-DRIVEN AUTOMATION
+
+Implement a durable workflow system for recurring tasks.
+
+Examples include:
+
+- Daily social media content production.
+- Scheduled YouTube production.
+- Weekly lead discovery.
+- Approved lead follow-ups.
+- Client deadline reminders.
+- Weekly marketing reports.
+- Monthly client reports.
+- Website monitoring.
+- Failed-task recovery.
+- Provider health checks.
+
+Support scheduled and event-driven triggers where the configured infrastructure allows them.
+
+Use persistent job storage and reliable scheduling infrastructure.
+
+Do not rely exclusively on a browser tab being open for background jobs.
+
+Prevent duplicate execution when workers restart or requests retry.
+
+Provide task history, retry controls, scheduling settings, notifications, and pause/resume controls.
+
+Make timezone handling explicit.
+
+---
+
+23. QUALITY ASSURANCE AND AUTONOMOUS REPAIR
+
+Build automated checks appropriate to each task type.
+
+For websites:
+
+- Build and compilation checks.
+- Type checking where supported.
+- Unit tests.
+- Integration tests.
+- Browser checks where available.
+- Responsive layout checks.
+- Basic accessibility checks.
+- Security checks.
+
+For graphics:
+
+- Image dimensions.
+- Text readability.
+- Layout checks where feasible.
+- Brand consistency.
+- Export validation.
+
+For videos:
+
+- File integrity.
+- Duration.
+- Audio presence.
+- Caption availability where required.
+- Metadata validation.
+- Basic quality checks.
+
+For automations:
+
+- Connection status.
+- Required permissions.
+- Input validation.
+- Execution results.
+- Duplicate-action prevention.
+
+For leads and campaigns:
+
+- Source provenance.
+- Duplicate detection.
+- Data freshness where available.
+- Compliance checks.
+- Result tracking.
+
+When a task fails, diagnose the actual error, attempt a bounded repair when appropriate, and rerun the relevant tests.
+
+Do not conceal unresolved errors or fabricate successful test results.
+
+---
+
+24. COST AND RESOURCE MANAGEMENT
+
+Create a usage dashboard that shows, where data is available:
+
+- Provider usage.
+- Estimated AI costs.
+- Video-generation costs.
+- Image-generation costs.
+- Hosting usage.
+- Storage usage.
+- Failed task costs where known.
+- Monthly budgets.
+- Budget warnings.
+
+Allow configurable limits per provider, project, client, and workflow.
+
+Stop or pause discretionary expensive tasks when configured budgets are reached.
+
+Prioritize essential work according to configurable rules.
+
+Do not bypass provider quotas or billing restrictions.
+
+Do not promise that a platform using paid external services can operate indefinitely at zero cost.
+
+Design TROS to use resources efficiently and keep the user informed.
+
+---
+
+25. ADMINISTRATION AND HUMAN CONTROL
+
+Provide an administration area where I can:
+
+- Configure providers.
+- Manage integration connections.
+- Review permissions.
+- Manage workspaces.
+- Inspect agent activity.
+- Review automation logs.
+- Manage budgets.
+- Pause workflows.
+- Cancel jobs.
+- Revoke credentials.
+- Review security events.
+- Approve deployments.
+- Approve destructive database changes.
+- Approve sensitive external communications.
+
+Allow routine low-risk operations to run automatically within explicit rules.
+
+Require approval for high-impact operations such as production database deletion, major deployments, sensitive account changes, financial commitments, and irreversible actions.
+
+Maintain a clear audit trail.
+
+---
+
+26. IMPLEMENTATION PRIORITIES
+
+Do not attempt to build everything through one uncontrolled rewrite.
+
+Use the following sequence.
+
+PHASE 1 — FOUNDATION
+
+Inspect and stabilize the existing TROS application.
+
+Implement or repair authentication, database connectivity, project persistence, server-side secrets, workspace authorization, and the central dashboard.
+
+PHASE 2 — AI CORE
+
+Implement the AI provider registry, provider adapters, multi-provider routing, fallback logic, task queue, durable checkpoints, usage tracking, and agent orchestration.
+
+PHASE 3 — WEBSITE FACTORY
+
+Implement prompt-based website generation, source editing, safe project execution, database tooling, previews, testing, and deployment integration.
+
+PHASE 4 — CREATIVE STUDIO
+
+Implement professional graphic generation, reference research, brand profiles, editable design workflows where feasible, and asset management.
+
+PHASE 5 — VIDEO AND YOUTUBE
+
+Implement video production, thumbnail creation, YouTube research, authorized publishing, analytics, and monetization tracking.
+
+PHASE 6 — SOCIAL MEDIA
+
+Implement account connections, content calendars, platform-specific generation, approved publishing, and analytics.
+
+PHASE 7 — CLIENTS AND SALES
+
+Implement client workspaces, CRM, lead research, qualification, proposals, outreach, follow-ups, and reporting.
+
+PHASE 8 — BUSINESS INTEGRATIONS
+
+Implement Activepieces MCP, Google Business Profile, email marketing, payments, and other configured integrations.
+
+PHASE 9 — HARDENING AND EXPANSION
+
+Improve security, automated tests, operational reliability, documentation, backups, monitoring, and extensibility.
+
+Reorder these phases only when inspection identifies a necessary dependency.
+
+After each phase, report what is implemented, what has actually been tested, what remains incomplete, and which credentials or infrastructure are required next.
+
+---
+
+27. REQUIRED FIRST ACTION
+
+Begin now by inspecting the existing TROS codebase.
+
+Do not immediately replace the entire application.
+
+Return a concise report containing:
+
+1. Existing architecture.
+2. Existing functional features.
+3. Incomplete or placeholder features.
+4. Database and authentication status.
+5. Current integrations and environment variables.
+6. Critical security or reliability issues.
+7. The first concrete implementation changes you will make.
+
+Then implement Phase 1 using the existing codebase.
+
+Continue making real, testable changes rather than stopping after producing the report.
+
+Preserve the existing TROS branding and product identity.
+
+The final objective is a reliable, modular AI business operating system that coordinates website development, creative production, social media, YouTube, lead generation, client management, and business automation from one place.

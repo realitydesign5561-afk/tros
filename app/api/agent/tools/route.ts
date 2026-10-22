@@ -7,5 +7,6 @@ export async function GET(request: Request) {
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const agentModule = new URL(request.url).searchParams.get('module') || 'universal'
-  return NextResponse.json({ module: agentModule, tools: discoverTools(agentModule) })
+  const tools = await discoverTools(agentModule)
+  return NextResponse.json({ module: agentModule, tools })
 }

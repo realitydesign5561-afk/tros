@@ -674,3 +674,97 @@ model TestRun {
   logs        String?
   createdAt   DateTime @default(now())
 }
+
+model AgentTask {
+  id             String           @id @default(cuid())
+  userId         String
+  module         String?
+  prompt         String
+  status         String           @default("QUEUED") // QUEUED, RUNNING, WAITING_APPROVAL, COMPLETED, FAILED, CANCELLED
+  progress       Int              @default(0)
+  currentStep    String?
+  plan           String?          // JSON execution plan
+  error          String?
+  output         String?          // JSON result output
+  estimatedCost  Float            @default(0.0)
+  conversationId String?
+  idempotencyKey String?
+  lockedBy       String?
+  events         AgentTaskEvent[]
+  createdAt      DateTime         @default(now())
+  completedAt    DateTime?
+}
+
+model AgentTaskEvent {
+  id        String    @id @default(cuid())
+  taskId    String
+  task      AgentTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  eventType String    // PLAN, STEP_START, STEP_DONE, TOOL_CALL, TOOL_RESULT, APPROVAL_REQUEST, ERROR, INFO
+  message   String
+  agentName String?
+  payload   String?   // JSON payload
+  createdAt DateTime  @default(now())
+}
+
+model Client {
+  id          String          @id @default(cuid())
+  ownerId     String
+  name        String
+  company     String
+  email       String
+  phone       String?
+  website     String?
+  status      String          @default("LEAD") // LEAD, ACTIVE, RETAINER, COMPLETED, ARCHIVED
+  notes       String?
+  services    String?         // JSON array of purchased services
+  budget      Float?
+  projects    ClientProject[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model ClientProject {
+  id           String    @id @default(cuid())
+  clientId     String
+  client       Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  name         String
+  type         String    // WEBSITE, GRAPHICS, VIDEO, SOCIAL, SEO, GBP
+  status       String    @default("IN_PROGRESS") // PLANNING, IN_PROGRESS, REVIEW, APPROVED, DELIVERED
+  budget       Float?
+  deadline     DateTime?
+  deliverables String?   // JSON array of deliverables
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model GoogleBusinessProfile {
+  id           String    @id @default(cuid())
+  ownerId      String
+  businessName String
+  address      String?
+  phone        String?
+  website      String?
+  category     String?
+  status       String    @default("UNVERIFIED") // UNVERIFIED, PENDING_VERIFICATION, VERIFIED, ACTIVE
+  verified     Boolean   @default(false)
+  lastSyncAt   DateTime?
+  reviewsCount Int       @default(0)
+  rating       Float     @default(0.0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model MediaAsset {
+  id        String   @id @default(cuid())
+  ownerId   String
+  title     String
+  fileType  String   // IMAGE, VIDEO, AUDIO, DOCUMENT, CODE
+  url       String
+  category  String   // FLYER, THUMBNAIL, BANNER, SCRIPT, LOGO, GENERAL
+  tags      String?
+  size      Int?
+  metadata  String?  // JSON metadata (dimensions, duration, palette)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+

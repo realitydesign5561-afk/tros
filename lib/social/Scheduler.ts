@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { TwitterAdapter } from './adapters/TwitterAdapter';
-
-const prisma = new PrismaClient();
 
 const adapters: Record<string, any> = {
   twitter: new TwitterAdapter(),

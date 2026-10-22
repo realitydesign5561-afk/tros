@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Sparkles, ArrowRight, Loader2, ImagePlus, Send, MessageSquare } from 'lucide-react'
 
-export function SocialOS() {
+export function SocialOS({ view }: { view?: string } = {}) {
   const [prompt, setPrompt] = useState('')
   const [state, setState] = useState<'idle' | 'loading' | 'done'>('idle')
   const [result, setResult] = useState<{ caption: string, image: string, platforms: string[] } | null>(null)

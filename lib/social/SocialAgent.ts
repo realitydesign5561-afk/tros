@@ -1,8 +1,6 @@
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
 import { executeAITask } from '@/lib/ai-gateway/service'
 import { videoAdapterManager } from '../course/VideoService'
-
-const prisma = new PrismaClient()
 
 export class SocialAgent {
   async research(query: string, userId: string = 'system') {
@@ -35,6 +33,9 @@ Make the output concise and suitable for a 30-day campaign.`
     try {
       const cleanJson = raw.replace(/^```json\s*/i, '').replace(/```$/g, '').trim()
       return JSON.parse(cleanJson)
+    } catch {
+      return { raw }
+    }
   }
 
   async generatePost(pillar: string, hook: string, userId: string = 'system') {

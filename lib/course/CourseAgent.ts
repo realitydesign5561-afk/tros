@@ -1,8 +1,6 @@
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
 import { executeAITask } from '@/lib/ai-gateway/service'
 import { videoAdapterManager } from './VideoService'
-
-const prisma = new PrismaClient()
 
 export class CourseAgent {
   async plan(prompt: string, userId: string) {

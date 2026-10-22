@@ -1,81 +1,70 @@
 import { prisma } from '@/lib/prisma'
-import { getProviderClient } from '@/lib/aiGateway'
+import { executeWithFallback, resolveApiKey, getProviderClient, AICapability } from '@/lib/aiGateway'
 
 export async function providerHealth(id: string) {
-  // Try to find the API key in the DB
   const apiKeyRecord = await prisma.apiKey.findUnique({ where: { id } })
   if (!apiKeyRecord) return { status: 'ERROR', message: 'Provider not found' }
 
   try {
-    const client = getProviderClient({ name: apiKeyRecord.provider, apiKey: apiKeyRecord.value })
-    // Simple test to see if it responds
+    const key = await resolveApiKey(apiKeyRecord.provider)
+    if (!key) return { status: 'STANDBY', message: 'API key not configured' }
+
+    const client = getProviderClient({ name: apiKeyRecord.provider, apiKey: key })
     const start = Date.now()
-    await client.generate({ model: apiKeyRecord.provider === 'OpenAI' ? 'gpt-4o-mini' : 'gemini-1.5-flash', messages: [{ role: 'user', content: 'hello' }] })
+    await client.generate({
+      model: apiKeyRecord.provider.toLowerCase().includes('openai') ? 'gpt-4o-mini' : 'gemini-3.8-flash',
+      messages: [{ role: 'user', content: 'ping' }],
+    })
     return { status: 'HEALTHY', latency: Date.now() - start }
   } catch (error: any) {
     return { status: 'ERROR', message: error.message }
   }
 }
 
-export async function executeAITask(params: { task: string; capability: string; userId: string; maxTokens?: number }) {
-  // Pick the correct provider based on capability
-  let providerName = ''
-  
-  if (params.capability === 'IMAGE_GENERATION') {
-    providerName = 'Midjourney' // Or Replicate, depending on what the user wants. We'll default to OpenAI/Midjourney
-  } else if (params.capability === 'TEXT_GENERATION' || params.capability === 'CODE_GENERATION') {
-    providerName = 'OpenAI'
-  }
+export async function executeAITask(params: {
+  task: string
+  capability: string
+  userId: string
+  preferredProvider?: 'OpenAI' | 'Gemini'
+  systemPrompt?: string
+}) {
+  const cap = (params.capability as AICapability) || 'TEXT_GENERATION'
+  const result = await executeWithFallback({
+    capability: cap,
+    prompt: params.task,
+    systemPrompt: params.systemPrompt,
+    preferredProvider: params.preferredProvider,
+    userId: params.userId,
+  })
 
-  let apiKeyRecord = await prisma.apiKey.findFirst({ where: { provider: providerName } })
-  
-  // Fallback to Gemini if OpenAI is not available for text
-  if (!apiKeyRecord && params.capability === 'TEXT_GENERATION') {
-    apiKeyRecord = await prisma.apiKey.findFirst({ where: { provider: 'Gemini' } })
-  }
-
-  if (!apiKeyRecord) {
-    throw new Error(`CONFIGURATION_REQUIRED: No API key found for capability ${params.capability}`)
-  }
-
-  const client = getProviderClient({ name: apiKeyRecord.provider, apiKey: apiKeyRecord.value })
-  
-  const start = Date.now()
-  let output = ''
-
-  if (params.capability === 'IMAGE_GENERATION') {
-    const response = await client.generateImage({ prompt: params.task })
-    output = JSON.stringify({ url: response.url })
-  } else {
-    const response = await client.generate({
-      model: apiKeyRecord.provider === 'OpenAI' ? 'gpt-4o' : 'gemini-1.5-pro',
-      messages: [{ role: 'user', content: params.task }]
-    })
-    output = response.choices?.[0]?.message?.content || ''
-  }
-  
-  const durationMs = Date.now() - start
-
-  // Log usage
+  // Record usage event
   await prisma.analyticsEvent.create({
     data: {
       name: 'ai_gateway_usage',
-      source: apiKeyRecord.provider,
+      source: result.providerUsed,
       metadata: JSON.stringify({
         userId: params.userId,
         capability: params.capability,
-        requestTokens: client.countTokens ? client.countTokens([{ role: 'user', content: params.task }]) : 0,
-        responseTokens: client.countTokens ? client.countTokens(output) : 0,
-        latencyMs: durationMs,
-        success: true
-      })
-    }
-  })
+        model: result.modelUsed,
+        fallbackOccurred: result.fallbackOccurred,
+        fallbackReason: result.fallbackReason,
+        tokensUsed: result.tokensUsed,
+        estimatedCost: result.estimatedCost,
+        latencyMs: result.durationMs,
+      }),
+    },
+  }).catch(() => null)
 
-  return { output, providerName: apiKeyRecord.provider, taskId: 'real' }
+  return {
+    output: result.output,
+    providerName: result.providerUsed,
+    modelUsed: result.modelUsed,
+    fallbackOccurred: result.fallbackOccurred,
+    estimatedCost: result.estimatedCost,
+  }
 }
 
-export async function testAIProvider(id: string) { 
+export async function testAIProvider(id: string) {
   const health = await providerHealth(id)
   return { status: health.status === 'HEALTHY' ? 'SUCCESS' : 'FAILED', message: health.message }
 }

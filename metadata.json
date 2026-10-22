@@ -1,0 +1,7 @@
+{
+  "name": "TROS — Reality Operation System",
+  "description": "Unified command center for operating websites, automated social media, lead generation, and course creation.",
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
