@@ -59,6 +59,7 @@ interface TaskRecord {
   progress: number
   currentStep?: string
   plan?: string
+  output?: string
   estimatedCost: number
   createdAt: string
   completedAt?: string
@@ -66,6 +67,14 @@ interface TaskRecord {
 }
 
 const EXAMPLE_DIRECTIVES = [
+  {
+    title: 'AI Web Design Masterclass & Funnel',
+    prompt: 'Create a complete beginner course on web design using AI, generate the 12-stage curriculum, lesson scripts, quizzes, capstone brief, and prepare sales page.',
+  },
+  {
+    title: 'Agency Landing Page & Checkout',
+    prompt: 'Build a landing page and checkout for my new course with responsive sections, pricing tiers, and enrollment funnel.',
+  },
   {
     title: 'Real Estate Leads & Site Proposal',
     prompt: 'Find suitable real estate businesses that need websites, research their current online presence, prepare personalized website concepts, generate proposals, add qualified prospects to my CRM, and prepare outreach for my approval.',
@@ -77,10 +86,6 @@ const EXAMPLE_DIRECTIVES = [
   {
     title: 'Weekly Omnichannel Social Blast',
     prompt: 'Plan a 7-day content schedule across Twitter, LinkedIn, and Instagram focusing on AI digital services, generate high-conversion copy, prepare visual assets, and queue for publishing.',
-  },
-  {
-    title: 'Local Google Business Audit & Campaign',
-    prompt: 'Audit local business visibility in the area, draft Google Business Profile optimization updates, generate local search copy, and prepare client onboarding brief.',
   },
 ]
 
@@ -788,6 +793,56 @@ export default function CommandCenterPage() {
                       </div>
                     )}
                   </div>
+
+                  {/* Actionable Output Deliverables */}
+                  {selectedTask.output && (
+                    <div className="p-4 rounded-2xl bg-gradient-to-br from-[#1b1f1c] to-[#141615] border border-[#eaf79f]/30 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#eaf79f] flex items-center gap-1.5">
+                          <Sparkles className="size-3.5" /> Generated Output Deliverables
+                        </span>
+                        <span className="text-[10px] text-white/50">Ready to Ship</span>
+                      </div>
+                      {(() => {
+                        try {
+                          const out = JSON.parse(selectedTask.output)
+                          return (
+                            <div className="space-y-2 text-xs">
+                              {out.title && <p className="font-bold text-white text-sm">{out.title}</p>}
+                              <div className="flex flex-wrap gap-2 pt-1">
+                                {out.studioUrl && (
+                                  <a
+                                    href={out.studioUrl}
+                                    className="px-3 py-1.5 rounded-xl bg-[#eaf79f] text-black font-bold hover:bg-white transition flex items-center gap-1 shadow-sm"
+                                  >
+                                    <Layers className="size-3.5" /> Open Studio
+                                  </a>
+                                )}
+                                {out.learnUrl && (
+                                  <a
+                                    href={out.learnUrl}
+                                    className="px-3 py-1.5 rounded-xl bg-purple-600 text-white font-bold hover:bg-purple-500 transition flex items-center gap-1 shadow-sm"
+                                  >
+                                    <Play className="size-3.5 fill-current" /> Learner Player
+                                  </a>
+                                )}
+                                {out.landingUrl && (
+                                  <a
+                                    href={out.landingUrl}
+                                    className="px-3 py-1.5 rounded-xl bg-white/10 text-white font-bold hover:bg-white/20 transition flex items-center gap-1"
+                                  >
+                                    <Globe2 className="size-3.5" /> Sales Page
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+                          )
+                        } catch {
+                          return <p className="text-xs text-white/70">{selectedTask.output}</p>
+                        }
+                      })()}
+                    </div>
+                  )}
 
                   {/* Live Audit Event Stream */}
                   <div className="space-y-2">

@@ -195,11 +195,23 @@ model WorkflowAlert {
 model Course {
   id               String         @id @default(cuid())
   title            String
+  subtitle         String?
   topic            String
   description      String?
   targetAudience   String?
   prerequisites    String?
   learningOutcomes String?
+  capstoneProject  String?
+  glossary         String?
+  faqs             String?
+  instructorBio    String?
+  price            Float?         @default(99.0)
+  salesHeadline    String?
+  salesPitch       String?
+  emailSequence    String?
+  socialPromo      String?
+  promoVideoPrompt String?
+  coverImageUrl    String?
   generationJobId  String?
   generationStatus String?
   status           String         @default("DRAFT")
@@ -209,8 +221,23 @@ model Course {
   enrollments      Enrollment[]
   payments         PaymentLink[]
   jobs             CourseGenerationJob[]
+  certificates     CourseCertificate[]
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
+}
+
+model CourseCertificate {
+  id              String   @id @default(cuid())
+  certificateCode String   @unique
+  studentName     String
+  studentEmail    String
+  courseTitle     String
+  grade           Float    @default(100.0)
+  skills          String?  // JSON array of verified skills
+  issuedAt        DateTime @default(now())
+  courseId        String
+  course          Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrollmentId    String?
 }
 
 model CourseModule {
@@ -229,6 +256,10 @@ model Lesson {
   position                Int
   youtubeUrl              String?
   script                  String?
+  storyboard              String?
+  captions                String?
+  audioUrl                String?
+  durationSeconds         Int?         @default(360)
   examples                String?
   practicalDemonstrations String?
   exercises               String?
@@ -248,18 +279,21 @@ model Lesson {
 }
 
 model Quiz {
-  id       String @id @default(cuid())
-  prompt   String
-  answer   String
-  lessonId String @unique
-  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  id          String   @id @default(cuid())
+  prompt      String
+  answer      String
+  options     String?  // JSON array of options
+  explanation String?
+  lessonId    String   @unique
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 }
 
 model Assignment {
-  id       String @id @default(cuid())
+  id       String  @id @default(cuid())
   prompt   String
-  lessonId String @unique
-  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  rubric   String? // JSON grading rubric
+  lessonId String  @unique
+  lesson   Lesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 }
 
 model Video {
