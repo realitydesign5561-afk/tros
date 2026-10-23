@@ -41,6 +41,41 @@ export default function ConversationalDesigner() {
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  // Robust blob-based media downloader (prevents Chromium 2MB data: URL download crashes)
+  const downloadMedia = (dataUrl: string | null | undefined, filename: string) => {
+    if (!dataUrl) return
+    try {
+      if (dataUrl.startsWith('data:')) {
+        const parts = dataUrl.split(',')
+        const mimeMatch = parts[0].match(/:(.*?);/)
+        const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream'
+        const binary = atob(parts[1])
+        const array = new Uint8Array(binary.length)
+        for (let i = 0; i < binary.length; i++) {
+          array[i] = binary.charCodeAt(i)
+        }
+        const blob = new Blob([array], { type: mime })
+        const blobUrl = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = blobUrl
+        a.download = filename
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000)
+      } else {
+        const a = document.createElement('a')
+        a.href = dataUrl
+        a.download = filename
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+      }
+    } catch (e) {
+      console.error('Download error:', e)
+    }
+  }
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
@@ -95,8 +130,11 @@ export default function ConversationalDesigner() {
       }
 
       if (data.imageUrl) {
-        setVersions((v) => [...v, data.imageUrl])
-        setActiveVersion((v) => v.length)
+        setVersions((v) => {
+          const next = [...v, data.imageUrl]
+          setActiveVersion(next.length - 1)
+          return next
+        })
         setMessages((m) => [
           ...m,
           {
@@ -120,8 +158,11 @@ export default function ConversationalDesigner() {
         })
         const dataFallback = await resFallback.json()
         if (dataFallback.outputUrl) {
-          setVersions((v) => [...v, dataFallback.outputUrl])
-          setActiveVersion((v) => v.length)
+          setVersions((v) => {
+            const next = [...v, dataFallback.outputUrl]
+            setActiveVersion(next.length - 1)
+            return next
+          })
           setMessages((m) => [
             ...m,
             { role: 'agent', text: 'Design created via AI Gateway fallback.' },
@@ -202,39 +243,39 @@ export default function ConversationalDesigner() {
   const redo = () => setActiveVersion(Math.min(versions.length - 1, activeVersion + 1))
 
   return (
-    <div className="flex h-screen bg-[#0e100f] text-white p-3 md:p-6">
-      <div className="flex w-full h-full bg-[#141615] rounded-[2.5rem] shadow-2xl border border-white/10 overflow-hidden">
-        {/* Left Chat & Controls Panel */}
-        <div className="w-full md:w-[420px] border-r border-white/10 bg-[#141615] flex flex-col justify-between">
+    <div className="flex h-[calc(100vh-4rem)] bg-[#090b10] text-slate-200 p-2 sm:p-3">
+      <div className="flex w-full h-full bg-[#0f131a] rounded-lg shadow-sm border border-[#1a202c] overflow-hidden">
+        {/* Left Chat & Controls Panel (Compact, Non-Bulky) */}
+        <div className="w-full md:w-[360px] border-r border-[#1a202c] bg-[#0c0f16] flex flex-col justify-between">
           <div>
             {/* Header */}
-            <div className="p-5 border-b border-white/10 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="size-10 bg-[#eaf79f] text-black rounded-xl flex items-center justify-center font-bold">
-                  <Sparkles className="size-5" />
+            <div className="p-3 border-b border-[#1a202c] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="size-7 bg-blue-600 text-white rounded-md flex items-center justify-center font-bold">
+                  <Sparkles className="size-3.5" />
                 </div>
                 <div>
-                  <h2 className="font-bold text-lg text-white">Creative Studio</h2>
-                  <p className="text-[11px] text-white/50">Gemini Nano Banana 2.1 & Omni Flash</p>
+                  <h2 className="font-bold text-xs text-white">Creative Studio</h2>
+                  <p className="text-[10px] text-slate-400">Gemini Nano Banana 2.1 &amp; Omni Flash</p>
                 </div>
               </div>
             </div>
 
             {/* Model & Aspect Ratio Config Bar */}
-            <div className="p-4 bg-white/5 border-b border-white/5 space-y-3">
-              <div className="flex items-center justify-between text-xs font-semibold text-white/80">
-                <span className="flex items-center gap-1.5">
-                  <Ratio className="size-3.5 text-[#eaf79f]" /> Aspect Ratio
+            <div className="p-2.5 bg-[#090b10] border-b border-[#1a202c] space-y-2">
+              <div className="flex items-center justify-between text-[11px] font-medium text-slate-300">
+                <span className="flex items-center gap-1">
+                  <Ratio className="size-3 text-blue-400" /> Aspect Ratio
                 </span>
                 <div className="flex gap-1">
                   {(['1:1', '16:9', '9:16', '4:3', '3:4'] as const).map((ratio) => (
                     <button
                       key={ratio}
                       onClick={() => setAspectRatio(ratio)}
-                      className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition ${
+                      className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-medium transition ${
                         aspectRatio === ratio
-                          ? 'bg-[#eaf79f] text-black'
-                          : 'bg-white/10 text-white/60 hover:text-white'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-slate-800 text-slate-400 hover:text-white'
                       }`}
                     >
                       {ratio}
@@ -243,19 +284,19 @@ export default function ConversationalDesigner() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-xs font-semibold text-white/80">
-                <span className="flex items-center gap-1.5">
-                  <Maximize2 className="size-3.5 text-[#eaf79f]" /> Resolution
+              <div className="flex items-center justify-between text-[11px] font-medium text-slate-300">
+                <span className="flex items-center gap-1">
+                  <Maximize2 className="size-3 text-blue-400" /> Resolution
                 </span>
                 <div className="flex gap-1">
                   {(['1K', '2K', '4K'] as const).map((sz) => (
                     <button
                       key={sz}
                       onClick={() => setImageSize(sz)}
-                      className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold transition ${
+                      className={`px-2 py-0.5 rounded text-[10px] font-mono font-medium transition ${
                         imageSize === sz
-                          ? 'bg-white text-black'
-                          : 'bg-white/10 text-white/60 hover:text-white'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-slate-800 text-slate-400 hover:text-white'
                       }`}
                     >
                       {sz}
@@ -266,60 +307,60 @@ export default function ConversationalDesigner() {
             </div>
 
             {/* Messages Scroll Area */}
-            <div className="p-4 space-y-4 max-h-[calc(100vh-22rem)] overflow-y-auto">
+            <div className="p-3 space-y-2.5 max-h-[calc(100vh-20rem)] overflow-y-auto">
               {messages.map((m, i) => (
                 <div
                   key={i}
-                  className={`p-3.5 rounded-2xl text-xs sm:text-sm font-medium leading-relaxed max-w-[88%] ${
+                  className={`p-2.5 rounded-lg text-xs leading-relaxed max-w-[90%] ${
                     m.role === 'user'
-                      ? 'bg-white text-black ml-auto'
-                      : 'bg-white/5 border border-white/10 text-white/90 shadow-sm'
+                      ? 'bg-blue-600 text-white ml-auto'
+                      : 'bg-[#12161f] border border-[#1e2533] text-slate-200 shadow-xs'
                   }`}
                 >
                   {m.text}
                 </div>
               ))}
               {loading && (
-                <div className="p-3.5 rounded-2xl max-w-[85%] bg-white/5 border border-white/10 flex items-center gap-2 text-xs text-white/60">
-                  <Loader2 className="size-4 animate-spin text-[#eaf79f]" />
-                  <span>Synthesizing with gemini-nano-banana-2.1 ({imageSize})...</span>
+                <div className="p-2.5 rounded-lg max-w-[85%] bg-[#12161f] border border-[#1e2533] flex items-center gap-2 text-xs text-slate-400">
+                  <Loader2 className="size-3.5 animate-spin text-blue-400" />
+                  <span>Synthesizing ({imageSize})...</span>
                 </div>
               )}
               {animatingVideo && (
-                <div className="p-3.5 rounded-2xl max-w-[85%] bg-white/5 border border-purple-500/30 flex items-center gap-2 text-xs text-purple-300">
-                  <Loader2 className="size-4 animate-spin text-purple-400" />
-                  <span>Generating motion with gemini-omni-1.1-flash...</span>
+                <div className="p-2.5 rounded-lg max-w-[85%] bg-purple-950/20 border border-purple-500/30 flex items-center gap-2 text-xs text-purple-300">
+                  <Loader2 className="size-3.5 animate-spin text-purple-400" />
+                  <span>Omni Flash motion rendering...</span>
                 </div>
               )}
             </div>
           </div>
 
           {/* Prompt & Input Box */}
-          <div className="p-4 bg-black/40 border-t border-white/10">
+          <div className="p-3 bg-[#090b10] border-t border-[#1a202c]">
             {uploadedImage && (
-              <div className="flex items-center gap-2 mb-2 p-1.5 bg-white/5 rounded-xl border border-white/10">
-                <img src={uploadedImage} alt="Ref" className="size-8 rounded-lg object-cover" />
-                <span className="text-[11px] text-white/70 truncate flex-1">Reference image active for editing</span>
+              <div className="flex items-center gap-2 mb-2 p-1 bg-slate-900 rounded border border-slate-800">
+                <img src={uploadedImage} alt="Ref" className="size-7 rounded object-cover" />
+                <span className="text-[10px] text-slate-400 truncate flex-1">Reference active</span>
                 <button
                   onClick={() => {
                     setUploadedImage(null)
                     setUploadedBase64(null)
                   }}
-                  className="text-xs text-white/40 hover:text-white px-1.5"
+                  className="text-xs text-slate-500 hover:text-white px-1"
                 >
                   ✕
                 </button>
               </div>
             )}
 
-            <div className="relative flex items-center bg-white/5 rounded-2xl border border-white/15 focus-within:border-[#eaf79f] transition-all p-1">
+            <div className="relative flex items-center bg-[#12161f] rounded-md border border-[#1e2533] focus-within:border-blue-500 transition-all p-0.5">
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="p-3 text-white/50 hover:text-white transition"
-                title="Upload image to edit with Gemini"
+                className="p-2 text-slate-400 hover:text-white transition"
+                title="Upload image"
               >
-                <Upload className="size-4" />
+                <Upload className="size-3.5" />
               </button>
               <input
                 type="file"
@@ -330,46 +371,46 @@ export default function ConversationalDesigner() {
               />
 
               <input
-                className="flex-1 bg-transparent px-2 text-xs sm:text-sm font-medium outline-none text-white placeholder:text-white/40"
+                className="flex-1 bg-transparent px-1.5 text-xs outline-none text-white placeholder:text-slate-500"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="e.g. Luxury real estate flyer with gold foil..."
+                placeholder="Describe design (e.g. Luxury real estate flyer)..."
                 onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
               />
 
               <button
-                className="p-3 bg-[#eaf79f] text-black rounded-xl hover:brightness-95 transition disabled:opacity-40 font-bold"
+                className="p-2 bg-blue-600 hover:bg-blue-500 text-white rounded transition disabled:opacity-40 font-medium"
                 onClick={sendMessage}
                 disabled={!input.trim() || loading}
               >
-                <Send className="size-4" />
+                <Send className="size-3.5" />
               </button>
             </div>
           </div>
         </div>
 
         {/* Right Canvas & Video Preview Panel */}
-        <div className="flex-1 flex flex-col p-6 bg-[#0a0c0b] relative overflow-y-auto">
+        <div className="flex-1 flex flex-col p-4 bg-[#090b10] relative overflow-y-auto">
           {/* Top Actions Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-1.5">
               <button
                 onClick={undo}
                 disabled={activeVersion === 0 || versions.length === 0}
-                className="px-4 py-2 bg-white/10 rounded-full text-xs font-bold disabled:opacity-40 hover:bg-white/20 transition"
+                className="px-2.5 py-1 bg-slate-800 rounded text-xs font-medium disabled:opacity-30 hover:bg-slate-700 transition"
               >
                 Undo
               </button>
               <button
                 onClick={redo}
                 disabled={activeVersion === versions.length - 1 || versions.length === 0}
-                className="px-4 py-2 bg-white/10 rounded-full text-xs font-bold disabled:opacity-40 hover:bg-white/20 transition"
+                className="px-2.5 py-1 bg-slate-800 rounded text-xs font-medium disabled:opacity-30 hover:bg-slate-700 transition"
               >
                 Redo
               </button>
               {versions.length > 0 && (
-                <span className="text-xs text-white/40 font-mono ml-2">
-                  v{activeVersion + 1} of {versions.length}
+                <span className="text-[11px] text-slate-500 font-mono ml-1">
+                  v{activeVersion + 1}/{versions.length}
                 </span>
               )}
             </div>
@@ -377,107 +418,108 @@ export default function ConversationalDesigner() {
             <div className="flex items-center gap-2">
               {/* Animate into Video Omni Flash CTA */}
               {versions.length > 0 && (
-                <div className="flex items-center gap-1.5 bg-purple-500/10 border border-purple-500/30 p-1 rounded-full">
+                <div className="flex items-center gap-1 bg-purple-950/20 border border-purple-500/30 p-0.5 rounded-md">
                   <select
                     value={videoAspect}
                     onChange={(e) => setVideoAspect(e.target.value as any)}
-                    className="bg-transparent text-[11px] font-bold text-purple-300 px-2 outline-none cursor-pointer"
+                    className="bg-transparent text-[11px] font-mono text-purple-300 px-1 outline-none cursor-pointer"
                   >
-                    <option value="16:9" className="bg-[#141615]">16:9 YouTube</option>
-                    <option value="9:16" className="bg-[#141615]">9:16 Shorts</option>
+                    <option value="16:9" className="bg-[#0f131a]">16:9</option>
+                    <option value="9:16" className="bg-[#0f131a]">9:16</option>
                   </select>
                   <button
                     onClick={animateCurrentDesign}
                     disabled={animatingVideo}
-                    className="px-4 py-1.5 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-full transition flex items-center gap-1.5 shadow-md disabled:opacity-50"
+                    className="px-2.5 py-1 bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs rounded transition flex items-center gap-1 disabled:opacity-50"
                   >
-                    <Video className="size-3.5" />
-                    <span>Animate Video (Omni Flash)</span>
+                    <Video className="size-3" />
+                    <span>Animate Video</span>
                   </button>
                 </div>
               )}
 
               {versions.length > 0 && (
-                <a
-                  href={versions[activeVersion]}
-                  download={`tros-design-${activeVersion + 1}.png`}
-                  className="px-5 py-2 bg-[#eaf79f] text-black font-bold text-xs rounded-full hover:brightness-95 transition flex items-center gap-1.5 shadow-md"
+                <button
+                  onClick={() => downloadMedia(versions[activeVersion], `tros-design-${activeVersion + 1}.png`)}
+                  className="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs rounded transition flex items-center gap-1 shadow-xs cursor-pointer"
                 >
-                  <Download className="size-3.5" />
+                  <Download className="size-3" />
                   Download PNG
-                </a>
+                </button>
               )}
             </div>
           </div>
 
-          {/* Visual Display: Image & Generated Video */}
-          <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-[460px]">
+          {/* Visual Display: Image & Generated Video (Compact, High Density) */}
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-3 min-h-[380px]">
             {/* Image Canvas */}
-            <div className="bg-[#141615] rounded-[2rem] border border-white/10 p-4 flex flex-col items-center justify-center overflow-hidden relative shadow-inner">
-              <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-black/60 px-2.5 py-1 rounded-full border border-white/10 text-white/80">
+            <div className="bg-[#0c0f16] rounded-lg border border-[#1a202c] p-3 flex flex-col items-center justify-center overflow-hidden relative shadow-inner">
+              <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-black/70 px-2 py-0.5 rounded border border-slate-800 text-slate-300">
                   Graphic Canvas
                 </span>
                 {versions[activeVersion] && (
-                  <span className="text-[10px] font-bold uppercase tracking-wider bg-[#eaf79f]/20 text-[#eaf79f] px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-mono font-semibold uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20 px-1.5 py-0.2 rounded">
                     {aspectRatio} · {imageSize}
                   </span>
                 )}
               </div>
 
-              {versions.length > 0 ? (
+              {versions.length > 0 && versions[activeVersion] ? (
                 <img
                   src={versions[activeVersion]}
                   alt="Active Design"
-                  className="max-w-full max-h-[500px] object-contain rounded-2xl shadow-2xl"
+                  className="max-w-full max-h-[440px] object-contain rounded border border-slate-800 shadow-md"
                 />
               ) : (
-                <div className="text-center text-white/40 flex flex-col items-center p-8">
-                  <ImageIcon className="size-14 mb-3 opacity-30 text-[#eaf79f]" />
-                  <p className="font-semibold text-sm">No design rendered yet</p>
-                  <p className="text-xs text-white/30 max-w-xs mt-1">
-                    Upload a flyer to restyle or enter a prompt on the left to generate with Gemini Nano Banana 2.1.
+                <div className="text-center text-slate-500 flex flex-col items-center p-6">
+                  <ImageIcon className="size-10 mb-2 opacity-30 text-blue-400" />
+                  <p className="font-medium text-xs text-slate-300">No design rendered yet</p>
+                  <p className="text-[11px] text-slate-500 max-w-xs mt-0.5">
+                    Upload an image or enter a prompt on the left to synthesize with Nano Banana 2.1.
                   </p>
                 </div>
               )}
             </div>
 
             {/* Omni Flash Video Preview */}
-            <div className="bg-[#141615] rounded-[2rem] border border-white/10 p-4 flex flex-col items-center justify-center overflow-hidden relative shadow-inner">
-              <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-black/60 px-2.5 py-1 rounded-full border border-white/10 text-white/80 flex items-center gap-1.5">
-                  <Video className="size-3 text-purple-400" /> Omni Flash Motion Video
+            <div className="bg-[#0c0f16] rounded-lg border border-[#1a202c] p-3 flex flex-col items-center justify-center overflow-hidden relative shadow-inner">
+              <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider bg-black/70 px-2 py-0.5 rounded border border-slate-800 text-slate-300 flex items-center gap-1">
+                  <Video className="size-3 text-purple-400" /> Omni Flash Motion
                 </span>
                 {generatedVideoUrl && (
-                  <span className="text-[10px] font-bold uppercase tracking-wider bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-mono font-semibold uppercase bg-purple-500/10 text-purple-300 border border-purple-500/20 px-1.5 py-0.2 rounded">
                     720p · {videoAspect}
                   </span>
                 )}
               </div>
 
               {generatedVideoUrl ? (
-                <div className="w-full flex flex-col items-center justify-center space-y-3">
+                <div className="w-full flex flex-col items-center justify-center space-y-2.5">
                   <video
+                    key={generatedVideoUrl}
                     src={generatedVideoUrl}
                     controls
                     autoPlay
+                    muted
+                    playsInline
                     loop
-                    className="max-w-full max-h-[460px] rounded-2xl border border-white/10 shadow-2xl"
+                    className="max-w-full max-h-[400px] rounded border border-slate-800 shadow-md"
                   />
-                  <a
-                    href={generatedVideoUrl}
-                    download="tros-animated-video.mp4"
-                    className="text-xs font-bold text-purple-300 hover:text-white flex items-center gap-1.5"
+                  <button
+                    onClick={() => downloadMedia(generatedVideoUrl, 'tros-animated-video.mp4')}
+                    className="text-xs font-medium text-purple-300 hover:text-white flex items-center gap-1 cursor-pointer bg-slate-900 hover:bg-slate-800 px-3 py-1 rounded border border-purple-500/30 transition"
                   >
-                    <Download className="size-3.5" /> Download Video MP4
-                  </a>
+                    <Download className="size-3" /> Download MP4 Video
+                  </button>
                 </div>
               ) : (
-                <div className="text-center text-white/40 flex flex-col items-center p-8">
-                  <Play className="size-14 mb-3 opacity-30 text-purple-400" />
-                  <p className="font-semibold text-sm">Omni Flash Video Standby</p>
-                  <p className="text-xs text-white/30 max-w-xs mt-1">
-                    When you click &quot;Animate Video&quot;, Gemini Omni Flash generates motion frames directly from your active image using the Interactions API.
+                <div className="text-center text-slate-500 flex flex-col items-center p-6">
+                  <Play className="size-10 mb-2 opacity-30 text-purple-400" />
+                  <p className="font-medium text-xs text-slate-300">Omni Flash Video Standby</p>
+                  <p className="text-[11px] text-slate-500 max-w-xs mt-0.5">
+                    Click &quot;Animate Video&quot; above to generate motion frames directly from your image.
                   </p>
                 </div>
               )}

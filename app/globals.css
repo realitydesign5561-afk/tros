@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
@@ -37,81 +37,80 @@
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-sm: calc(var(--radius) * 0.7);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) * 1.3);
+  --radius-xl: calc(var(--radius) * 1.6);
+  --radius-2xl: calc(var(--radius) * 2);
 }
 
 :root {
-  color-scheme: light;
-  --background: #ffffff;
-  --foreground: #1B1E1C;
-  --card: #F4F5F4;
-  --card-foreground: #1B1E1C;
-  --popover: #ffffff;
-  --popover-foreground: #1B1E1C;
-  --primary: #1B1E1C;
+  color-scheme: dark;
+  --background: #090b10;
+  --foreground: #f1f5f9;
+  --card: #0f131a;
+  --card-foreground: #f1f5f9;
+  --popover: #0f131a;
+  --popover-foreground: #f1f5f9;
+  --primary: #2563eb;
   --primary-foreground: #ffffff;
-  --secondary: #EAF79F;
-  --secondary-foreground: #1B1E1C;
-  --muted: #F4F5F4;
-  --muted-foreground: #737875;
-  --accent: #EAF79F;
-  --accent-foreground: #1B1E1C;
-  --destructive: oklch(0.58 0.2 28);
-  --border: #E5E7E5;
-  --input: #E5E7E5;
-  --ring: #1B1E1C;
-  --radius: 1.25rem;
-  --sidebar: #1B1E1C;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #383B39;
+  --secondary: #161b24;
+  --secondary-foreground: #f1f5f9;
+  --muted: #161b24;
+  --muted-foreground: #717d96;
+  --accent: #3b82f6;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --border: #1a202c;
+  --input: #1a202c;
+  --ring: #3b82f6;
+  --radius: 0.5rem;
+  --sidebar: #0b0e14;
+  --sidebar-foreground: #f1f5f9;
+  --sidebar-primary: #2563eb;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #383B39;
+  --sidebar-accent: #161b24;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #383B39;
+  --sidebar-border: #1a202c;
 }
 
 .dark {
-  /* Forcing light theme effectively by keeping similar variables or just letting it be for now. The user requested this exact design across all pages. */
   color-scheme: dark;
-  --background: #1B1E1C;
-  --foreground: #ffffff;
-  --card: #272A28;
-  --card-foreground: #ffffff;
-  --popover: #272A28;
-  --popover-foreground: #ffffff;
-  --primary: #EAF79F;
-  --primary-foreground: #1B1E1C;
-  --secondary: #383B39;
-  --secondary-foreground: #ffffff;
-  --muted: #383B39;
-  --muted-foreground: #A0A5A2;
-  --accent: #383B39;
+  --background: #090b10;
+  --foreground: #f1f5f9;
+  --card: #0f131a;
+  --card-foreground: #f1f5f9;
+  --popover: #0f131a;
+  --popover-foreground: #f1f5f9;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --secondary: #161b24;
+  --secondary-foreground: #f1f5f9;
+  --muted: #161b24;
+  --muted-foreground: #717d96;
+  --accent: #3b82f6;
   --accent-foreground: #ffffff;
-  --border: #383B39;
-  --input: #383B39;
-  --sidebar: #1B1E1C;
-  --sidebar-foreground: #ffffff;
+  --border: #1a202c;
+  --input: #1a202c;
+  --sidebar: #0b0e14;
+  --sidebar-foreground: #f1f5f9;
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/40;
   }
   html {
     scroll-behavior: smooth;
-    background-color: #A9B3A7; /* Sage green background */
+    background-color: #090b10;
   }
   body {
     @apply text-foreground;
-    background-color: #A9B3A7;
+    background-color: #090b10;
     min-width: 320px;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
   }
   code, .font-mono {
     font-family: 'DM Mono', monospace;
@@ -126,4 +125,3 @@
     font-size: 16px;
   }
 }
-

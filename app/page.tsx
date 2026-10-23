@@ -1,114 +1,130 @@
 import { getServerSession } from 'next-auth'
-import { redirect } from 'next/navigation'
 import { authOptions } from '@/lib/auth'
 import { AuthGuard } from '@/components/auth-guard'
 import { DashboardShell } from '@/components/dashboard-shell'
 import { DashboardHome } from '@/components/dashboard-home'
 import Link from 'next/link'
-import { ArrowRight, PlayCircle, Layers, Zap, Shield, Sparkles } from 'lucide-react'
+import { ArrowRight, PlayCircle, Layers, Zap, Shield, Sparkles, Terminal, PlaySquare, Globe2 } from 'lucide-react'
 
 export default async function Page() {
   const session = await getServerSession(authOptions).catch(() => null)
-  
+
   if (session) {
-    return <AuthGuard><DashboardShell><DashboardHome /></DashboardShell></AuthGuard>
+    return (
+      <AuthGuard>
+        <DashboardShell>
+          <DashboardHome />
+        </DashboardShell>
+      </AuthGuard>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-[#A9B3A7] text-[#1B1E1C] selection:bg-[#EAF79F]/80 p-4 md:p-8 flex flex-col">
-      <div className="flex-1 w-full max-w-[1600px] mx-auto rounded-[2.5rem] bg-white shadow-2xl overflow-hidden flex flex-col relative">
-        
-        {/* Header */}
-        <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
-          <div className="container mx-auto flex h-24 items-center justify-between px-8">
-            <div className="flex items-center gap-2 font-bold text-2xl tracking-tighter">
-              <div className="size-10 bg-[#1B1E1C] text-[#EAF79F] rounded-full flex items-center justify-center">
-                <Sparkles className="h-5 w-5" />
-              </div>
-              TROS
+    <div className="min-h-screen bg-[#090b10] text-slate-200 selection:bg-blue-600/30 selection:text-white flex flex-col">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-[#0b0e14]/90 backdrop-blur-md border-b border-[#1a202c]">
+        <div className="max-w-6xl mx-auto flex h-14 items-center justify-between px-4 sm:px-6">
+          <div className="flex items-center gap-2 font-bold text-base text-white">
+            <div className="size-7 bg-blue-600 text-white rounded-md flex items-center justify-center shadow-xs">
+              <Sparkles className="h-4 w-4" />
             </div>
-            <nav className="flex items-center gap-6">
-              <Link href="/login" className="text-sm font-semibold text-gray-500 hover:text-black transition-colors">Sign In</Link>
-              <Link href="/auth/signup" className="rounded-full bg-[#1B1E1C] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-black">
-                Get Started
-              </Link>
-            </nav>
+            <span>TROS</span>
+            <span className="text-[10px] font-mono text-blue-400 bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.2 rounded">
+              OS
+            </span>
           </div>
-        </header>
+          <nav className="flex items-center gap-3">
+            <Link
+              href="/login"
+              className="text-xs font-medium text-slate-300 hover:text-white transition-colors"
+            >
+              Sign In
+            </Link>
+            <Link
+              href="/auth/signup"
+              className="rounded-md bg-blue-600 hover:bg-blue-500 px-3.5 py-1.5 text-xs font-semibold text-white transition-all shadow-xs active:scale-95"
+            >
+              Get Started
+            </Link>
+          </nav>
+        </div>
+      </header>
 
-        {/* Hero Section */}
-        <main className="flex-1 container mx-auto px-8 overflow-y-auto">
-          <section className="relative flex flex-col items-center justify-center pt-24 pb-20 text-center">
-            
-            <h1 className="max-w-4xl text-6xl font-light tracking-tight sm:text-8xl leading-[1.1]">
-              The Reality <br/> <span className="font-medium">Operations System</span>
-            </h1>
-            <p className="mx-auto mt-8 max-w-2xl text-lg text-gray-500 font-medium sm:text-xl">
-              One unified command center to manage your websites, automated social media, lead generation, and course creation—all powered by autonomous AI agents.
-            </p>
-            
-            <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:justify-center">
-              <Link href="/auth/signup" className="flex items-center justify-center gap-2 rounded-full bg-[#EAF79F] px-8 py-4 text-base font-bold text-black transition hover:brightness-95">
-                Start Building <ArrowRight className="h-5 w-5" />
-              </Link>
-              <Link href="/login" className="flex items-center justify-center gap-2 rounded-full bg-[#F4F5F4] px-8 py-4 text-base font-bold text-black transition hover:bg-gray-200">
-                <PlayCircle className="h-5 w-5" /> Sign In
-              </Link>
-            </div>
+      {/* Hero Section (Compact & Straight to the Point) */}
+      <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16 flex flex-col items-center justify-center text-center">
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium mb-5">
+          <Terminal className="size-3" />
+          Autonomous Multi-Agent AI Business Operating System
+        </div>
 
-            {/* Video Mockup */}
-            <div className="mt-24 w-full max-w-5xl overflow-hidden rounded-[2.5rem] border border-gray-100 bg-[#F4F5F4] shadow-2xl relative aspect-video flex items-center justify-center">
-              <video 
-                src="https://videos.pexels.com/video-files/3129957/3129957-uhd_2560_1440_25fps.mp4" 
-                autoPlay loop muted playsInline
-                className="absolute inset-0 h-full w-full object-cover mix-blend-multiply opacity-50"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-              <div className="absolute bottom-8 left-8 text-left text-white">
-                <h3 className="text-3xl font-medium tracking-tight">Intelligent Operations</h3>
-                <p className="mt-2 text-white/80 font-medium">Watch your AI agents scale your business 24/7.</p>
-              </div>
-            </div>
-          </section>
+        <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight sm:text-5xl text-white leading-tight">
+          The Reality Operations System
+        </h1>
 
-          {/* Features Section */}
-          <section className="py-24 max-w-6xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-light tracking-tight sm:text-5xl">Everything you need to scale.</h2>
-              <p className="mt-4 text-gray-500 font-medium">TROS replaces a dozen tools with one intelligent system.</p>
+        <p className="mx-auto mt-3 max-w-xl text-xs sm:text-sm text-slate-400 leading-relaxed">
+          Unified command center to orchestrate websites, autonomous YouTube media, lead generation,
+          and AI course production—coordinated by 20 multi-agent workflows.
+        </p>
+
+        <div className="mt-6 flex flex-col sm:flex-row gap-2.5 sm:justify-center w-full max-w-xs">
+          <Link
+            href="/auth/signup"
+            className="flex items-center justify-center gap-1.5 rounded-md bg-blue-600 hover:bg-blue-500 px-4 py-2 text-xs font-semibold text-white transition-all shadow-xs"
+          >
+            Start Building <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+          <Link
+            href="/login"
+            className="flex items-center justify-center gap-1.5 rounded-md bg-[#12151c] hover:bg-slate-800 border border-[#1a202c] px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white transition-all"
+          >
+            <PlayCircle className="h-3.5 w-3.5" /> Sign In
+          </Link>
+        </div>
+
+        {/* Feature Cards (Compact, Non-Bulky) */}
+        <section className="mt-12 w-full grid gap-3 sm:grid-cols-3 text-left">
+          <div className="rounded-lg bg-[#0f131a] border border-[#1a202c] p-4 flex flex-col justify-between">
+            <div>
+              <div className="size-8 bg-blue-500/10 border border-blue-500/20 rounded-md flex items-center justify-center mb-3 text-blue-400">
+                <PlaySquare className="h-4 w-4" />
+              </div>
+              <h3 className="text-sm font-bold text-white mb-1">YouTube OS</h3>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                Automated Christian content research, algorithm retention hooks, Omni Flash video, and Nano Banana thumbnails.
+              </p>
             </div>
-            
-            <div className="grid gap-6 md:grid-cols-3">
-              <div className="rounded-[2rem] bg-[#F4F5F4] p-10 transition hover:bg-gray-100 flex flex-col h-full">
-                <div className="size-16 bg-white rounded-2xl flex items-center justify-center mb-6 shadow-sm">
-                  <Layers className="h-8 w-8 text-[#1B1E1C]" />
-                </div>
-                <h3 className="text-2xl font-semibold mb-4">Automated Funnels</h3>
-                <p className="text-gray-500 font-medium leading-relaxed">Launch entire websites, sales pages, and lead capture forms instantly with our AI Website Factory.</p>
+          </div>
+
+          <div className="rounded-lg bg-[#0f131a] border border-[#1a202c] p-4 flex flex-col justify-between">
+            <div>
+              <div className="size-8 bg-blue-500/10 border border-blue-500/20 rounded-md flex items-center justify-center mb-3 text-blue-400">
+                <Globe2 className="h-4 w-4" />
               </div>
-              <div className="rounded-[2rem] bg-[#EAF79F] p-10 transition hover:brightness-95 flex flex-col h-full">
-                <div className="size-16 bg-white rounded-2xl flex items-center justify-center mb-6 shadow-sm">
-                  <Zap className="h-8 w-8 text-[#1B1E1C]" />
-                </div>
-                <h3 className="text-2xl font-semibold mb-4">AI Social Growth</h3>
-                <p className="text-gray-700 font-medium leading-relaxed">Connect your accounts and let TROS generate, schedule, and engage with content 24/7 on autopilot.</p>
-              </div>
-              <div className="rounded-[2rem] bg-[#1B1E1C] p-10 transition hover:bg-black text-white flex flex-col h-full">
-                <div className="size-16 bg-[#383B39] rounded-2xl flex items-center justify-center mb-6 shadow-sm">
-                  <Shield className="h-8 w-8 text-[#EAF79F]" />
-                </div>
-                <h3 className="text-2xl font-semibold mb-4">Secure Operations</h3>
-                <p className="text-gray-400 font-medium leading-relaxed">Enterprise-grade security, RBAC roles, and unified analytics across your entire digital presence.</p>
-              </div>
+              <h3 className="text-sm font-bold text-white mb-1">Website Factory</h3>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                Build full-stack Next.js web applications, custom domains, and deployable live previews from prompts.
+              </p>
             </div>
-          </section>
-        </main>
-        
-        {/* Footer */}
-        <footer className="border-t border-gray-100 py-10 text-center text-sm font-medium text-gray-400 bg-white z-10">
-          <p>© 2026 Reality Design. All rights reserved.</p>
-        </footer>
-      </div>
+          </div>
+
+          <div className="rounded-lg bg-[#0f131a] border border-[#1a202c] p-4 flex flex-col justify-between">
+            <div>
+              <div className="size-8 bg-blue-500/10 border border-blue-500/20 rounded-md flex items-center justify-center mb-3 text-blue-400">
+                <Terminal className="h-4 w-4" />
+              </div>
+              <h3 className="text-sm font-bold text-white mb-1">20 AI Agents</h3>
+              <p className="text-slate-400 text-xs leading-relaxed">
+                Autonomous multi-agent execution with dependency graphs, provider fallback, and usage tracking.
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-[#1a202c] py-4 text-center text-xs text-slate-500 bg-[#0b0e14]">
+        <p>© 2026 TROS Reality Operations System. All rights reserved.</p>
+      </footer>
     </div>
   )
 }

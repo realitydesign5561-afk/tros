@@ -49,6 +49,8 @@ export default async function FactoryProjectPage({ params }: { params: Promise<{
             blueprint={project.blueprint || '<!-- Scaffolding HTML -->' }
             status={project.status}
             deploymentUrl={project.deploymentUrl}
+            domain={project.domain}
+            repositoryUrl={project.repositoryUrl}
           />
 
           {/* Vercel & GitHub Operations */}
